@@ -1,0 +1,14 @@
+{
+    "name": "booknest",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "prepare": "husky install",
+        "frontend:lint-staged": "cd frontend && npm run lint-staged",
+        "backend:format": "cd backend && mvnw spring-javaformat:apply"
+    },
+    "devDependencies": {
+        "husky": "^8.0.3"
+    }
+}
