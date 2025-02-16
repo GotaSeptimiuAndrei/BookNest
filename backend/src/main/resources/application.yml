@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/booknest
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+rsa:
+  public-key: classpath:certs/public_key.pem
+  private-key: classpath:certs/private_key.pem
