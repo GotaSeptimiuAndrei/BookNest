@@ -1,6 +1,7 @@
 package backend.service;
 
 import backend.dto.response.TokenResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -11,19 +12,14 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class TokenService {
 
 	private final JwtEncoder encoder;
 
 	private final UserService userService;
-
-	public TokenService(JwtEncoder encoder, UserService userService) {
-		this.encoder = encoder;
-		this.userService = userService;
-	}
 
 	public TokenResponse generateToken(Authentication authentication) {
 		Instant now = Instant.now();
@@ -35,7 +31,7 @@ public class TokenService {
 		List<String> roles = authentication.getAuthorities()
 			.stream()
 			.map(GrantedAuthority::getAuthority)
-			.collect(Collectors.toList());
+			.toList();
 
 		JwtClaimsSet claims = JwtClaimsSet.builder()
 			.issuer("self")

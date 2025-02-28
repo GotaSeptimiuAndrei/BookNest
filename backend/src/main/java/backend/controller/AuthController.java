@@ -6,7 +6,7 @@ import backend.utils.converter.UserConverter;
 import backend.dto.response.TokenResponse;
 import backend.service.TokenService;
 import backend.service.UserService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
 @RequestMapping("/api/auth")
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class AuthController {
 
