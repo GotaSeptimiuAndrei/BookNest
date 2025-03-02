@@ -84,9 +84,12 @@ public class SecurityConfiguration {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http.cors(c -> c.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(
-					auth -> auth.requestMatchers("/api/auth/**").permitAll().requestMatchers("/api/books/**")
-							.permitAll().anyRequest().authenticated())
+			.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**")
+				.permitAll()
+				.requestMatchers("/api/books/**")
+				.permitAll()
+				.anyRequest()
+				.authenticated())
 			.oauth2ResourceServer(
 					oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

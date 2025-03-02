@@ -14,49 +14,46 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookService {
 
-    private final BookRepository bookRepository;
+	private final BookRepository bookRepository;
 
-    public List<BookDTO> getAllBooks() {
-        return bookRepository.findAll()
-                .stream()
-                .map(BookConverter::convertToDto)
-                .toList();
-    }
+	public List<BookDTO> getAllBooks() {
+		return bookRepository.findAll().stream().map(BookConverter::convertToDto).toList();
+	}
 
-    public BookDTO getBookById(Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
-        return BookConverter.convertToDto(book);
-    }
+	public BookDTO getBookById(Long id) {
+		Book book = bookRepository.findById(id)
+			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
+		return BookConverter.convertToDto(book);
+	}
 
-    public BookDTO saveBook(BookDTO bookDTO) {
+	public BookDTO saveBook(BookDTO bookDTO) {
 
-        Book book = BookConverter.convertToEntity(bookDTO);
+		Book book = BookConverter.convertToEntity(bookDTO);
 
-        Book savedBook = bookRepository.save(book);
-        return BookConverter.convertToDto(savedBook);
-    }
+		Book savedBook = bookRepository.save(book);
+		return BookConverter.convertToDto(savedBook);
+	}
 
-    public BookDTO updateBook(Long id, BookDTO bookDTO) {
+	public BookDTO updateBook(Long id, BookDTO bookDTO) {
 
-        Book existingBook = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
+		Book existingBook = bookRepository.findById(id)
+			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
 
-        existingBook.setTitle(bookDTO.getTitle());
-        existingBook.setAuthor(bookDTO.getAuthor());
-        existingBook.setDescription(bookDTO.getDescription());
-        existingBook.setCopies(bookDTO.getCopies());
-        existingBook.setCategory(bookDTO.getCategory());
-        existingBook.setImage(bookDTO.getImage());
+		existingBook.setTitle(bookDTO.getTitle());
+		existingBook.setAuthor(bookDTO.getAuthor());
+		existingBook.setDescription(bookDTO.getDescription());
+		existingBook.setCopies(bookDTO.getCopies());
+		existingBook.setCategory(bookDTO.getCategory());
+		existingBook.setImage(bookDTO.getImage());
 
-        Book updatedBook = bookRepository.save(existingBook);
-        return BookConverter.convertToDto(updatedBook);
-    }
+		Book updatedBook = bookRepository.save(existingBook);
+		return BookConverter.convertToDto(updatedBook);
+	}
 
-    public void deleteBook(Long id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
-        bookRepository.delete(book);
-    }
+	public void deleteBook(Long id) {
+		Book book = bookRepository.findById(id)
+			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
+		bookRepository.delete(book);
+	}
 
 }

@@ -1,7 +1,10 @@
 package backend.controller;
 
+import backend.dto.request.AuthorSignupRequest;
 import backend.dto.request.LoginRequest;
-import backend.dto.request.UserRequestDTO;
+import backend.dto.request.UserSignupRequest;
+import backend.service.AuthorService;
+import backend.utils.converter.AuthorConverter;
 import backend.utils.converter.UserConverter;
 import backend.dto.response.TokenResponse;
 import backend.service.TokenService;
@@ -28,13 +31,14 @@ public class AuthController {
 
 	private final AuthenticationManager authenticationManager;
 
+	private final AuthorService authorService;
+
 	@PostMapping("/login")
 	public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginRequest loginRequest) {
 		try {
-			log.info("User {} is trying to login", loginRequest.getUsername());
+			log.info("User {} is trying to login", loginRequest.getEmail());
 			Authentication authentication = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-			log.info("Authentication successful");
+					new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 			log.info("User {} has authorities: {}", authentication.getName(), authentication.getAuthorities());
 			return ResponseEntity.ok(tokenService.generateToken(authentication));
 		}
@@ -43,14 +47,28 @@ public class AuthController {
 		}
 	}
 
-	@PostMapping("/signup")
-	public ResponseEntity<String> registerUser(@RequestBody UserRequestDTO userDTO) {
+	@PostMapping("/signup-user")
+	public ResponseEntity<String> registerUser(@RequestBody UserSignupRequest userSignupRequest) {
 		try {
-			log.info("User '{}' is trying to register", userDTO.getUsername());
-			var user = UserConverter.convertToEntity(userDTO);
+			log.info("User '{}' is trying to register", userSignupRequest.getUsername());
+			var user = UserConverter.convertToEntity(userSignupRequest);
 			userService.saveUser(user);
 			log.info("User '{}' registered successfully", user.getUsername());
 			return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+		}
+		catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+		}
+	}
+
+	@PostMapping("/signup-author")
+	public ResponseEntity<String> registerUserAuthor(@RequestBody AuthorSignupRequest authorSignupRequest) {
+		try {
+			log.info("Author '{}' is trying to register", authorSignupRequest.getFullName());
+			var author = AuthorConverter.convertToEntity(authorSignupRequest);
+			authorService.saveAuthor(author);
+			log.info("Author '{}' registered successfully", author.getFullName());
+			return ResponseEntity.status(HttpStatus.CREATED).body("Author registered successfully");
 		}
 		catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

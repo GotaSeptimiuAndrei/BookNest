@@ -4,17 +4,27 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRequestDTO {
+public class AuthorSignupRequest {
+
+	private String fullName;
 
 	private String email;
 
 	private String password;
 
-	private Boolean isAdmin;
+	private LocalDate dateOfBirth;
 
-	private String username;
+	private String city;
+
+	private String country;
+
+	private String bio;
+
+	private String photo;
 
 }

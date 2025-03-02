@@ -23,104 +23,76 @@ import java.util.List;
 @Slf4j
 public class BookController {
 
-    public static final String SUCCESS = "success";
-    public static final String ERROR = "error";
+	public static final String SUCCESS = "success";
 
-    private final BookService bookService;
+	public static final String ERROR = "error";
 
-    @GetMapping
-    public ResponseEntity<APIResponse<List<BookDTO>>> getAllBooks() {
-        List<BookDTO> books = bookService.getAllBooks();
-        return ResponseEntity.ok(
-                APIResponse.<List<BookDTO>>builder()
-                        .status(SUCCESS)
-                        .results(books)
-                        .build()
-        );
-    }
+	private final BookService bookService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<APIResponse<BookDTO>> getBookById(@PathVariable Long id) {
-        BookDTO bookDTO = bookService.getBookById(id);
-        return ResponseEntity.ok(
-                APIResponse.<BookDTO>builder()
-                        .status(SUCCESS)
-                        .results(bookDTO)
-                        .build()
-        );
-    }
+	@GetMapping
+	public ResponseEntity<APIResponse<List<BookDTO>>> getAllBooks() {
+		List<BookDTO> books = bookService.getAllBooks();
+		return ResponseEntity.ok(APIResponse.<List<BookDTO>>builder().status(SUCCESS).results(books).build());
+	}
 
-    @PostMapping
-    public ResponseEntity<APIResponse<BookDTO>> createBook(@Valid @RequestBody BookDTO bookDTO) {
-        BookDTO created = bookService.saveBook(bookDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                APIResponse.<BookDTO>builder()
-                        .status(SUCCESS)
-                        .results(created)
-                        .build()
-        );
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<APIResponse<BookDTO>> getBookById(@PathVariable Long id) {
+		BookDTO bookDTO = bookService.getBookById(id);
+		return ResponseEntity.ok(APIResponse.<BookDTO>builder().status(SUCCESS).results(bookDTO).build());
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<APIResponse<BookDTO>> updateBook(@PathVariable Long id,
-                                                           @Valid @RequestBody BookDTO bookDTO) {
-        BookDTO updated = bookService.updateBook(id, bookDTO);
-        return ResponseEntity.ok(
-                APIResponse.<BookDTO>builder()
-                        .status(SUCCESS)
-                        .results(updated)
-                        .build()
-        );
-    }
+	@PostMapping
+	public ResponseEntity<APIResponse<BookDTO>> createBook(@Valid @RequestBody BookDTO bookDTO) {
+		BookDTO created = bookService.saveBook(bookDTO);
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(APIResponse.<BookDTO>builder().status(SUCCESS).results(created).build());
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<APIResponse<Void>> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
-        return ResponseEntity.ok(
-                APIResponse.<Void>builder()
-                        .status(SUCCESS)
-                        .build()
-        );
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<APIResponse<BookDTO>> updateBook(@PathVariable Long id, @Valid @RequestBody BookDTO bookDTO) {
+		BookDTO updated = bookService.updateBook(id, bookDTO);
+		return ResponseEntity.ok(APIResponse.<BookDTO>builder().status(SUCCESS).results(updated).build());
+	}
 
-    /**
-     * Handle custom exceptions
-     */
-    @ExceptionHandler(BookNotFoundException.class)
-    public ResponseEntity<APIResponse<Void>> handleNotFoundException(BookNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                APIResponse.<Void>builder()
-                        .status(ERROR)
-                        .errors(List.of(new ErrorDTO("id", ex.getMessage())))
-                        .build()
-        );
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<APIResponse<Void>> deleteBook(@PathVariable Long id) {
+		bookService.deleteBook(id);
+		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+	}
 
-    @ExceptionHandler(BookValidationException.class)
-    public ResponseEntity<APIResponse<Void>> handleValidationException(BookValidationException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                APIResponse.<Void>builder()
-                        .status(ERROR)
-                        .errors(List.of(new ErrorDTO("validation", ex.getMessage())))
-                        .build()
-        );
-    }
+	/**
+	 * Handle custom exceptions
+	 */
+	@ExceptionHandler(BookNotFoundException.class)
+	public ResponseEntity<APIResponse<Void>> handleNotFoundException(BookNotFoundException ex) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+			.body(APIResponse.<Void>builder()
+				.status(ERROR)
+				.errors(List.of(new ErrorDTO("id", ex.getMessage())))
+				.build());
+	}
 
-    /**
-     * Handle bean validation errors
-     */
-    @ExceptionHandler(BindException.class)
-    public ResponseEntity<APIResponse<Void>> handleBindException(BindException ex) {
-        List<ErrorDTO> errorList = ex.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> new ErrorDTO(fieldError.getField(), fieldError.getDefaultMessage()))
-                .toList();
+	@ExceptionHandler(BookValidationException.class)
+	public ResponseEntity<APIResponse<Void>> handleValidationException(BookValidationException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+			.body(APIResponse.<Void>builder()
+				.status(ERROR)
+				.errors(List.of(new ErrorDTO("validation", ex.getMessage())))
+				.build());
+	}
 
-        return ResponseEntity.badRequest().body(
-                APIResponse.<Void>builder()
-                        .status(ERROR)
-                        .errors(errorList)
-                        .build()
-        );
-    }
+	/**
+	 * Handle bean validation errors
+	 */
+	@ExceptionHandler(BindException.class)
+	public ResponseEntity<APIResponse<Void>> handleBindException(BindException ex) {
+		List<ErrorDTO> errorList = ex.getBindingResult()
+			.getFieldErrors()
+			.stream()
+			.map(fieldError -> new ErrorDTO(fieldError.getField(), fieldError.getDefaultMessage()))
+			.toList();
+
+		return ResponseEntity.badRequest().body(APIResponse.<Void>builder().status(ERROR).errors(errorList).build());
+	}
+
 }
-

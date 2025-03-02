@@ -21,27 +21,42 @@ public class TokenService {
 
 	private final UserService userService;
 
+	private final AuthorService authorService;
+
 	public TokenResponse generateToken(Authentication authentication) {
 		Instant now = Instant.now();
 
-		String username = authentication.getName();
-		var user = userService.findByUsername(username)
-			.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		String email = authentication.getName();
 
-		List<String> roles = authentication.getAuthorities()
-			.stream()
-			.map(GrantedAuthority::getAuthority)
-			.toList();
+		List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 
-		JwtClaimsSet claims = JwtClaimsSet.builder()
-			.issuer("self")
-			.issuedAt(now)
-			.expiresAt(now.plus(1, ChronoUnit.HOURS))
-			.subject(authentication.getName())
-			.claim("roles", roles)
-			.claim("userId", user.getUserId())
-			.claim("email", user.getEmail())
-			.build();
+		JwtClaimsSet claims;
+
+		if (roles.contains("ROLE_AUTHOR")) {
+			var author = authorService.findByEmail(email)
+				.orElseThrow(() -> new IllegalArgumentException("Author not found"));
+			claims = JwtClaimsSet.builder()
+				.issuer("self")
+				.issuedAt(now)
+				.expiresAt(now.plus(1, ChronoUnit.HOURS))
+				.subject(email)
+				.claim("roles", roles)
+				.claim("authorId", author.getAuthorId())
+				.claim("fullName", author.getFullName())
+				.build();
+		}
+		else {
+			var user = userService.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found"));
+			claims = JwtClaimsSet.builder()
+				.issuer("self")
+				.issuedAt(now)
+				.expiresAt(now.plus(1, ChronoUnit.HOURS))
+				.subject(email)
+				.claim("roles", roles)
+				.claim("userId", user.getUserId())
+				.claim("username", user.getUsername())
+				.build();
+		}
 
 		return new TokenResponse(this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue());
 	}

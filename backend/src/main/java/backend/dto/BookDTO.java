@@ -10,28 +10,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookDTO {
-    @NotBlank(message = "Id is required.")
-    private Long bookId;
 
-    @NotBlank(message = "Title is required.")
-    private String title;
+	@NotBlank(message = "Id is required.")
+	private Long bookId;
 
-    @NotBlank(message = "Author is required.")
-    private String author;
+	@NotBlank(message = "Title is required.")
+	private String title;
 
-    @NotBlank(message = "Description is required.")
-    private String description;
+	@NotBlank(message = "Author is required.")
+	private String author;
 
-    @Min(value = 0, message = "Copies cannot be negative.")
-    private int copies;
+	@NotBlank(message = "Description is required.")
+	private String description;
 
-    @Min(value = 0, message = "Available copies cannot be negative.")
-    private int copiesAvailable;
+	@Min(value = 0, message = "Copies cannot be negative.")
+	private int copies;
 
-    @NotBlank(message = "Category is required.")
-    private String category;
+	@Min(value = 0, message = "Available copies cannot be negative.")
+	private int copiesAvailable;
 
-    @NotBlank(message = "Image is required.")
-    private String image;
+	@NotBlank(message = "Category is required.")
+	private String category;
+
+	@NotBlank(message = "Image is required.")
+	private String image;
+
 }
-

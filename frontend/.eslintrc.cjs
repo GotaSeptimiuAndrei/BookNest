@@ -28,7 +28,7 @@ module.exports = {
   ],
   rules: {
     // Add or customize rules here
-    'prettier/prettier': 'error',        // Enforces Prettier formatting as ESLint errors
+    'prettier/prettier': 0,        
     '@typescript-eslint/no-unused-vars': 'warn', // Warns for unused variables
     'react/react-in-jsx-scope': 'off',   // Turn off React import requirement for JSX (React 17+)
     'react/prop-types': 'off',           // Turns off prop-types validation (we're using TypeScript)
