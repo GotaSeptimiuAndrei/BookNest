@@ -1,8 +1,11 @@
 package backend.controller;
 
 import backend.dto.request.AuthorSignupRequest;
+import backend.dto.request.EmailVerificationRequest;
 import backend.dto.request.LoginRequest;
 import backend.dto.request.UserSignupRequest;
+import backend.model.EmailVerification;
+import backend.repository.EmailVerificationRepository;
 import backend.service.AuthorService;
 import backend.utils.converter.AuthorConverter;
 import backend.utils.converter.UserConverter;
@@ -18,6 +21,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
 @RequestMapping("/api/auth")
@@ -32,6 +37,8 @@ public class AuthController {
 	private final AuthenticationManager authenticationManager;
 
 	private final AuthorService authorService;
+
+	private final EmailVerificationRepository verificationRepository;
 
 	@PostMapping("/login")
 	public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginRequest loginRequest) {
@@ -52,7 +59,7 @@ public class AuthController {
 		try {
 			log.info("User '{}' is trying to register", userSignupRequest.getUsername());
 			var user = UserConverter.convertToEntity(userSignupRequest);
-			userService.saveUser(user);
+			userService.registerUser(user);
 			log.info("User '{}' registered successfully", user.getUsername());
 			return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
 		}
@@ -66,13 +73,34 @@ public class AuthController {
 		try {
 			log.info("Author '{}' is trying to register", authorSignupRequest.getFullName());
 			var author = AuthorConverter.convertToEntity(authorSignupRequest);
-			authorService.saveAuthor(author);
+			authorService.registerAuthor(author);
 			log.info("Author '{}' registered successfully", author.getFullName());
 			return ResponseEntity.status(HttpStatus.CREATED).body("Author registered successfully");
 		}
 		catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}
+	}
+
+	@PostMapping("/verify-email")
+	public ResponseEntity<String> verifyEmail(@RequestBody EmailVerificationRequest request) {
+		var optionalVerification = verificationRepository.findByEmailAndVerificationCodeAndVerifiedFalse(
+				request.getEmail(), request.getVerificationCode());
+
+		if (optionalVerification.isEmpty()) {
+			return ResponseEntity.badRequest().body("Invalid code or already verified");
+		}
+
+		EmailVerification verification = optionalVerification.get();
+
+		if (verification.getExpiresAt() != null && verification.getExpiresAt().isBefore(LocalDateTime.now())) {
+			return ResponseEntity.badRequest().body("Verification code expired");
+		}
+
+		verification.setVerified(true);
+		verificationRepository.save(verification);
+
+		return ResponseEntity.ok("Email verified successfully");
 	}
 
 }
