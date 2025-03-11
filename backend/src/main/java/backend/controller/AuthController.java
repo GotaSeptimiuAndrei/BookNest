@@ -84,8 +84,8 @@ public class AuthController {
 
 	@PostMapping("/verify-email")
 	public ResponseEntity<String> verifyEmail(@RequestBody EmailVerificationRequest request) {
-		var optionalVerification = verificationRepository.findByEmailAndVerificationCodeAndVerifiedFalse(
-				request.getEmail(), request.getVerificationCode());
+		var optionalVerification = verificationRepository
+			.findByEmailAndVerificationCodeAndVerifiedFalse(request.getEmail(), request.getVerificationCode());
 
 		if (optionalVerification.isEmpty()) {
 			return ResponseEntity.badRequest().body("Invalid code or already verified");

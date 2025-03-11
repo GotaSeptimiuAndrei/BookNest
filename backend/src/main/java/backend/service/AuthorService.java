@@ -40,7 +40,6 @@ public class AuthorService {
 		verification.setCreatedAt(LocalDateTime.now());
 		verification.setExpiresAt(LocalDateTime.now().plusMinutes(10));
 
-
 		emailVerificationRepository.save(verification);
 
 		emailService.sendVerificationEmail(author.getEmail(), code);

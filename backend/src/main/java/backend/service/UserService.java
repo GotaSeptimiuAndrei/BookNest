@@ -21,6 +21,7 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 
 	private final EmailVerificationRepository emailVerificationRepository;
+
 	private final EmailService emailService;
 
 	public void registerUser(User user) {

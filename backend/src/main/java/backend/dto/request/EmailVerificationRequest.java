@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmailVerificationRequest {
-    private String email;
-    private String verificationCode;
+
+	private String email;
+
+	private String verificationCode;
+
 }
