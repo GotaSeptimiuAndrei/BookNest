@@ -52,8 +52,8 @@ jobs:
       - name: Check code formatting
         run: ./mvnw spring-javaformat:validate
 
-      - name: Run tests
-        run: ./mvnw test
+      - name: Run backend tests with test profile
+        run: ./mvnw test -Dspring.profiles.active=test
 
   docker-backend:
     name: Dockerize Backend
