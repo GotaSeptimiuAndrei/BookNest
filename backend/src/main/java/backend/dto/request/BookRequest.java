@@ -1,4 +1,4 @@
-package backend.dto;
+package backend.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookDTO {
-
-	@NotBlank(message = "Id is required.")
-	private Long bookId;
+public class BookRequest {
 
 	@NotBlank(message = "Title is required.")
 	private String title;

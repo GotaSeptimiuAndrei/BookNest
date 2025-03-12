@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:booknest_test;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: root
+    password:
+
+
+  flyway:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
