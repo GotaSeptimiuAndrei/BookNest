@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:booknest_test;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  flyway:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+  mail:
+    host: localhost
+    port: 1025
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+rsa:
+  public-key: classpath:certs/public_key.pem
+  private-key: classpath:certs/private_key.pem

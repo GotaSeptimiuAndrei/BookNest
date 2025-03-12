@@ -1,8 +1,9 @@
 package backend.controller;
 
-import backend.dto.BookDTO;
+import backend.dto.request.BookRequest;
 import backend.dto.ErrorDTO;
 import backend.dto.response.APIResponse;
+import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
 import backend.exception.BookValidationException;
 import backend.service.BookService;
@@ -30,28 +31,29 @@ public class BookController {
 	private final BookService bookService;
 
 	@GetMapping
-	public ResponseEntity<APIResponse<List<BookDTO>>> getAllBooks() {
-		List<BookDTO> books = bookService.getAllBooks();
-		return ResponseEntity.ok(APIResponse.<List<BookDTO>>builder().status(SUCCESS).results(books).build());
+	public ResponseEntity<APIResponse<List<BookResponse>>> getAllBooks() {
+		List<BookResponse> books = bookService.getAllBooks();
+		return ResponseEntity.ok(APIResponse.<List<BookResponse>>builder().status(SUCCESS).results(books).build());
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<APIResponse<BookDTO>> getBookById(@PathVariable Long id) {
-		BookDTO bookDTO = bookService.getBookById(id);
-		return ResponseEntity.ok(APIResponse.<BookDTO>builder().status(SUCCESS).results(bookDTO).build());
+	public ResponseEntity<APIResponse<BookResponse>> getBookById(@PathVariable Long id) {
+		BookResponse bookResponse = bookService.getBookById(id);
+		return ResponseEntity.ok(APIResponse.<BookResponse>builder().status(SUCCESS).results(bookResponse).build());
 	}
 
 	@PostMapping
-	public ResponseEntity<APIResponse<BookDTO>> createBook(@Valid @RequestBody BookDTO bookDTO) {
-		BookDTO created = bookService.saveBook(bookDTO);
+	public ResponseEntity<APIResponse<BookResponse>> createBook(@Valid @RequestBody BookRequest bookRequest) {
+		BookResponse created = bookService.saveBook(bookRequest);
 		return ResponseEntity.status(HttpStatus.CREATED)
-			.body(APIResponse.<BookDTO>builder().status(SUCCESS).results(created).build());
+			.body(APIResponse.<BookResponse>builder().status(SUCCESS).results(created).build());
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<APIResponse<BookDTO>> updateBook(@PathVariable Long id, @Valid @RequestBody BookDTO bookDTO) {
-		BookDTO updated = bookService.updateBook(id, bookDTO);
-		return ResponseEntity.ok(APIResponse.<BookDTO>builder().status(SUCCESS).results(updated).build());
+	public ResponseEntity<APIResponse<BookResponse>> updateBook(@PathVariable Long id,
+			@Valid @RequestBody BookRequest bookRequest) {
+		BookResponse updated = bookService.updateBook(id, bookRequest);
+		return ResponseEntity.ok(APIResponse.<BookResponse>builder().status(SUCCESS).results(updated).build());
 	}
 
 	@DeleteMapping("/{id}")

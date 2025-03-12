@@ -1,6 +1,7 @@
 package backend.service;
 
-import backend.dto.BookDTO;
+import backend.dto.request.BookRequest;
+import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
 import backend.model.Book;
 import backend.utils.converter.BookConverter;
@@ -16,35 +17,35 @@ public class BookService {
 
 	private final BookRepository bookRepository;
 
-	public List<BookDTO> getAllBooks() {
+	public List<BookResponse> getAllBooks() {
 		return bookRepository.findAll().stream().map(BookConverter::convertToDto).toList();
 	}
 
-	public BookDTO getBookById(Long id) {
+	public BookResponse getBookById(Long id) {
 		Book book = bookRepository.findById(id)
 			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
 		return BookConverter.convertToDto(book);
 	}
 
-	public BookDTO saveBook(BookDTO bookDTO) {
+	public BookResponse saveBook(BookRequest bookRequest) {
 
-		Book book = BookConverter.convertToEntity(bookDTO);
+		Book book = BookConverter.convertToEntity(bookRequest);
 
 		Book savedBook = bookRepository.save(book);
 		return BookConverter.convertToDto(savedBook);
 	}
 
-	public BookDTO updateBook(Long id, BookDTO bookDTO) {
+	public BookResponse updateBook(Long id, BookRequest bookRequest) {
 
 		Book existingBook = bookRepository.findById(id)
 			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
 
-		existingBook.setTitle(bookDTO.getTitle());
-		existingBook.setAuthor(bookDTO.getAuthor());
-		existingBook.setDescription(bookDTO.getDescription());
-		existingBook.setCopies(bookDTO.getCopies());
-		existingBook.setCategory(bookDTO.getCategory());
-		existingBook.setImage(bookDTO.getImage());
+		existingBook.setTitle(bookRequest.getTitle());
+		existingBook.setAuthor(bookRequest.getAuthor());
+		existingBook.setDescription(bookRequest.getDescription());
+		existingBook.setCopies(bookRequest.getCopies());
+		existingBook.setCategory(bookRequest.getCategory());
+		existingBook.setImage(bookRequest.getImage());
 
 		Book updatedBook = bookRepository.save(existingBook);
 		return BookConverter.convertToDto(updatedBook);

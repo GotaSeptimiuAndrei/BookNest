@@ -13,7 +13,8 @@ public class AuthorConverter {
 		author.setCity(authorDTO.getCity());
 		author.setCountry(authorDTO.getCountry());
 		author.setBio(authorDTO.getBio());
-		author.setPhoto(authorDTO.getPhoto());
+		// convert to s3 bucket link
+		author.setPhoto("https://source.unsplash.com/300x300/?book");
 		author.setDateOfBirth(authorDTO.getDateOfBirth());
 		return author;
 	}
