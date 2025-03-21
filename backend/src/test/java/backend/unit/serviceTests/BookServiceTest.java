@@ -12,6 +12,7 @@ import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
 import backend.model.Book;
 import backend.repository.BookRepository;
+import backend.repository.ReviewRepository;
 import backend.service.BookService;
 import backend.utils.converter.BookConverter;
 
@@ -26,12 +27,15 @@ class BookServiceTest {
 	@Mock
 	private BookRepository bookRepository;
 
+	@Mock
+	private ReviewRepository reviewRepository;
+
 	private BookService bookService;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		bookService = new BookService(bookRepository);
+		bookService = new BookService(bookRepository, reviewRepository);
 	}
 
 	@Test

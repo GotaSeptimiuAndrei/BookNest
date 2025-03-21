@@ -88,6 +88,8 @@ public class SecurityConfiguration {
 				.permitAll()
 				.requestMatchers("/api/books/**")
 				.permitAll()
+				.requestMatchers("/api/reviews")
+				.permitAll()
 				.anyRequest()
 				.authenticated())
 			.oauth2ResourceServer(
