@@ -4,6 +4,7 @@ import backend.dto.request.BookRequest;
 import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
 import backend.model.Book;
+import backend.repository.ReviewRepository;
 import backend.utils.converter.BookConverter;
 import backend.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import java.util.List;
 public class BookService {
 
 	private final BookRepository bookRepository;
+
+	private final ReviewRepository reviewRepository;
 
 	public List<BookResponse> getAllBooks() {
 		return bookRepository.findAll().stream().map(BookConverter::convertToDto).toList();
@@ -55,6 +58,7 @@ public class BookService {
 		Book book = bookRepository.findById(id)
 			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
 		bookRepository.delete(book);
+		reviewRepository.deleteAllByBookId(id);
 	}
 
 }
