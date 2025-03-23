@@ -11,6 +11,7 @@ import backend.dto.request.BookRequest;
 import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
 import backend.model.Book;
+import backend.repository.BookLoanRepository;
 import backend.repository.BookRepository;
 import backend.repository.ReviewRepository;
 import backend.service.BookService;
@@ -30,12 +31,15 @@ class BookServiceTest {
 	@Mock
 	private ReviewRepository reviewRepository;
 
+	@Mock
+	private BookLoanRepository bookLoanRepository;
+
 	private BookService bookService;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		bookService = new BookService(bookRepository, reviewRepository);
+		bookService = new BookService(bookRepository, reviewRepository, bookLoanRepository);
 	}
 
 	@Test
@@ -157,6 +161,8 @@ class BookServiceTest {
 
 		verify(bookRepository).findById(1L);
 		verify(bookRepository).delete(existingBook);
+		verify(reviewRepository).deleteAllByBookId(1L);
+		verify(bookLoanRepository).deleteAllByBookId(1L);
 	}
 
 	@Test
@@ -164,8 +170,11 @@ class BookServiceTest {
 		when(bookRepository.findById(999L)).thenReturn(Optional.empty());
 
 		assertThrows(BookNotFoundException.class, () -> bookService.deleteBook(999L));
+
 		verify(bookRepository).findById(999L);
 		verify(bookRepository, never()).delete(any());
+		verify(reviewRepository, never()).deleteAllByBookId(anyLong());
+		verify(bookLoanRepository, never()).deleteAllByBookId(anyLong());
 	}
 
 }
