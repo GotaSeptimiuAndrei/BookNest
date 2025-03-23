@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReviewRequest {
 
-	@NotBlank(message = "Username is required.")
-	private String username;
-
 	@NotNull(message = "Book id is required.")
 	private Long bookId;
 

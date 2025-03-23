@@ -8,9 +8,9 @@ import java.time.LocalDate;
 
 public class ReviewConverter {
 
-	public static Review convertToEntity(ReviewRequest request) {
+	public static Review convertToEntity(ReviewRequest request, String username) {
 		Review review = new Review();
-		review.setUsername(request.getUsername());
+		review.setUsername(username);
 		review.setBookId(request.getBookId());
 		review.setRating(request.getRating());
 		review.setReviewDescription(request.getReviewDescription());
