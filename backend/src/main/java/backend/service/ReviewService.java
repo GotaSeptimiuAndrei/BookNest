@@ -24,9 +24,9 @@ public class ReviewService {
 			throw new ReviewException("Review already exists");
 		}
 
-		reviewRepository.save(review);
+		Review savedReview = reviewRepository.save(review);
 
-		return ReviewConverter.convertToDto(review);
+		return ReviewConverter.convertToDto(savedReview);
 	}
 
 	public List<ReviewResponse> getAllReviewsForBook(Long bookId) {
