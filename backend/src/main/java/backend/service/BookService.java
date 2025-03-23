@@ -65,4 +65,11 @@ public class BookService {
 		bookLoanRepository.deleteAllByBookId(id);
 	}
 
+	public List<BookResponse> searchBooks(String query) {
+		List<Book> matchingBooks = bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query,
+				query);
+
+		return matchingBooks.stream().map(BookConverter::convertToDto).toList();
+	}
+
 }

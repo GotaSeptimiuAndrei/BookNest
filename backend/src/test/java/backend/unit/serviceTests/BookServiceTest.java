@@ -177,4 +177,40 @@ class BookServiceTest {
 		verify(bookLoanRepository, never()).deleteAllByBookId(anyLong());
 	}
 
+	@Test
+	void testSearchBooks_MatchingResults() {
+		String query = "someTitle";
+		Book book1 = new Book();
+		book1.setBookId(10L);
+		book1.setTitle("SomeTitle here");
+		book1.setAuthor("An Author");
+
+		Book book2 = new Book();
+		book2.setBookId(20L);
+		book2.setTitle("Another Book with SomeTitle inside");
+		book2.setAuthor("Another Author");
+
+		when(bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query))
+			.thenReturn(List.of(book1, book2));
+
+		List<BookResponse> result = bookService.searchBooks(query);
+
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0).getTitle()).containsIgnoringCase("SomeTitle");
+		assertThat(result.get(1).getTitle()).containsIgnoringCase("SomeTitle");
+		verify(bookRepository).findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query);
+	}
+
+	@Test
+	void testSearchBooks_NoResults() {
+		String query = "no-match";
+		when(bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query))
+			.thenReturn(List.of());
+
+		List<BookResponse> result = bookService.searchBooks(query);
+
+		assertThat(result).isEmpty();
+		verify(bookRepository).findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query);
+	}
+
 }

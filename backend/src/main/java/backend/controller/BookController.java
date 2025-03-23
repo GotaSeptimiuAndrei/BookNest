@@ -42,6 +42,14 @@ public class BookController {
 		return ResponseEntity.ok(APIResponse.<BookResponse>builder().status(SUCCESS).results(bookResponse).build());
 	}
 
+	@GetMapping("/search")
+	public ResponseEntity<APIResponse<List<BookResponse>>> searchBooks(@RequestParam("query") String query) {
+		List<BookResponse> matchingBooks = bookService.searchBooks(query);
+
+		return ResponseEntity
+			.ok(APIResponse.<List<BookResponse>>builder().status("success").results(matchingBooks).build());
+	}
+
 	@PostMapping
 	public ResponseEntity<APIResponse<BookResponse>> createBook(@Valid @RequestBody BookRequest bookRequest) {
 		BookResponse created = bookService.saveBook(bookRequest);

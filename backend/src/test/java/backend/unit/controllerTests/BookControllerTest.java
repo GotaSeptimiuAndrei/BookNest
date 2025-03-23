@@ -1,17 +1,11 @@
 package backend.unit.controllerTests;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.util.List;
-
 import backend.controller.BookController;
 import backend.dto.request.BookRequest;
 import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
 import backend.service.BookService;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +13,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
+
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -163,6 +163,41 @@ class BookControllerTest {
 			.andExpect(jsonPath("$.status").value("success"));
 
 		verify(bookService).deleteBook(1L);
+	}
+
+	@Test
+	void testSearchBooks_ValidQuery() throws Exception {
+		String query = "someTitle";
+		BookResponse book1 = new BookResponse();
+		book1.setBookId(10L);
+		book1.setTitle("SomeTitle here");
+
+		BookResponse book2 = new BookResponse();
+		book2.setBookId(20L);
+		book2.setTitle("Another Book with SomeTitle inside");
+
+		when(bookService.searchBooks(query)).thenReturn(List.of(book1, book2));
+
+		mockMvc.perform(get("/api/books/search").param("query", query))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.results[0].title").value("SomeTitle here"))
+			.andExpect(jsonPath("$.results[1].title").value("Another Book with SomeTitle inside"));
+
+		verify(bookService).searchBooks(query);
+	}
+
+	@Test
+	void testSearchBooks_EmptyQuery() throws Exception {
+		String query = "";
+		when(bookService.searchBooks(query)).thenReturn(List.of());
+
+		mockMvc.perform(get("/api/books/search").param("query", query))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.results").isEmpty());
+
+		verify(bookService).searchBooks(query);
 	}
 
 }
