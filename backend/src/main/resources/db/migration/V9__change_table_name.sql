@@ -1,0 +1,1 @@
+ALTER TABLE bookloans RENAME TO book_loans;
