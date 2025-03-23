@@ -1,12 +1,5 @@
 package backend.unit.serviceTests;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-import java.util.Optional;
-
 import backend.dto.request.BookRequest;
 import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
@@ -16,12 +9,19 @@ import backend.repository.BookRepository;
 import backend.repository.ReviewRepository;
 import backend.service.BookService;
 import backend.utils.converter.BookConverter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 class BookServiceTest {
 
@@ -34,12 +34,12 @@ class BookServiceTest {
 	@Mock
 	private BookLoanRepository bookLoanRepository;
 
+	@InjectMocks
 	private BookService bookService;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		bookService = new BookService(bookRepository, reviewRepository, bookLoanRepository);
 	}
 
 	@Test

@@ -8,6 +8,7 @@ import backend.repository.ReviewRepository;
 import backend.service.ReviewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -16,8 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class ReviewServiceTest {
@@ -25,27 +25,27 @@ class ReviewServiceTest {
 	@Mock
 	private ReviewRepository reviewRepository;
 
+	@InjectMocks
 	private ReviewService reviewService;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		reviewService = new ReviewService(reviewRepository);
 	}
 
 	@Test
 	void testCreateReview_Success() {
+		String username = "testUser";
 		ReviewRequest request = new ReviewRequest();
-		request.setUsername("testUser");
 		request.setBookId(10L);
 		request.setRating(4.5);
 		request.setReviewDescription("Excellent book!");
 
-		when(reviewRepository.findByUsernameAndBookId("testUser", 10L)).thenReturn(Optional.empty());
+		when(reviewRepository.findByUsernameAndBookId(username, 10L)).thenReturn(Optional.empty());
 
 		Review savedReview = new Review();
 		savedReview.setReviewId(100L);
-		savedReview.setUsername("testUser");
+		savedReview.setUsername(username);
 		savedReview.setBookId(10L);
 		savedReview.setRating(4.5);
 		savedReview.setReviewDescription("Excellent book!");
@@ -53,7 +53,7 @@ class ReviewServiceTest {
 
 		when(reviewRepository.save(any(Review.class))).thenReturn(savedReview);
 
-		ReviewResponse result = reviewService.createReview(request);
+		ReviewResponse result = reviewService.createReview(username, request);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getReviewId()).isEqualTo(100L);
@@ -62,19 +62,22 @@ class ReviewServiceTest {
 		assertThat(result.getRating()).isEqualTo(4.5);
 		assertThat(result.getReviewDescription()).isEqualTo("Excellent book!");
 
+		verify(reviewRepository).findByUsernameAndBookId(username, 10L);
 		verify(reviewRepository).save(any(Review.class));
 	}
 
 	@Test
 	void testCreateReview_AlreadyExists_ThrowsReviewException() {
+		String username = "testUser";
 		ReviewRequest request = new ReviewRequest();
-		request.setUsername("testUser");
 		request.setBookId(10L);
 		request.setRating(3.0);
 
-		when(reviewRepository.findByUsernameAndBookId("testUser", 10L)).thenReturn(Optional.of(new Review()));
+		when(reviewRepository.findByUsernameAndBookId(username, 10L)).thenReturn(Optional.of(new Review()));
 
-		assertThrows(ReviewException.class, () -> reviewService.createReview(request));
+		assertThatThrownBy(() -> reviewService.createReview(username, request)).isInstanceOf(ReviewException.class)
+			.hasMessage("Review already exists");
+
 		verify(reviewRepository, never()).save(any());
 	}
 

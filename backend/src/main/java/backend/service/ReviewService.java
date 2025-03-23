@@ -17,11 +17,10 @@ public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
 
-	public ReviewResponse createReview(ReviewRequest reviewRequest) {
-		Review review = ReviewConverter.convertToEntity(reviewRequest);
+	public ReviewResponse createReview(String username, ReviewRequest reviewRequest) {
+		Review review = ReviewConverter.convertToEntity(reviewRequest, username);
 
-		if (reviewRepository.findByUsernameAndBookId(reviewRequest.getUsername(), reviewRequest.getBookId())
-			.isPresent()) {
+		if (reviewRepository.findByUsernameAndBookId(username, reviewRequest.getBookId()).isPresent()) {
 			throw new ReviewException("Review already exists");
 		}
 

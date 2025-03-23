@@ -6,6 +6,7 @@ import backend.dto.response.APIResponse;
 import backend.dto.response.ReviewResponse;
 import backend.exception.ReviewException;
 import backend.service.ReviewService;
+import backend.utils.JwtUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,13 @@ public class ReviewController {
 	public static final String ERROR = "error";
 
 	@PostMapping
-	public ResponseEntity<APIResponse<ReviewResponse>> createReview(@Valid @RequestBody ReviewRequest reviewRequest) {
-		ReviewResponse created = reviewService.createReview(reviewRequest);
+	public ResponseEntity<APIResponse<ReviewResponse>> createReview(@RequestHeader("Authorization") String token,
+			@Valid @RequestBody ReviewRequest reviewRequest) {
+
+		String username = JwtUtils.extractUsername(token);
+
+		ReviewResponse created = reviewService.createReview(username, reviewRequest);
+
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(APIResponse.<ReviewResponse>builder().status(SUCCESS).results(created).build());
 	}
