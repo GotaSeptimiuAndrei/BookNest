@@ -20,11 +20,11 @@
 
     <properties>
         <java.version>21</java.version>
-        <!-- Optionally define Flyway properties here for convenience -->
-        <flyway.url>jdbc:mysql://localhost:3306/booknest</flyway.url>
-        <flyway.user>root</flyway.user>
-        <flyway.password>password</flyway.password>
+        <flyway.url>jdbc:mysql://booknest-db.cnsiw6q44cvd.eu-north-1.rds.amazonaws.com:3306/booknest</flyway.url>
+        <flyway.user>admin</flyway.user>
+        <flyway.password>booknest-db</flyway.password>
     </properties>
+
 
     <dependencies>
         <dependency>
