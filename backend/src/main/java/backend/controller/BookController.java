@@ -47,11 +47,11 @@ public class BookController {
 		List<BookResponse> matchingBooks = bookService.searchBooks(query);
 
 		return ResponseEntity
-			.ok(APIResponse.<List<BookResponse>>builder().status("success").results(matchingBooks).build());
+			.ok(APIResponse.<List<BookResponse>>builder().status(SUCCESS).results(matchingBooks).build());
 	}
 
 	@PostMapping
-	public ResponseEntity<APIResponse<BookResponse>> createBook(@Valid @RequestBody BookRequest bookRequest) {
+	public ResponseEntity<APIResponse<BookResponse>> createBook(@Valid @ModelAttribute BookRequest bookRequest) {
 		BookResponse created = bookService.saveBook(bookRequest);
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(APIResponse.<BookResponse>builder().status(SUCCESS).results(created).build());
@@ -59,7 +59,7 @@ public class BookController {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<APIResponse<BookResponse>> updateBook(@PathVariable Long id,
-			@Valid @RequestBody BookRequest bookRequest) {
+			@Valid @ModelAttribute BookRequest bookRequest) {
 		BookResponse updated = bookService.updateBook(id, bookRequest);
 		return ResponseEntity.ok(APIResponse.<BookResponse>builder().status(SUCCESS).results(updated).build());
 	}

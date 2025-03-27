@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -84,13 +85,8 @@ class BookControllerTest {
 
 	@Test
 	void testCreateBook() throws Exception {
-		BookRequest requestDto = new BookRequest();
-		requestDto.setTitle("New Book");
-		requestDto.setAuthor("John Doe");
-		requestDto.setDescription("A brand new book");
-		requestDto.setCopies(10);
-		requestDto.setCategory("Fiction");
-		requestDto.setImage("some-image-url");
+		MockMultipartFile mockFile = new MockMultipartFile("image", "test-image.jpg", "image/jpeg",
+				"DummyImageContent".getBytes());
 
 		BookResponse responseDto = new BookResponse();
 		responseDto.setBookId(1L);
@@ -103,9 +99,16 @@ class BookControllerTest {
 
 		when(bookService.saveBook(any(BookRequest.class))).thenReturn(responseDto);
 
-		mockMvc
-			.perform(post("/api/books").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(requestDto)))
+		mockMvc.perform(multipart("/api/books")
+
+			.file(mockFile)
+			.param("title", "New Book")
+			.param("author", "John Doe")
+			.param("description", "A brand new book")
+			.param("copies", "10")
+			.param("copiesAvailable", "10")
+			.param("category", "Fiction")
+			.contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("$.status").value("success"))
 			.andExpect(jsonPath("$.results.bookId").value(1L))
@@ -121,13 +124,8 @@ class BookControllerTest {
 
 	@Test
 	void testUpdateBook() throws Exception {
-		BookRequest requestDto = new BookRequest();
-		requestDto.setTitle("Updated Title");
-		requestDto.setAuthor("Jane Doe");
-		requestDto.setDescription("Updated description");
-		requestDto.setCopies(5);
-		requestDto.setCategory("History");
-		requestDto.setImage("updated-image-url");
+		MockMultipartFile mockFile = new MockMultipartFile("image", "test-image.jpg", "image/jpeg",
+				"DummyImageContent".getBytes());
 
 		BookResponse updatedDto = new BookResponse();
 		updatedDto.setBookId(1L);
@@ -140,9 +138,18 @@ class BookControllerTest {
 
 		when(bookService.updateBook(eq(1L), any(BookRequest.class))).thenReturn(updatedDto);
 
-		mockMvc
-			.perform(put("/api/books/{id}", 1L).contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(requestDto)))
+		mockMvc.perform(multipart("/api/books/{id}", 1L).file(mockFile)
+			.param("title", "Updated Title")
+			.param("author", "Jane Doe")
+			.param("description", "Updated description")
+			.param("copies", "5")
+			.param("copiesAvailable", "5")
+			.param("category", "History")
+			.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+			.with(request -> {
+				request.setMethod("PUT");
+				return request;
+			}))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.status").value("success"))
 			.andExpect(jsonPath("$.results.bookId").value(1L))
