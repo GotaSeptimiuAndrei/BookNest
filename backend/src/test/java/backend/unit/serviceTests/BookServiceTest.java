@@ -8,13 +8,13 @@ import backend.repository.BookLoanRepository;
 import backend.repository.BookRepository;
 import backend.repository.ReviewRepository;
 import backend.service.BookService;
-import backend.utils.converter.BookConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.mock.web.MockMultipartFile;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,12 +34,17 @@ class BookServiceTest {
 	@Mock
 	private BookLoanRepository bookLoanRepository;
 
-	@InjectMocks
+	@Mock
+	private S3Client s3Client;
+
 	private BookService bookService;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
+		String bucketName = "bucket-booknest";
+
+		bookService = new BookService(bookRepository, reviewRepository, bookLoanRepository, s3Client, bucketName);
 	}
 
 	@Test
@@ -89,11 +94,27 @@ class BookServiceTest {
 
 	@Test
 	void testSaveBook() {
+		MockMultipartFile mockFile = new MockMultipartFile("image", "test-image.jpg", "image/jpeg",
+				"DummyImageContent".getBytes());
+
 		BookRequest bookRequest = new BookRequest();
 		bookRequest.setTitle("New Book");
+		bookRequest.setAuthor("John Doe");
+		bookRequest.setDescription("Just a test");
+		bookRequest.setCopies(10);
+		bookRequest.setCopiesAvailable(10);
+		bookRequest.setCategory("Fiction");
+		bookRequest.setImage(mockFile);
 
-		Book convertedEntity = BookConverter.convertToEntity(bookRequest);
+		Book convertedEntity = new Book();
 		convertedEntity.setBookId(5L);
+		convertedEntity.setTitle("New Book");
+		convertedEntity.setAuthor("John Doe");
+		convertedEntity.setDescription("Just a test");
+		convertedEntity.setCopies(10);
+		convertedEntity.setCopiesAvailable(10);
+		convertedEntity.setCategory("Fiction");
+		convertedEntity.setImage("https://bucketName.s3.amazonaws.com/test-image.jpg");
 
 		when(bookRepository.save(any(Book.class))).thenReturn(convertedEntity);
 
@@ -102,11 +123,15 @@ class BookServiceTest {
 		assertThat(result).isNotNull();
 		assertThat(result.getBookId()).isEqualTo(5L);
 		assertThat(result.getTitle()).isEqualTo("New Book");
+		assertThat(result.getAuthor()).isEqualTo("John Doe");
+		assertThat(result.getImage()).isEqualTo("https://bucketName.s3.amazonaws.com/test-image.jpg");
 
 		ArgumentCaptor<Book> bookCaptor = ArgumentCaptor.forClass(Book.class);
 		verify(bookRepository).save(bookCaptor.capture());
 		Book savedBook = bookCaptor.getValue();
+
 		assertThat(savedBook.getTitle()).isEqualTo("New Book");
+		assertThat(savedBook.getImage()).isNotEmpty();
 	}
 
 	@Test

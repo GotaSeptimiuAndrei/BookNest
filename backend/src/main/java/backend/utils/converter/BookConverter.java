@@ -6,7 +6,7 @@ import backend.model.Book;
 
 public class BookConverter {
 
-	public static Book convertToEntity(BookRequest bookRequest) {
+	public static Book convertToEntity(BookRequest bookRequest, String imageUrl) {
 		Book book = new Book();
 		book.setTitle(bookRequest.getTitle());
 		book.setAuthor(bookRequest.getAuthor());
@@ -14,7 +14,7 @@ public class BookConverter {
 		book.setCopies(bookRequest.getCopies());
 		book.setCopiesAvailable(bookRequest.getCopies());
 		book.setCategory(bookRequest.getCategory());
-		book.setImage(bookRequest.getImage());
+		book.setImage(imageUrl);
 		return book;
 	}
 
