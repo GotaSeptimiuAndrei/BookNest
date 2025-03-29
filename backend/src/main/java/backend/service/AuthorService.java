@@ -1,13 +1,17 @@
 package backend.service;
 
+import backend.dto.request.AuthorSignupRequest;
 import backend.model.Author;
 import backend.model.EmailVerification;
 import backend.repository.AuthorRepository;
 import backend.repository.EmailVerificationRepository;
 import backend.utils.VerificationCodeGenerator;
+import backend.utils.converter.AuthorConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
+import static backend.utils.S3Utils.saveFileToS3Bucket;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -24,10 +28,17 @@ public class AuthorService {
 
 	private final EmailService emailService;
 
-	public void registerAuthor(Author author) {
-		if (authorRepository.findByEmail(author.getEmail()).isPresent()) {
+	private final S3Client s3Client;
+
+	private final String bucketName;
+
+	public void registerAuthor(AuthorSignupRequest authorDTO) {
+		if (authorRepository.findByEmail(authorDTO.getEmail()).isPresent()) {
 			throw new IllegalArgumentException("Email already exists");
 		}
+
+		String photoUrl = saveFileToS3Bucket(s3Client, bucketName, authorDTO.getPhoto());
+		Author author = AuthorConverter.convertToEntity(authorDTO, photoUrl);
 
 		author.setPassword(passwordEncoder.encode(author.getPassword()));
 

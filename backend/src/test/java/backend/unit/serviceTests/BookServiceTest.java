@@ -42,8 +42,8 @@ class BookServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		String bucketName = "bucket-booknest";
 
+		String bucketName = "bucket-booknest";
 		bookService = new BookService(bookRepository, reviewRepository, bookLoanRepository, s3Client, bucketName);
 	}
 

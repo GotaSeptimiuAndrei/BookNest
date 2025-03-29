@@ -7,11 +7,10 @@ import backend.dto.request.UserSignupRequest;
 import backend.model.EmailVerification;
 import backend.repository.EmailVerificationRepository;
 import backend.service.AuthorService;
-import backend.utils.converter.AuthorConverter;
-import backend.utils.converter.UserConverter;
 import backend.dto.response.TokenResponse;
 import backend.service.TokenService;
 import backend.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -55,12 +54,11 @@ public class AuthController {
 	}
 
 	@PostMapping("/signup-user")
-	public ResponseEntity<String> registerUser(@RequestBody UserSignupRequest userSignupRequest) {
+	public ResponseEntity<String> registerUser(@Valid @RequestBody UserSignupRequest userSignupRequest) {
 		try {
 			log.info("User '{}' is trying to register", userSignupRequest.getUsername());
-			var user = UserConverter.convertToEntity(userSignupRequest);
-			userService.registerUser(user);
-			log.info("User '{}' registered successfully", user.getUsername());
+			userService.registerUser(userSignupRequest);
+			log.info("User '{}' registered successfully", userSignupRequest.getUsername());
 			return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
 		}
 		catch (Exception e) {
@@ -69,12 +67,11 @@ public class AuthController {
 	}
 
 	@PostMapping("/signup-author")
-	public ResponseEntity<String> registerUserAuthor(@RequestBody AuthorSignupRequest authorSignupRequest) {
+	public ResponseEntity<String> registerUserAuthor(@Valid @ModelAttribute AuthorSignupRequest authorSignupRequest) {
 		try {
 			log.info("Author '{}' is trying to register", authorSignupRequest.getFullName());
-			var author = AuthorConverter.convertToEntity(authorSignupRequest);
-			authorService.registerAuthor(author);
-			log.info("Author '{}' registered successfully", author.getFullName());
+			authorService.registerAuthor(authorSignupRequest);
+			log.info("Author '{}' registered successfully", authorSignupRequest.getFullName());
 			return ResponseEntity.status(HttpStatus.CREATED).body("Author registered successfully");
 		}
 		catch (Exception e) {

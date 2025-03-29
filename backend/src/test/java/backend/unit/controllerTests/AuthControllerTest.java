@@ -1,6 +1,7 @@
 package backend.unit.controllerTests;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -8,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import backend.controller.AuthController;
-import backend.dto.request.AuthorSignupRequest;
 import backend.dto.request.EmailVerificationRequest;
 import backend.dto.request.LoginRequest;
 import backend.dto.request.UserSignupRequest;
@@ -25,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -131,34 +132,45 @@ class AuthControllerTest {
 
 	@Test
 	void testRegisterAuthor_Success() throws Exception {
-		AuthorSignupRequest authorSignup = new AuthorSignupRequest();
-		authorSignup.setFullName("Jane Doe");
-		authorSignup.setEmail("jane@example.com");
-		authorSignup.setPassword("secret");
-
 		doNothing().when(authorService).registerAuthor(any());
 
-		mockMvc
-			.perform(post("/api/auth/signup-author").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(authorSignup)))
-			.andExpect(status().isCreated())
-			.andExpect(content().string("Author registered successfully"));
+		MockMultipartFile photoFile = new MockMultipartFile("photo", "photo.jpg", MediaType.IMAGE_JPEG_VALUE,
+				"dummy-image-content".getBytes());
+
+		mockMvc.perform(multipart("/api/auth/signup-author").file(photoFile)
+			.param("fullName", "Jane Doe")
+			.param("email", "jane@example.com")
+			.param("password", "secret")
+			.param("dateOfBirth", "2000-01-01")
+			.param("city", "Example City")
+			.param("country", "Example Country")
+			.param("bio", "This is my short bio")
+			// For multipart requests, set the method to POST explicitly:
+			.with(request -> {
+				request.setMethod("POST");
+				return request;
+			})).andExpect(status().isCreated()).andExpect(content().string("Author registered successfully"));
 	}
 
 	@Test
 	void testRegisterAuthor_Conflict() throws Exception {
-		AuthorSignupRequest authorSignup = new AuthorSignupRequest();
-		authorSignup.setFullName("Jane Doe");
-		authorSignup.setEmail("jane@example.com");
-		authorSignup.setPassword("secret");
-
 		doThrow(new IllegalArgumentException("Email already exists")).when(authorService).registerAuthor(any());
 
-		mockMvc
-			.perform(post("/api/auth/signup-author").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(authorSignup)))
-			.andExpect(status().isConflict())
-			.andExpect(content().string("Email already exists"));
+		MockMultipartFile photoFile = new MockMultipartFile("photo", "photo.jpg", MediaType.IMAGE_JPEG_VALUE,
+				"dummy-image-content".getBytes());
+
+		mockMvc.perform(multipart("/api/auth/signup-author").file(photoFile)
+			.param("fullName", "Jane Doe")
+			.param("email", "jane@example.com")
+			.param("password", "secret")
+			.param("dateOfBirth", "2000-01-01")
+			.param("city", "Example City")
+			.param("country", "Example Country")
+			.param("bio", "This is my short bio")
+			.with(request -> {
+				request.setMethod("POST");
+				return request;
+			})).andExpect(status().isConflict()).andExpect(content().string("Email already exists"));
 	}
 
 	@Test
