@@ -33,11 +33,11 @@ class CommunityServiceTest {
 
 	private CommunityService communityService;
 
-    @BeforeEach
+	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-        String bucketName = "bucket-community";
-        communityService = new CommunityService(communityRepository, authorRepository, s3Client, bucketName);
+		String bucketName = "bucket-community";
+		communityService = new CommunityService(communityRepository, authorRepository, s3Client, bucketName);
 	}
 
 	@Test
