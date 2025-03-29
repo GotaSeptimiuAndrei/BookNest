@@ -5,7 +5,7 @@ import backend.model.Author;
 
 public class AuthorConverter {
 
-	public static Author convertToEntity(AuthorSignupRequest authorDTO) {
+	public static Author convertToEntity(AuthorSignupRequest authorDTO, String photoUrl) {
 		Author author = new Author();
 		author.setFullName(authorDTO.getFullName());
 		author.setEmail(authorDTO.getEmail());
@@ -13,8 +13,7 @@ public class AuthorConverter {
 		author.setCity(authorDTO.getCity());
 		author.setCountry(authorDTO.getCountry());
 		author.setBio(authorDTO.getBio());
-		// convert to s3 bucket link
-		author.setPhoto("https://source.unsplash.com/300x300/?book");
+		author.setPhoto(photoUrl);
 		author.setDateOfBirth(authorDTO.getDateOfBirth());
 		return author;
 	}

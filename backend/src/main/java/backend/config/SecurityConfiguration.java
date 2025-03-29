@@ -92,6 +92,10 @@ public class SecurityConfiguration {
 				.permitAll()
 				.requestMatchers("/api/loans/**")
 				.permitAll()
+				.requestMatchers("/api/communities/**")
+				.permitAll()
+				.requestMatchers("/api/memberships/**")
+				.permitAll()
 				.anyRequest()
 				.authenticated())
 			.oauth2ResourceServer(

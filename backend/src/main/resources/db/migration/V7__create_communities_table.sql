@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS communities (
+   community_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+   author_id BIGINT NOT NULL,
+   name VARCHAR(255) NOT NULL,
+   photo VARCHAR(255),
+   description TEXT,
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   CONSTRAINT fk_author_community
+       FOREIGN KEY (author_id) REFERENCES authors(author_id)
+           ON DELETE CASCADE ON UPDATE CASCADE
+);

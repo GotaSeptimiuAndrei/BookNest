@@ -1,10 +1,12 @@
 package backend.service;
 
+import backend.dto.request.UserSignupRequest;
 import backend.model.EmailVerification;
 import backend.model.User;
 import backend.repository.EmailVerificationRepository;
 import backend.repository.UserRepository;
 import backend.utils.VerificationCodeGenerator;
+import backend.utils.converter.UserConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,14 +26,15 @@ public class UserService {
 
 	private final EmailService emailService;
 
-	public void registerUser(User user) {
-		if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+	public void registerUser(UserSignupRequest userDTO) {
+		if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
 			throw new IllegalArgumentException("Username already exists");
 		}
-		if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+		if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
 			throw new IllegalArgumentException("Email already exists");
 		}
 
+		User user = UserConverter.convertToEntity(userDTO);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 
 		userRepository.save(user);

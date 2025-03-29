@@ -10,13 +10,11 @@ import backend.utils.converter.BookConverter;
 import backend.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
 import java.util.List;
+
+import static backend.utils.S3Utils.saveFileToS3Bucket;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +41,7 @@ public class BookService {
 	}
 
 	public BookResponse saveBook(BookRequest bookRequest) {
-		String imageUrl = saveFileToS3Bucket(bookRequest.getImage());
+		String imageUrl = saveFileToS3Bucket(s3Client, bucketName, bookRequest.getImage());
 
 		Book book = BookConverter.convertToEntity(bookRequest, imageUrl);
 		Book savedBook = bookRepository.save(book);
@@ -61,7 +59,7 @@ public class BookService {
 		existingBook.setCopies(bookRequest.getCopies());
 		existingBook.setCategory(bookRequest.getCategory());
 		if (bookRequest.getImage() != null) {
-			existingBook.setImage(saveFileToS3Bucket(bookRequest.getImage()));
+			existingBook.setImage(saveFileToS3Bucket(s3Client, bucketName, bookRequest.getImage()));
 		}
 		else {
 			existingBook.setImage("image.jpg");
@@ -84,28 +82,6 @@ public class BookService {
 				query);
 
 		return matchingBooks.stream().map(BookConverter::convertToDto).toList();
-	}
-
-	private String saveFileToS3Bucket(MultipartFile file) {
-		try {
-			String fileName = file.getOriginalFilename();
-			String contentType = file.getContentType();
-			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-				.bucket(bucketName)
-				.contentType(contentType)
-				.key(fileName)
-				.build();
-
-			RequestBody requestBody = RequestBody.fromInputStream(file.getInputStream(), file.getSize());
-
-			s3Client.putObject(putObjectRequest, requestBody);
-
-			return "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Could not upload the file to S3: " + e.getMessage());
-		}
 	}
 
 }

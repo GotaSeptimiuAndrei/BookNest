@@ -39,12 +39,12 @@ class BookServiceTest {
 
 	private BookService bookService;
 
-	@BeforeEach
+    @BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		String bucketName = "bucket-booknest";
 
-		bookService = new BookService(bookRepository, reviewRepository, bookLoanRepository, s3Client, bucketName);
+        String bucketName = "bucket-booknest";
+        bookService = new BookService(bookRepository, reviewRepository, bookLoanRepository, s3Client, bucketName);
 	}
 
 	@Test

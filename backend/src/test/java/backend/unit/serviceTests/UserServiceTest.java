@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import backend.dto.request.UserSignupRequest;
 import backend.model.User;
 import backend.model.EmailVerification;
 import backend.repository.UserRepository;
@@ -14,6 +15,8 @@ import backend.repository.EmailVerificationRepository;
 import backend.service.UserService;
 import backend.service.EmailService;
 
+import backend.utils.VerificationCodeGenerator;
+import backend.utils.converter.UserConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -43,73 +46,85 @@ class UserServiceTest {
 
 	@Test
 	void registerUser_successfully() {
-		User user = new User();
-		user.setUsername("john");
-		user.setEmail("john@doe.com");
-		user.setPassword("password");
+		UserSignupRequest request = new UserSignupRequest();
+		request.setUsername("john");
+		request.setEmail("john@doe.com");
+		request.setPassword("password");
 
 		when(userRepository.findByUsername("john")).thenReturn(Optional.empty());
 		when(userRepository.findByEmail("john@doe.com")).thenReturn(Optional.empty());
 
-		when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+		User userEntity = new User();
+		userEntity.setUsername("john");
+		userEntity.setEmail("john@doe.com");
+		userEntity.setPassword("password");
 
-		User savedUser = new User();
-		savedUser.setUserId(1L);
-		savedUser.setUsername("john");
-		savedUser.setEmail("john@doe.com");
-		savedUser.setPassword("encodedPassword");
-		when(userRepository.save(any(User.class))).thenReturn(savedUser);
+		try (MockedStatic<UserConverter> converterMock = Mockito.mockStatic(UserConverter.class);
+				MockedStatic<VerificationCodeGenerator> codeGeneratorMock = Mockito
+					.mockStatic(VerificationCodeGenerator.class)) {
 
-		userService.registerUser(user);
+			converterMock.when(() -> UserConverter.convertToEntity(request)).thenReturn(userEntity);
+			when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
 
-		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-		verify(userRepository).save(userCaptor.capture());
-		assertThat(userCaptor.getValue().getPassword()).isEqualTo("encodedPassword");
+			codeGeneratorMock.when(VerificationCodeGenerator::generateVerificationCode).thenReturn("123456");
 
-		ArgumentCaptor<EmailVerification> verificationCaptor = ArgumentCaptor.forClass(EmailVerification.class);
-		verify(emailVerificationRepository).save(verificationCaptor.capture());
-		EmailVerification savedVerification = verificationCaptor.getValue();
-		assertThat(savedVerification.getEmail()).isEqualTo("john@doe.com");
-		assertThat(savedVerification.getVerificationCode()).isNotBlank();
+			when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+				User u = invocation.getArgument(0);
+				u.setUserId(1L);
+				return u;
+			});
 
-		assertThat(savedVerification.getCreatedAt()).isBefore(LocalDateTime.now().plusSeconds(1));
+			userService.registerUser(request);
 
-		verify(emailService).sendVerificationEmail(eq("john@doe.com"), anyString());
+			ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+			verify(userRepository).save(userCaptor.capture());
+			assertThat(userCaptor.getValue().getPassword()).isEqualTo("encodedPassword");
+
+			ArgumentCaptor<EmailVerification> verificationCaptor = ArgumentCaptor.forClass(EmailVerification.class);
+			verify(emailVerificationRepository).save(verificationCaptor.capture());
+			EmailVerification savedVerification = verificationCaptor.getValue();
+
+			assertThat(savedVerification.getEmail()).isEqualTo("john@doe.com");
+			assertThat(savedVerification.getVerificationCode()).isEqualTo("123456");
+			assertThat(savedVerification.getCreatedAt()).isBefore(LocalDateTime.now().plusSeconds(1));
+
+			verify(emailService).sendVerificationEmail(eq("john@doe.com"), eq("123456"));
+		}
 	}
 
 	@Test
 	void registerUser_usernameAlreadyExists_throwsException() {
-		User user = new User();
-		user.setUsername("john");
-		user.setEmail("john@doe.com");
+		UserSignupRequest request = new UserSignupRequest();
+		request.setUsername("john");
+		request.setEmail("john@doe.com");
 
 		when(userRepository.findByUsername("john")).thenReturn(Optional.of(new User()));
 
 		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-				() -> userService.registerUser(user));
+				() -> userService.registerUser(request));
 		assertThat(ex.getMessage()).isEqualTo("Username already exists");
 
-		verify(userRepository, never()).save(any(User.class));
+		verify(userRepository, never()).save(any());
 		verify(emailVerificationRepository, never()).save(any());
-		verify(emailService, never()).sendVerificationEmail(anyString(), anyString());
+		verify(emailService, never()).sendVerificationEmail(any(), any());
 	}
 
 	@Test
 	void registerUser_emailAlreadyExists_throwsException() {
-		User user = new User();
-		user.setUsername("john");
-		user.setEmail("john@doe.com");
+		UserSignupRequest request = new UserSignupRequest();
+		request.setUsername("john");
+		request.setEmail("john@doe.com");
 
 		when(userRepository.findByUsername("john")).thenReturn(Optional.empty());
 		when(userRepository.findByEmail("john@doe.com")).thenReturn(Optional.of(new User()));
 
 		IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-				() -> userService.registerUser(user));
+				() -> userService.registerUser(request));
 		assertThat(ex.getMessage()).isEqualTo("Email already exists");
 
-		verify(userRepository, never()).save(any(User.class));
+		verify(userRepository, never()).save(any());
 		verify(emailVerificationRepository, never()).save(any());
-		verify(emailService, never()).sendVerificationEmail(anyString(), anyString());
+		verify(emailService, never()).sendVerificationEmail(any(), any());
 	}
 
 }
