@@ -10,6 +10,7 @@ import backend.utils.JwtUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -46,6 +47,14 @@ public class ReviewController {
 	public ResponseEntity<APIResponse<List<ReviewResponse>>> getReviewsForBook(@PathVariable Long bookId) {
 		List<ReviewResponse> reviews = reviewService.getAllReviewsForBook(bookId);
 		return ResponseEntity.ok(APIResponse.<List<ReviewResponse>>builder().status(SUCCESS).results(reviews).build());
+	}
+
+	@GetMapping("/book/{bookId}/paginated")
+	public ResponseEntity<APIResponse<Page<ReviewResponse>>> getReviewsForBookPaginated(@PathVariable Long bookId,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+		Page<ReviewResponse> reviewPage = reviewService.getAllReviewsForBookPaginated(bookId, page, size);
+		return ResponseEntity
+			.ok(APIResponse.<Page<ReviewResponse>>builder().status(SUCCESS).results(reviewPage).build());
 	}
 
 	@ExceptionHandler(ReviewException.class)

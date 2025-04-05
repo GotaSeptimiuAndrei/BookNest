@@ -7,6 +7,9 @@ import backend.model.*;
 import backend.repository.*;
 import backend.utils.converter.PostConverter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 
@@ -71,6 +74,15 @@ public class PostService {
 		List<Post> posts = postRepository.findAllByCommunityCommunityId(communityId);
 
 		return posts.stream().map(PostConverter::convertToDto).toList();
+	}
+
+	public Page<PostResponse> getPostsByCommunityIdPaginated(Long communityId, int page, int size) {
+		communityRepository.findById(communityId)
+			.orElseThrow(() -> new PostException("Community not found with ID: " + communityId));
+
+		Pageable pageable = PageRequest.of(page, size);
+		Page<Post> postPage = postRepository.findAllByCommunityCommunityId(communityId, pageable);
+		return postPage.map(PostConverter::convertToDto);
 	}
 
 	public void likePost(Long postId, Long userId) {

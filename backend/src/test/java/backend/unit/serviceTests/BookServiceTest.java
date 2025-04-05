@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 
@@ -204,7 +207,9 @@ class BookServiceTest {
 
 	@Test
 	void testSearchBooks_MatchingResults() {
+		int page = 0, size = 10;
 		String query = "someTitle";
+
 		Book book1 = new Book();
 		book1.setBookId(10L);
 		book1.setTitle("SomeTitle here");
@@ -215,27 +220,38 @@ class BookServiceTest {
 		book2.setTitle("Another Book with SomeTitle inside");
 		book2.setAuthor("Another Author");
 
-		when(bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query))
-			.thenReturn(List.of(book1, book2));
+		Page<Book> bookPage = new PageImpl<>(List.of(book1, book2), PageRequest.of(page, size), 2);
 
-		List<BookResponse> result = bookService.searchBooks(query);
+		when(bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
+				PageRequest.of(page, size)))
+			.thenReturn(bookPage);
 
-		assertThat(result).hasSize(2);
-		assertThat(result.get(0).getTitle()).containsIgnoringCase("SomeTitle");
-		assertThat(result.get(1).getTitle()).containsIgnoringCase("SomeTitle");
-		verify(bookRepository).findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query);
+		Page<BookResponse> result = bookService.searchBooksByTitleOrAuthor(query, page, size);
+
+		assertThat(result.getContent()).hasSize(2);
+		assertThat(result.getContent().get(0).getTitle()).containsIgnoringCase("SomeTitle");
+		assertThat(result.getContent().get(1).getTitle()).containsIgnoringCase("SomeTitle");
+
+		verify(bookRepository).findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
+				PageRequest.of(page, size));
 	}
 
 	@Test
 	void testSearchBooks_NoResults() {
 		String query = "no-match";
-		when(bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query))
-			.thenReturn(List.of());
+		int page = 0, size = 10;
 
-		List<BookResponse> result = bookService.searchBooks(query);
+		Page<Book> emptyPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+		when(bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
+				PageRequest.of(page, size)))
+			.thenReturn(emptyPage);
+
+		Page<BookResponse> result = bookService.searchBooksByTitleOrAuthor(query, page, size);
 
 		assertThat(result).isEmpty();
-		verify(bookRepository).findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query);
+		verify(bookRepository).findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
+				PageRequest.of(page, size));
 	}
 
 }

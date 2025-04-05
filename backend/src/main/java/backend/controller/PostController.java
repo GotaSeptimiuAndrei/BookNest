@@ -9,6 +9,7 @@ import backend.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -39,6 +40,14 @@ public class PostController {
 	public ResponseEntity<APIResponse<List<PostResponse>>> getPostsByCommunityId(@PathVariable Long communityId) {
 		List<PostResponse> posts = postService.getPostsByCommunityId(communityId);
 		return ResponseEntity.ok(APIResponse.<List<PostResponse>>builder().status(SUCCESS).results(posts).build());
+	}
+
+	@GetMapping("/community/{communityId}/paginated")
+	public ResponseEntity<APIResponse<Page<PostResponse>>> getPostsByCommunityIdPaginated(
+			@PathVariable Long communityId, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		Page<PostResponse> postPage = postService.getPostsByCommunityIdPaginated(communityId, page, size);
+		return ResponseEntity.ok(APIResponse.<Page<PostResponse>>builder().status(SUCCESS).results(postPage).build());
 	}
 
 	@PostMapping

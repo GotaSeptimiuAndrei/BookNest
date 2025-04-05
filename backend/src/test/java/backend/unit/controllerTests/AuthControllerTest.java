@@ -12,7 +12,6 @@ import backend.controller.AuthController;
 import backend.dto.request.EmailVerificationRequest;
 import backend.dto.request.LoginRequest;
 import backend.dto.request.UserSignupRequest;
-import backend.dto.response.TokenResponse;
 import backend.model.EmailVerification;
 import backend.repository.EmailVerificationRepository;
 import backend.service.AuthorService;
@@ -73,18 +72,18 @@ class AuthControllerTest {
 		Authentication mockAuth = mock(Authentication.class);
 		when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mockAuth);
 
-		TokenResponse tokenResponse = new TokenResponse("some-jwt-token");
+		String tokenResponse = "some-jwt-token";
 		when(tokenService.generateToken(mockAuth)).thenReturn(tokenResponse);
 
 		mockMvc
 			.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.token").value("some-jwt-token"));
+			.andExpect(content().string(tokenResponse));
 	}
 
 	@Test
-	void testLoginUser_Unauthorized() throws Exception {
+	void testLoginUser_Failure() throws Exception {
 		LoginRequest loginRequest = new LoginRequest();
 		loginRequest.setEmail("test@example.com");
 		loginRequest.setPassword("wrongPassword");
@@ -95,7 +94,8 @@ class AuthControllerTest {
 		mockMvc
 			.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(loginRequest)))
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().isConflict())
+			.andExpect(content().string("Invalid login"));
 	}
 
 	@Test

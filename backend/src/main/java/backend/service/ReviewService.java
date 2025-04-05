@@ -7,6 +7,9 @@ import backend.model.Review;
 import backend.repository.ReviewRepository;
 import backend.utils.converter.ReviewConverter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +36,12 @@ public class ReviewService {
 		List<Review> reviews = reviewRepository.findAll().stream().filter(r -> r.getBookId().equals(bookId)).toList();
 
 		return reviews.stream().map(ReviewConverter::convertToDto).toList();
+	}
+
+	public Page<ReviewResponse> getAllReviewsForBookPaginated(Long bookId, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<Review> reviewsPage = reviewRepository.findAllByBookId(bookId, pageable);
+		return reviewsPage.map(ReviewConverter::convertToDto);
 	}
 
 }

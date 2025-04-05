@@ -7,7 +7,6 @@ import backend.dto.request.UserSignupRequest;
 import backend.model.EmailVerification;
 import backend.repository.EmailVerificationRepository;
 import backend.service.AuthorService;
-import backend.dto.response.TokenResponse;
 import backend.service.TokenService;
 import backend.service.UserService;
 import jakarta.validation.Valid;
@@ -40,7 +39,7 @@ public class AuthController {
 	private final EmailVerificationRepository verificationRepository;
 
 	@PostMapping("/login")
-	public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginRequest loginRequest) {
+	public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
 		try {
 			log.info("User {} is trying to login", loginRequest.getEmail());
 			Authentication authentication = authenticationManager.authenticate(
@@ -49,7 +48,7 @@ public class AuthController {
 			return ResponseEntity.ok(tokenService.generateToken(authentication));
 		}
 		catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}
 	}
 
