@@ -9,6 +9,9 @@ import backend.repository.ReviewRepository;
 import backend.utils.converter.BookConverter;
 import backend.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 
@@ -32,6 +35,21 @@ public class BookService {
 
 	public List<BookResponse> getAllBooks() {
 		return bookRepository.findAll().stream().map(BookConverter::convertToDto).toList();
+	}
+
+	public Page<BookResponse> getAllBooksPaginated(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<Book> booksPage = bookRepository.findAll(pageable);
+
+		return booksPage.map(BookConverter::convertToDto);
+	}
+
+	public Page<BookResponse> searchBooksByTitleOrAuthor(String query, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<Book> booksPage = bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
+				pageable);
+
+		return booksPage.map(BookConverter::convertToDto);
 	}
 
 	public BookResponse getBookById(Long id) {
@@ -75,13 +93,6 @@ public class BookService {
 		bookRepository.delete(book);
 		reviewRepository.deleteAllByBookId(id);
 		bookLoanRepository.deleteAllByBookId(id);
-	}
-
-	public List<BookResponse> searchBooks(String query) {
-		List<Book> matchingBooks = bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query,
-				query);
-
-		return matchingBooks.stream().map(BookConverter::convertToDto).toList();
 	}
 
 }

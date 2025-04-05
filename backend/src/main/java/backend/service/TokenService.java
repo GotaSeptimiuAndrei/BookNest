@@ -1,6 +1,5 @@
 package backend.service;
 
-import backend.dto.response.TokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,7 +22,7 @@ public class TokenService {
 
 	private final AuthorService authorService;
 
-	public TokenResponse generateToken(Authentication authentication) {
+	public String generateToken(Authentication authentication) {
 		Instant now = Instant.now();
 
 		String email = authentication.getName();
@@ -58,7 +57,7 @@ public class TokenService {
 				.build();
 		}
 
-		return new TokenResponse(this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue());
+		return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 	}
 
 }

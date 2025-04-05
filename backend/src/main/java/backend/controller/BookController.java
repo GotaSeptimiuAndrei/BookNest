@@ -9,6 +9,7 @@ import backend.exception.BookValidationException;
 import backend.service.BookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -36,6 +37,14 @@ public class BookController {
 		return ResponseEntity.ok(APIResponse.<List<BookResponse>>builder().status(SUCCESS).results(books).build());
 	}
 
+	@GetMapping("/paginated")
+	public ResponseEntity<APIResponse<Page<BookResponse>>> getAllBooksPaginated(
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+		Page<BookResponse> booksPage = bookService.getAllBooksPaginated(page, size);
+
+		return ResponseEntity.ok(APIResponse.<Page<BookResponse>>builder().status(SUCCESS).results(booksPage).build());
+	}
+
 	@GetMapping("/{id}")
 	public ResponseEntity<APIResponse<BookResponse>> getBookById(@PathVariable Long id) {
 		BookResponse bookResponse = bookService.getBookById(id);
@@ -43,11 +52,10 @@ public class BookController {
 	}
 
 	@GetMapping("/search")
-	public ResponseEntity<APIResponse<List<BookResponse>>> searchBooks(@RequestParam("query") String query) {
-		List<BookResponse> matchingBooks = bookService.searchBooks(query);
-
-		return ResponseEntity
-			.ok(APIResponse.<List<BookResponse>>builder().status(SUCCESS).results(matchingBooks).build());
+	public ResponseEntity<APIResponse<Page<BookResponse>>> searchBooksPaginated(@RequestParam String query,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+		Page<BookResponse> booksPage = bookService.searchBooksByTitleOrAuthor(query, page, size);
+		return ResponseEntity.ok(APIResponse.<Page<BookResponse>>builder().status(SUCCESS).results(booksPage).build());
 	}
 
 	@PostMapping

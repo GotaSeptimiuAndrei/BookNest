@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -175,6 +178,8 @@ class BookControllerTest {
 	@Test
 	void testSearchBooks_ValidQuery() throws Exception {
 		String query = "someTitle";
+		int page = 0, size = 10;
+
 		BookResponse book1 = new BookResponse();
 		book1.setBookId(10L);
 		book1.setTitle("SomeTitle here");
@@ -183,28 +188,40 @@ class BookControllerTest {
 		book2.setBookId(20L);
 		book2.setTitle("Another Book with SomeTitle inside");
 
-		when(bookService.searchBooks(query)).thenReturn(List.of(book1, book2));
+		Page<BookResponse> bookPage = new PageImpl<>(List.of(book1, book2), PageRequest.of(page, size), 2);
 
-		mockMvc.perform(get("/api/books/search").param("query", query))
+		when(bookService.searchBooksByTitleOrAuthor(query, page, size)).thenReturn(bookPage);
+
+		mockMvc
+			.perform(get("/api/books/search").param("query", query)
+				.param("page", String.valueOf(page))
+				.param("size", String.valueOf(size)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.status").value("success"))
-			.andExpect(jsonPath("$.results[0].title").value("SomeTitle here"))
-			.andExpect(jsonPath("$.results[1].title").value("Another Book with SomeTitle inside"));
+			.andExpect(jsonPath("$.results.content[0].title").value("SomeTitle here"))
+			.andExpect(jsonPath("$.results.content[1].title").value("Another Book with SomeTitle inside"));
 
-		verify(bookService).searchBooks(query);
+		verify(bookService).searchBooksByTitleOrAuthor(query, page, size);
 	}
 
 	@Test
 	void testSearchBooks_EmptyQuery() throws Exception {
 		String query = "";
-		when(bookService.searchBooks(query)).thenReturn(List.of());
+		int page = 0, size = 10;
 
-		mockMvc.perform(get("/api/books/search").param("query", query))
+		Page<BookResponse> emptyPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+		when(bookService.searchBooksByTitleOrAuthor(query, page, size)).thenReturn(emptyPage);
+
+		mockMvc
+			.perform(get("/api/books/search").param("query", query)
+				.param("page", String.valueOf(page))
+				.param("size", String.valueOf(size)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.status").value("success"))
-			.andExpect(jsonPath("$.results").isEmpty());
+			.andExpect(jsonPath("$.results.content").isEmpty());
 
-		verify(bookService).searchBooks(query);
+		verify(bookService).searchBooksByTitleOrAuthor(query, page, size);
 	}
 
 }
