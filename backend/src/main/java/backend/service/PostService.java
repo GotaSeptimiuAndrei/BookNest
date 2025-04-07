@@ -32,6 +32,10 @@ public class PostService {
 
 	private final UserRepository userRepository;
 
+	private final CommunityMembershipService communityMembershipService;
+
+	private final NotificationService notificationService;
+
 	private final S3Client s3Client;
 
 	private final String bucketName;
@@ -49,6 +53,12 @@ public class PostService {
 		}
 
 		Post savedPost = postRepository.save(PostConverter.convertToEntity(postRequest, imageUrl, community, author));
+
+		// Fetch all community members for notifications
+		List<User> members = communityMembershipService.getMembersOfCommunity(community.getCommunityId());
+
+		// Send notifications (save in DB and broadcast via WebSocket)
+		notificationService.sendNewPostNotifications(community.getCommunityId(), savedPost, members);
 
 		return PostConverter.convertToDto(savedPost);
 	}

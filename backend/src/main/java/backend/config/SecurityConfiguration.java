@@ -100,6 +100,8 @@ public class SecurityConfiguration {
 				.permitAll()
 				.requestMatchers("/api/comments/**")
 				.permitAll()
+				.requestMatchers("/api/notifications/**")
+				.permitAll()
 				.anyRequest()
 				.authenticated())
 			.oauth2ResourceServer(
