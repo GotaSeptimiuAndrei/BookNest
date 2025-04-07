@@ -5,6 +5,8 @@ import backend.dto.response.PostResponse;
 import backend.exception.PostException;
 import backend.model.*;
 import backend.repository.*;
+import backend.service.CommunityMembershipService;
+import backend.service.NotificationService;
 import backend.service.PostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +39,12 @@ class PostServiceTest {
 	private UserRepository userRepository;
 
 	@Mock
+	private CommunityMembershipService communityMembershipService;
+
+	@Mock
+	private NotificationService notificationService;
+
+	@Mock
 	private S3Client s3Client;
 
 	private PostService postService;
@@ -46,7 +54,7 @@ class PostServiceTest {
 		MockitoAnnotations.openMocks(this);
 		String bucketName = "bucket-posts";
 		postService = new PostService(postRepository, postLikesRepository, communityRepository, authorRepository,
-				userRepository, s3Client, bucketName);
+				userRepository, communityMembershipService, notificationService, s3Client, bucketName);
 	}
 
 	@Test
