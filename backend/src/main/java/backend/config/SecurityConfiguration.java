@@ -9,10 +9,12 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -60,7 +62,7 @@ public class SecurityConfiguration {
 	public JwtAuthenticationConverter jwtAuthenticationConverter() {
 		JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 		grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
-		grantedAuthoritiesConverter.setAuthorityPrefix("");
+		grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
 		JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
 		authenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
@@ -84,24 +86,62 @@ public class SecurityConfiguration {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http.cors(c -> c.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**")
+			.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, "/api/books/**")
 				.permitAll()
-				.requestMatchers("/api/books/**")
+				.requestMatchers(HttpMethod.POST, "/api/books/**")
+				.hasRole("ADMIN")
+				.requestMatchers(HttpMethod.PUT, "/api/books/**")
+				.hasRole("ADMIN")
+				.requestMatchers(HttpMethod.DELETE, "/api/books/**")
+				.hasRole("ADMIN")
+
+				.requestMatchers("/api/auth/**")
 				.permitAll()
-				.requestMatchers("/api/reviews/**")
+
+				.requestMatchers(HttpMethod.GET, "/api/reviews/**")
 				.permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/reviews/**")
+				.hasRole("USER")
+
 				.requestMatchers("/api/loans/**")
+				.hasRole("USER")
+
+				.requestMatchers(HttpMethod.GET, "/api/communities/**")
 				.permitAll()
-				.requestMatchers("/api/communities/**")
+				.requestMatchers(HttpMethod.POST, "/api/communities/**")
+				.hasRole("AUTHOR")
+				.requestMatchers(HttpMethod.PUT, "/api/communities/**")
+				.hasRole("AUTHOR")
+
+				.requestMatchers(HttpMethod.GET, "/api/memberships/**")
 				.permitAll()
-				.requestMatchers("/api/memberships/**")
+				.requestMatchers(HttpMethod.POST, "/api/memberships/**")
+				.hasRole("USER")
+				.requestMatchers(HttpMethod.DELETE, "/api/memberships/**")
+				.hasRole("USER")
+
+				.requestMatchers(HttpMethod.GET, "/api/posts/**")
 				.permitAll()
-				.requestMatchers("/api/posts/**")
+				.requestMatchers(HttpMethod.POST, "/api/posts")
+				.hasRole("AUTHOR")
+				.requestMatchers(HttpMethod.DELETE, "/api/posts/**")
+				.hasRole("AUTHOR")
+				.requestMatchers(HttpMethod.POST, "/api/posts/*/like")
+				.hasAnyRole("AUTHOR", "USER")
+				.requestMatchers(HttpMethod.POST, "/api/posts/*/unlike")
+				.hasAnyRole("AUTHOR", "USER")
+
+				.requestMatchers(HttpMethod.GET, "/api/comments/**")
 				.permitAll()
-				.requestMatchers("/api/comments/**")
-				.permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/comments")
+				.hasAnyRole("USER", "AUTHOR")
+				.requestMatchers(HttpMethod.POST, "/api/comments/*/reply")
+				.hasAnyRole("USER", "AUTHOR")
+				.requestMatchers(HttpMethod.DELETE, "/api/comments/**")
+				.hasAnyRole("USER", "AUTHOR")
+
 				.requestMatchers("/api/notifications/**")
-				.permitAll()
+				.hasRole("USER")
 				.anyRequest()
 				.authenticated())
 			.oauth2ResourceServer(
