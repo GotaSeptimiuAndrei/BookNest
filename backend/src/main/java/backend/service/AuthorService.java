@@ -9,6 +9,7 @@ import backend.repository.AuthorRepository;
 import backend.repository.EmailVerificationRepository;
 import backend.utils.VerificationCodeGenerator;
 import backend.utils.converter.AuthorConverter;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthorService {
 

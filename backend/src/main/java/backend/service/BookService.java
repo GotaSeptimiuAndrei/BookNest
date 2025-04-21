@@ -8,6 +8,7 @@ import backend.repository.BookLoanRepository;
 import backend.repository.ReviewRepository;
 import backend.utils.converter.BookConverter;
 import backend.repository.BookRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -87,6 +88,7 @@ public class BookService {
 		return BookConverter.convertToDto(updatedBook);
 	}
 
+	@Transactional
 	public void deleteBook(Long id) {
 		Book book = bookRepository.findById(id)
 			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
