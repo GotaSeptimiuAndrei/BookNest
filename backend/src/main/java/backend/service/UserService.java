@@ -7,6 +7,7 @@ import backend.repository.EmailVerificationRepository;
 import backend.repository.UserRepository;
 import backend.utils.VerificationCodeGenerator;
 import backend.utils.converter.UserConverter;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserService {
 

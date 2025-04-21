@@ -6,6 +6,7 @@ import backend.exception.PostException;
 import backend.model.*;
 import backend.repository.*;
 import backend.utils.converter.PostConverter;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ import java.util.List;
 import static backend.utils.S3Utils.saveFileToS3Bucket;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PostService {
 
