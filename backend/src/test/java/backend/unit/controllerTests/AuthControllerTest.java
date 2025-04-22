@@ -1,44 +1,38 @@
 package backend.unit.controllerTests;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import backend.controller.AuthController;
-import backend.dto.request.EmailVerificationRequest;
-import backend.dto.request.LoginRequest;
-import backend.dto.request.UserSignupRequest;
-import backend.model.EmailVerification;
-import backend.repository.EmailVerificationRepository;
-import backend.service.AuthorService;
-import backend.service.TokenService;
-import backend.service.UserService;
-
-import org.junit.jupiter.api.BeforeEach;
+import backend.dto.request.*;
+import backend.service.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@MockitoBean
 	private TokenService tokenService;
@@ -53,184 +47,150 @@ class AuthControllerTest {
 	private AuthorService authorService;
 
 	@MockitoBean
-	private EmailVerificationRepository verificationRepository;
-
-	@Autowired
-	private ObjectMapper objectMapper;
-
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.openMocks(this);
-	}
+	private EmailService emailService;
 
 	@Test
-	void testLoginUser_Success() throws Exception {
-		LoginRequest loginRequest = new LoginRequest();
-		loginRequest.setEmail("test@example.com");
-		loginRequest.setPassword("password123");
+	void loginUser_success() throws Exception {
+		LoginRequest req = new LoginRequest("test@example.com", "password123");
 
-		Authentication mockAuth = mock(Authentication.class);
-		when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mockAuth);
-
-		String tokenResponse = "some-jwt-token";
-		when(tokenService.generateToken(mockAuth)).thenReturn(tokenResponse);
+		Authentication auth = Mockito.mock(Authentication.class);
+		when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
+		when(tokenService.generateToken(auth)).thenReturn("jwt‑token");
 
 		mockMvc
 			.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(loginRequest)))
+				.content(objectMapper.writeValueAsString(req)))
 			.andExpect(status().isOk())
-			.andExpect(content().string(tokenResponse));
+			.andExpect(content().string("jwt‑token"));
 	}
 
 	@Test
-	void testLoginUser_Failure() throws Exception {
-		LoginRequest loginRequest = new LoginRequest();
-		loginRequest.setEmail("test@example.com");
-		loginRequest.setPassword("wrongPassword");
+	void loginUser_failure() throws Exception {
+		LoginRequest req = new LoginRequest("test@example.com", "wrong");
 
 		when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
 			.thenThrow(new RuntimeException("Invalid login"));
 
 		mockMvc
 			.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(loginRequest)))
+				.content(objectMapper.writeValueAsString(req)))
 			.andExpect(status().isConflict())
 			.andExpect(content().string("Invalid login"));
 	}
 
+	/* ═════════════════════════════ SIGN‑UP USER ═══════════════════════ */
+
 	@Test
-	void testRegisterUser_Success() throws Exception {
-		UserSignupRequest signupRequest = new UserSignupRequest();
-		signupRequest.setUsername("john123");
-		signupRequest.setEmail("john@example.com");
-		signupRequest.setPassword("secret");
+	void registerUser_success() throws Exception {
+		UserSignupRequest req = new UserSignupRequest("john@example.com", "secret", "john123");
 
 		doNothing().when(userService).registerUser(any());
 
 		mockMvc
 			.perform(post("/api/auth/signup-user").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(signupRequest)))
+				.content(objectMapper.writeValueAsString(req)))
 			.andExpect(status().isCreated())
 			.andExpect(content().string("User registered successfully"));
 	}
 
 	@Test
-	void testRegisterUser_Conflict() throws Exception {
-		UserSignupRequest signupRequest = new UserSignupRequest();
-		signupRequest.setUsername("john123");
-		signupRequest.setEmail("john@example.com");
-		signupRequest.setPassword("secret");
+	void registerUser_conflict() throws Exception {
+		UserSignupRequest req = new UserSignupRequest("john@example.com", "secret", "john123");
 
 		doThrow(new IllegalArgumentException("Username already exists")).when(userService).registerUser(any());
 
 		mockMvc
 			.perform(post("/api/auth/signup-user").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(signupRequest)))
+				.content(objectMapper.writeValueAsString(req)))
 			.andExpect(status().isConflict())
 			.andExpect(content().string("Username already exists"));
 	}
 
+	/* ═════════════════════════════ SIGN‑UP AUTHOR ═════════════════════ */
+
 	@Test
-	void testRegisterAuthor_Success() throws Exception {
+	void registerAuthor_success() throws Exception {
 		doNothing().when(authorService).registerAuthor(any());
 
-		MockMultipartFile photoFile = new MockMultipartFile("photo", "photo.jpg", MediaType.IMAGE_JPEG_VALUE,
-				"dummy-image-content".getBytes());
+		MockMultipartFile photo = new MockMultipartFile("photo", "photo.jpg", MediaType.IMAGE_JPEG_VALUE,
+				"img".getBytes());
 
-		mockMvc.perform(multipart("/api/auth/signup-author").file(photoFile)
+		mockMvc.perform(multipart("/api/auth/signup-author").file(photo)
 			.param("fullName", "Jane Doe")
 			.param("email", "jane@example.com")
 			.param("password", "secret")
 			.param("dateOfBirth", "2000-01-01")
-			.param("city", "Example City")
-			.param("country", "Example Country")
-			.param("bio", "This is my short bio")
-			// For multipart requests, set the method to POST explicitly:
-			.with(request -> {
-				request.setMethod("POST");
-				return request;
+			.param("city", "City")
+			.param("country", "Country")
+			.param("bio", "Short bio")
+			.with(req -> {
+				req.setMethod("POST");
+				return req;
 			})).andExpect(status().isCreated()).andExpect(content().string("Author registered successfully"));
 	}
 
 	@Test
-	void testRegisterAuthor_Conflict() throws Exception {
+	void registerAuthor_conflict() throws Exception {
 		doThrow(new IllegalArgumentException("Email already exists")).when(authorService).registerAuthor(any());
 
-		MockMultipartFile photoFile = new MockMultipartFile("photo", "photo.jpg", MediaType.IMAGE_JPEG_VALUE,
-				"dummy-image-content".getBytes());
+		MockMultipartFile photo = new MockMultipartFile("photo", "photo.jpg", MediaType.IMAGE_JPEG_VALUE,
+				"img".getBytes());
 
-		mockMvc.perform(multipart("/api/auth/signup-author").file(photoFile)
+		mockMvc.perform(multipart("/api/auth/signup-author").file(photo)
 			.param("fullName", "Jane Doe")
 			.param("email", "jane@example.com")
 			.param("password", "secret")
 			.param("dateOfBirth", "2000-01-01")
-			.param("city", "Example City")
-			.param("country", "Example Country")
-			.param("bio", "This is my short bio")
-			.with(request -> {
-				request.setMethod("POST");
-				return request;
+			.param("city", "City")
+			.param("country", "Country")
+			.param("bio", "Short bio")
+			.with(req -> {
+				req.setMethod("POST");
+				return req;
 			})).andExpect(status().isConflict()).andExpect(content().string("Email already exists"));
 	}
 
+	/* ═════════════════════════════ VERIFY E‑MAIL ══════════════════════ */
+
 	@Test
-	void testVerifyEmail_Success() throws Exception {
-		EmailVerificationRequest request = new EmailVerificationRequest();
-		request.setEmail("test@example.com");
-		request.setVerificationCode("1234");
+	void verifyEmail_success() throws Exception {
+		EmailVerificationRequest req = new EmailVerificationRequest("test@example.com", "1234");
 
-		EmailVerification verification = new EmailVerification();
-		verification.setEmail("test@example.com");
-		verification.setVerificationCode("1234");
-		verification.setVerified(false);
-		verification.setExpiresAt(LocalDateTime.now().plusMinutes(5));
-
-		when(verificationRepository.findByEmailAndVerificationCodeAndVerifiedFalse("test@example.com", "1234"))
-			.thenReturn(Optional.of(verification));
+		doNothing().when(emailService).verifyAndPersistAccount(any());
 
 		mockMvc
 			.perform(post("/api/auth/verify-email").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
+				.content(objectMapper.writeValueAsString(req)))
 			.andExpect(status().isOk())
 			.andExpect(content().string("Email verified successfully"));
 
-		verify(verificationRepository).save(any(EmailVerification.class));
+		verify(emailService).verifyAndPersistAccount(any());
 	}
 
 	@Test
-	void testVerifyEmail_InvalidOrAlreadyVerified() throws Exception {
-		EmailVerificationRequest request = new EmailVerificationRequest();
-		request.setEmail("test@example.com");
-		request.setVerificationCode("9999");
+	void verifyEmail_invalid() throws Exception {
+		EmailVerificationRequest req = new EmailVerificationRequest("test@example.com", "9999");
 
-		when(verificationRepository.findByEmailAndVerificationCodeAndVerifiedFalse("test@example.com", "9999"))
-			.thenReturn(Optional.empty());
+		doThrow(new IllegalArgumentException("Invalid code or already verified")).when(emailService)
+			.verifyAndPersistAccount(any());
 
 		mockMvc
 			.perform(post("/api/auth/verify-email").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
+				.content(objectMapper.writeValueAsString(req)))
 			.andExpect(status().isBadRequest())
 			.andExpect(content().string("Invalid code or already verified"));
 	}
 
 	@Test
-	void testVerifyEmail_Expired() throws Exception {
-		EmailVerificationRequest request = new EmailVerificationRequest();
-		request.setEmail("test@example.com");
-		request.setVerificationCode("1234");
+	void verifyEmail_expired() throws Exception {
+		EmailVerificationRequest req = new EmailVerificationRequest("test@example.com", "1234");
 
-		EmailVerification verification = new EmailVerification();
-		verification.setEmail("test@example.com");
-		verification.setVerificationCode("1234");
-		verification.setVerified(false);
-		verification.setExpiresAt(LocalDateTime.now().minusMinutes(1)); // expired
-
-		when(verificationRepository.findByEmailAndVerificationCodeAndVerifiedFalse("test@example.com", "1234"))
-			.thenReturn(Optional.of(verification));
+		doThrow(new IllegalArgumentException("Verification code expired")).when(emailService)
+			.verifyAndPersistAccount(any());
 
 		mockMvc
 			.perform(post("/api/auth/verify-email").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
+				.content(objectMapper.writeValueAsString(req)))
 			.andExpect(status().isBadRequest())
 			.andExpect(content().string("Verification code expired"));
 	}
