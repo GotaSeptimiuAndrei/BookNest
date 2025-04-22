@@ -9,6 +9,7 @@ import backend.repository.BookLoanRepository;
 import backend.service.BookLoanService;
 import backend.service.BookService;
 import backend.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -90,7 +91,7 @@ class BookWorkflowIT {
 	// }
 
 	@BeforeEach
-	void seed() {
+	void seed() throws JsonProcessingException {
 		UserSignupRequest andrei = new UserSignupRequest("andrei@email.com", "password", "andrei");
 		userService.registerUser(andrei);
 

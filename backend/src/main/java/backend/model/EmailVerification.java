@@ -33,4 +33,11 @@ public class EmailVerification {
 	@Column(name = "verified", nullable = false)
 	private boolean verified = false;
 
+	@Enumerated(EnumType.STRING)
+	private RegistrationType registrationType; // USER or AUTHOR
+
+	@Lob
+	@Column(columnDefinition = "TEXT")
+	private String registrationPayload; // JSON‑ized signup DTO
+
 }

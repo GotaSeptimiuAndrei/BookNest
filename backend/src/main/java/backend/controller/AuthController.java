@@ -4,9 +4,8 @@ import backend.dto.request.AuthorSignupRequest;
 import backend.dto.request.EmailVerificationRequest;
 import backend.dto.request.LoginRequest;
 import backend.dto.request.UserSignupRequest;
-import backend.model.EmailVerification;
-import backend.repository.EmailVerificationRepository;
 import backend.service.AuthorService;
+import backend.service.EmailService;
 import backend.service.TokenService;
 import backend.service.UserService;
 import jakarta.validation.Valid;
@@ -18,8 +17,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
@@ -36,7 +33,7 @@ public class AuthController {
 
 	private final AuthorService authorService;
 
-	private final EmailVerificationRepository verificationRepository;
+	private final EmailService emailService;
 
 	@PostMapping("/login")
 	public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
@@ -79,24 +76,17 @@ public class AuthController {
 	}
 
 	@PostMapping("/verify-email")
-	public ResponseEntity<String> verifyEmail(@RequestBody EmailVerificationRequest request) {
-		var optionalVerification = verificationRepository
-			.findByEmailAndVerificationCodeAndVerifiedFalse(request.getEmail(), request.getVerificationCode());
-
-		if (optionalVerification.isEmpty()) {
-			return ResponseEntity.badRequest().body("Invalid code or already verified");
+	public ResponseEntity<String> verifyEmail(@RequestBody EmailVerificationRequest req) {
+		try {
+			emailService.verifyAndPersistAccount(req);
+			return ResponseEntity.ok("Email verified successfully");
 		}
-
-		EmailVerification verification = optionalVerification.get();
-
-		if (verification.getExpiresAt() != null && verification.getExpiresAt().isBefore(LocalDateTime.now())) {
-			return ResponseEntity.badRequest().body("Verification code expired");
+		catch (IllegalArgumentException ex) {
+			return ResponseEntity.badRequest().body(ex.getMessage());
 		}
-
-		verification.setVerified(true);
-		verificationRepository.save(verification);
-
-		return ResponseEntity.ok("Email verified successfully");
+		catch (Exception ex) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+		}
 	}
 
 }
