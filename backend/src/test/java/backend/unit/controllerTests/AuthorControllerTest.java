@@ -40,8 +40,8 @@ class AuthorControllerTest {
 	@Test
 	void paginated_success() throws Exception {
 		AuthorResponse ar = new AuthorResponse();
-		when(authorService.getAllAuthorsPaginated(0, 10))
-			.thenReturn(new PageImpl<>(List.of(ar), PageRequest.of(0, 10), 1));
+		when(authorService.getAllAuthorsPaginated(0, 5))
+			.thenReturn(new PageImpl<>(List.of(ar), PageRequest.of(0, 5), 1));
 
 		mockMvc.perform(get("/api/authors/paginated"))
 			.andExpect(status().isOk())
