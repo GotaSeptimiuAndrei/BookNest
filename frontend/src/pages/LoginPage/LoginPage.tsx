@@ -3,8 +3,8 @@ import React, { useState, useContext } from "react"
 import { Grid, Box, Typography, TextField, Button } from "@mui/material"
 import { useNavigate, Link } from "react-router-dom" // If using react-router
 import { LoginRequest } from "../../models/LoginRequest"
-import { loginUser } from "../../services/authService"
-import { AuthContext } from "../../context/AuthContext"
+import { loginUser } from "@/services/authService"
+import { AuthContext } from "@/context/AuthContext"
 
 const LoginPage: React.FC = () => {
     const { login } = useContext(AuthContext)
