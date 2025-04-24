@@ -78,8 +78,6 @@ class AuthControllerTest {
 			.andExpect(content().string("Invalid login"));
 	}
 
-	/* ═════════════════════════════ SIGN‑UP USER ═══════════════════════ */
-
 	@Test
 	void registerUser_success() throws Exception {
 		UserSignupRequest req = new UserSignupRequest("john@example.com", "secret", "john123");
@@ -105,8 +103,6 @@ class AuthControllerTest {
 			.andExpect(status().isConflict())
 			.andExpect(content().string("Username already exists"));
 	}
-
-	/* ═════════════════════════════ SIGN‑UP AUTHOR ═════════════════════ */
 
 	@Test
 	void registerAuthor_success() throws Exception {
@@ -149,8 +145,6 @@ class AuthControllerTest {
 				return req;
 			})).andExpect(status().isConflict()).andExpect(content().string("Email already exists"));
 	}
-
-	/* ═════════════════════════════ VERIFY E‑MAIL ══════════════════════ */
 
 	@Test
 	void verifyEmail_success() throws Exception {

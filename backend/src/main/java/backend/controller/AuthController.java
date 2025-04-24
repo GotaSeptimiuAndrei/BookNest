@@ -81,11 +81,8 @@ public class AuthController {
 			emailService.verifyAndPersistAccount(req);
 			return ResponseEntity.ok("Email verified successfully");
 		}
-		catch (IllegalArgumentException ex) {
-			return ResponseEntity.badRequest().body(ex.getMessage());
-		}
 		catch (Exception ex) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
 		}
 	}
 

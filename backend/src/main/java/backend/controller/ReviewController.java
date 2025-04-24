@@ -51,7 +51,7 @@ public class ReviewController {
 
 	@GetMapping("/book/{bookId}/paginated")
 	public ResponseEntity<APIResponse<Page<ReviewResponse>>> getReviewsForBookPaginated(@PathVariable Long bookId,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 		Page<ReviewResponse> reviewPage = reviewService.getAllReviewsForBookPaginated(bookId, page, size);
 		return ResponseEntity
 			.ok(APIResponse.<Page<ReviewResponse>>builder().status(SUCCESS).results(reviewPage).build());

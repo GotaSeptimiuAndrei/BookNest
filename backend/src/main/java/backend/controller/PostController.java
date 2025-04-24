@@ -45,7 +45,7 @@ public class PostController {
 	@GetMapping("/community/{communityId}/paginated")
 	public ResponseEntity<APIResponse<Page<PostResponse>>> getPostsByCommunityIdPaginated(
 			@PathVariable Long communityId, @RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
+			@RequestParam(defaultValue = "5") int size) {
 		Page<PostResponse> postPage = postService.getPostsByCommunityIdPaginated(communityId, page, size);
 		return ResponseEntity.ok(APIResponse.<Page<PostResponse>>builder().status(SUCCESS).results(postPage).build());
 	}
