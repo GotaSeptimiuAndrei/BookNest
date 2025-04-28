@@ -124,7 +124,7 @@ public class SecurityConfiguration {
 				.requestMatchers(HttpMethod.POST, "/api/posts")
 				.hasRole("AUTHOR")
 				.requestMatchers(HttpMethod.DELETE, "/api/posts/**")
-				.hasRole("AUTHOR")
+				.hasAnyRole("AUTHOR", "ADMIN")
 				.requestMatchers(HttpMethod.POST, "/api/posts/*/like")
 				.hasAnyRole("AUTHOR", "USER")
 				.requestMatchers(HttpMethod.POST, "/api/posts/*/unlike")
@@ -137,7 +137,7 @@ public class SecurityConfiguration {
 				.requestMatchers(HttpMethod.POST, "/api/comments/*/reply")
 				.hasAnyRole("USER", "AUTHOR")
 				.requestMatchers(HttpMethod.DELETE, "/api/comments/**")
-				.hasAnyRole("USER", "AUTHOR")
+				.hasAnyRole("USER", "AUTHOR", "ADMIN")
 
 				.requestMatchers("/api/notifications/**")
 				.hasRole("USER")
