@@ -26,15 +26,10 @@ jobs:
         with:
           name: openapi-spec
           path: ./frontend
-          
-      - name: Run openapi-typescript-codegen
-        run: |
-          npx openapi \
-            --input ./openapi.json \
-            --output src/api/generated \
-            --client axios --useOptions
 
       - run: npm ci
+      - name: Generate API client
+        run: npm run generate:api
       - run: npm run lint-staged
       - run: npm run build
 
