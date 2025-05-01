@@ -7,6 +7,7 @@ import backend.dto.response.ReviewResponse;
 import backend.exception.ReviewException;
 import backend.service.ReviewService;
 import backend.utils.JwtUtils;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class ReviewController {
 
 	public static final String ERROR = "error";
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping
 	public ResponseEntity<APIResponse<ReviewResponse>> createReview(@RequestHeader("Authorization") String token,
 			@Valid @RequestBody ReviewRequest reviewRequest) {

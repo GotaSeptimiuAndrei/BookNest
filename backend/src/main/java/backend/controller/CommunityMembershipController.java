@@ -7,6 +7,7 @@ import backend.exception.CommunityMembershipException;
 import backend.model.CommunityMembership;
 import backend.model.User;
 import backend.service.CommunityMembershipService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class CommunityMembershipController {
 
 	private final CommunityMembershipService communityMembershipService;
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping
 	public ResponseEntity<APIResponse<CommunityMembership>> joinCommunity(
 			@Valid @RequestBody CommunityMembershipDTO dto) {
@@ -41,6 +43,7 @@ public class CommunityMembershipController {
 			.body(APIResponse.<CommunityMembership>builder().status(SUCCESS).results(membership).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping
 	public ResponseEntity<APIResponse<Void>> leaveCommunity(@Valid @RequestBody CommunityMembershipDTO dto) {
 

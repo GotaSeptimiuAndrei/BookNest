@@ -6,6 +6,7 @@ import backend.dto.response.APIResponse;
 import backend.exception.CommunityException;
 import backend.model.Community;
 import backend.service.CommunityService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,7 @@ public class CommunityController {
 		return ResponseEntity.ok(APIResponse.<List<Community>>builder().status(SUCCESS).results(communities).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping
 	public ResponseEntity<APIResponse<Community>> createCommunity(@Valid @ModelAttribute CommunityDTO communityDTO) {
 		Community createdCommunity = communityService.createCommunity(communityDTO);
@@ -58,6 +60,7 @@ public class CommunityController {
 			.body(APIResponse.<Community>builder().status(SUCCESS).results(createdCommunity).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PutMapping
 	public ResponseEntity<APIResponse<Community>> updateCommunity(@Valid @ModelAttribute CommunityDTO communityDTO) {
 		Community updatedCommunity = communityService.updateCommunity(communityDTO);

@@ -141,6 +141,13 @@ public class SecurityConfiguration {
 
 				.requestMatchers("/api/notifications/**")
 				.hasRole("USER")
+
+				.requestMatchers("/api/authors/**")
+				.permitAll()
+
+				.requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/index.html",
+						"/webjars/**", "/swagger-ui/**", "/swagger-resources", "/swagger-resources/**")
+				.permitAll()
 				.anyRequest()
 				.authenticated())
 			.oauth2ResourceServer(

@@ -7,6 +7,7 @@ import backend.exception.BookLoanException;
 import backend.model.BookLoan;
 import backend.service.BookLoanService;
 import backend.utils.JwtUtils;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@SecurityRequirement(name = "bearerAuth")
 @CrossOrigin(origins = { "http://localhost:3000" })
 @RestController
 @RequestMapping("/api/loans")

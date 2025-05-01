@@ -7,6 +7,7 @@ import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
 import backend.exception.BookValidationException;
 import backend.service.BookService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -58,6 +59,7 @@ public class BookController {
 		return ResponseEntity.ok(APIResponse.<Page<BookResponse>>builder().status(SUCCESS).results(booksPage).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping
 	public ResponseEntity<APIResponse<BookResponse>> createBook(@Valid @ModelAttribute BookRequest bookRequest) {
 		BookResponse created = bookService.saveBook(bookRequest);
@@ -65,6 +67,7 @@ public class BookController {
 			.body(APIResponse.<BookResponse>builder().status(SUCCESS).results(created).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PutMapping("/{id}")
 	public ResponseEntity<APIResponse<BookResponse>> updateBook(@PathVariable Long id,
 			@Valid @ModelAttribute BookRequest bookRequest) {
@@ -72,6 +75,7 @@ public class BookController {
 		return ResponseEntity.ok(APIResponse.<BookResponse>builder().status(SUCCESS).results(updated).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<APIResponse<Void>> deleteBook(@PathVariable Long id) {
 		bookService.deleteBook(id);

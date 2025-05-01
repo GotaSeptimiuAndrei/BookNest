@@ -6,6 +6,7 @@ import backend.dto.response.APIResponse;
 import backend.dto.response.PostResponse;
 import backend.exception.PostException;
 import backend.service.PostService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,7 @@ public class PostController {
 		return ResponseEntity.ok(APIResponse.<Page<PostResponse>>builder().status(SUCCESS).results(postPage).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping
 	public ResponseEntity<APIResponse<PostResponse>> createPost(@Valid @ModelAttribute PostRequest postRequest) {
 		PostResponse createdPost = postService.createPost(postRequest);
@@ -57,18 +59,21 @@ public class PostController {
 			.body(APIResponse.<PostResponse>builder().status(SUCCESS).results(createdPost).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<APIResponse<Void>> deletePost(@PathVariable Long id) {
 		postService.deletePost(id);
 		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/{id}/like")
 	public ResponseEntity<APIResponse<Void>> likePost(@PathVariable Long id, @RequestParam Long userId) {
 		postService.likePost(id, userId);
 		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/{id}/unlike")
 	public ResponseEntity<APIResponse<Void>> unlikePost(@PathVariable Long id, @RequestParam Long userId) {
 		postService.unlikePost(id, userId);

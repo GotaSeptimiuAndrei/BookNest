@@ -6,6 +6,7 @@ import backend.dto.response.APIResponse;
 import backend.dto.response.PostCommentResponse;
 import backend.exception.PostCommentsException;
 import backend.service.PostCommentsService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,7 @@ public class PostCommentsController {
 			.ok(APIResponse.<List<PostCommentResponse>>builder().status(SUCCESS).results(childComments).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping
 	public ResponseEntity<APIResponse<PostCommentResponse>> createComment(
 			@Valid @RequestBody PostCommentRequest request) {
@@ -51,6 +53,7 @@ public class PostCommentsController {
 			.body(APIResponse.<PostCommentResponse>builder().status(SUCCESS).results(createdComment).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/{parentId}/reply")
 	public ResponseEntity<APIResponse<PostCommentResponse>> replyToComment(@PathVariable Long parentId,
 			@Valid @RequestBody PostCommentRequest request) {
@@ -59,6 +62,7 @@ public class PostCommentsController {
 			.body(APIResponse.<PostCommentResponse>builder().status(SUCCESS).results(reply).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping("/{commentId}")
 	public ResponseEntity<APIResponse<Void>> deleteComment(@PathVariable Long commentId) {
 		postCommentsService.deleteComment(commentId);
