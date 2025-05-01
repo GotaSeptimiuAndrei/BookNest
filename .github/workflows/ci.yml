@@ -29,7 +29,9 @@ jobs:
 
       - run: npm ci
       - name: Generate API client
-        run: npm run generate:api
+        run: |
+          npm run generate:api:local
+          rm openapi.json
       - run: npm run lint-staged
       - run: npm run build
 
