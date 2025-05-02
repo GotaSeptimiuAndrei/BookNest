@@ -23,6 +23,7 @@ public class TokenService {
 	private final AuthorService authorService;
 
 	public String generateToken(Authentication authentication) {
+		// TODO: throw exception if a user has the same email for both basic and author
 		Instant now = Instant.now();
 
 		String email = authentication.getName();
