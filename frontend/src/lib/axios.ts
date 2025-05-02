@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios"
 import { toastAxiosError } from "./axiosErrorToToast"
 
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL
 axios.defaults.headers.common["Content-Type"] = "application/json"
 
 // attach JWT on every request
