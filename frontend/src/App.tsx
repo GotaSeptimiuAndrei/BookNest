@@ -8,6 +8,7 @@ import { SnackbarProvider } from "notistack"
 import { AuthProvider } from "./context/AuthContext"
 import { BrowserRouter } from "react-router-dom"
 import AppRoutes from "./routes/AppRoutes"
+import Navbar from "./components/Navbar"
 
 function App() {
     return (
@@ -22,6 +23,7 @@ function App() {
                 >
                     <AuthProvider>
                         <BrowserRouter>
+                            <Navbar />
                             <AppRoutes />
                         </BrowserRouter>
                     </AuthProvider>
