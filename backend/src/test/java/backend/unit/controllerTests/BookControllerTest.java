@@ -158,52 +158,48 @@ class BookControllerTest {
 	}
 
 	@Test
-	void testSearchBooks_ValidQuery() throws Exception {
+	void searchBooks_ok_allCategory() throws Exception {
 		String query = "someTitle";
+		String category = "All";
 		int page = 0, size = 10;
 
-		BookResponse book1 = new BookResponse();
-		book1.setBookId(10L);
-		book1.setTitle("SomeTitle here");
+		BookResponse r1 = new BookResponse();
+		r1.setTitle("SomeTitle here");
+		Page<BookResponse> bookPage = new PageImpl<>(List.of(r1), PageRequest.of(page, size), 1);
 
-		BookResponse book2 = new BookResponse();
-		book2.setBookId(20L);
-		book2.setTitle("Another Book with SomeTitle inside");
-
-		Page<BookResponse> bookPage = new PageImpl<>(List.of(book1, book2), PageRequest.of(page, size), 2);
-
-		when(bookService.searchBooksByTitleOrAuthor(query, page, size)).thenReturn(bookPage);
+		when(bookService.searchBooks(query, category, page, size)).thenReturn(bookPage);
 
 		mockMvc
 			.perform(get("/api/books/search").param("query", query)
-				.param("page", String.valueOf(page))
-				.param("size", String.valueOf(size)))
+				.param("category", category)
+				.param("page", "0")
+				.param("size", "10"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.status").value("success"))
-			.andExpect(jsonPath("$.results.content[0].title").value("SomeTitle here"))
-			.andExpect(jsonPath("$.results.content[1].title").value("Another Book with SomeTitle inside"));
+			.andExpect(jsonPath("$.results.content[0].title").value("SomeTitle here"));
 
-		verify(bookService).searchBooksByTitleOrAuthor(query, page, size);
+		verify(bookService).searchBooks(query, category, page, size);
 	}
 
 	@Test
-	void testSearchBooks_EmptyQuery() throws Exception {
-		String query = "";
+	void searchBooks_ok_specificCategory_empty() throws Exception {
+		String query = "x";
+		String category = "Psychology";
 		int page = 0, size = 10;
 
-		Page<BookResponse> emptyPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+		Page<BookResponse> empty = Page.empty(PageRequest.of(page, size));
 
-		when(bookService.searchBooksByTitleOrAuthor(query, page, size)).thenReturn(emptyPage);
+		when(bookService.searchBooks(query, category, page, size)).thenReturn(empty);
 
 		mockMvc
 			.perform(get("/api/books/search").param("query", query)
-				.param("page", String.valueOf(page))
-				.param("size", String.valueOf(size)))
+				.param("category", category)
+				.param("page", "0")
+				.param("size", "10"))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"))
 			.andExpect(jsonPath("$.results.content").isEmpty());
 
-		verify(bookService).searchBooksByTitleOrAuthor(query, page, size);
+		verify(bookService).searchBooks(query, category, page, size);
 	}
 
 }

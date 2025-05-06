@@ -92,7 +92,7 @@ export default function BookForm({ initial, onSubmit, loading }: Props) {
                         error={!!errors.category}
                         helperText={errors.category?.message}
                     >
-                        {["Fiction", "Non‑fiction", "Science-Fiction", "Psychology"].map((c) => (
+                        {["Fiction", "Non-fiction", "Science-Fiction", "Psychology"].map((c) => (
                             <MenuItem key={c} value={c}>
                                 {c}
                             </MenuItem>

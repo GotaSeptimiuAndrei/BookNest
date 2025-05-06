@@ -55,9 +55,13 @@ public class BookController {
 
 	@GetMapping("/search")
 	public ResponseEntity<APIResponse<Page<BookResponse>>> searchBooksPaginated(@RequestParam String query,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-		Page<BookResponse> booksPage = bookService.searchBooksByTitleOrAuthor(query, page, size);
-		return ResponseEntity.ok(APIResponse.<Page<BookResponse>>builder().status(SUCCESS).results(booksPage).build());
+			@RequestParam(defaultValue = "All") String category, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "5") int size) {
+
+		Page<BookResponse> booksPage = bookService.searchBooks(query, category, page, size);
+
+		return ResponseEntity
+			.ok(APIResponse.<Page<BookResponse>>builder().status("success").results(booksPage).build());
 	}
 
 	@SecurityRequirement(name = "bearerAuth")

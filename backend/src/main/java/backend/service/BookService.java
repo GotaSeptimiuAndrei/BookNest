@@ -47,10 +47,14 @@ public class BookService {
 		return booksPage.map(BookConverter::convertToDto);
 	}
 
-	public Page<BookResponse> searchBooksByTitleOrAuthor(String query, int page, int size) {
+	public Page<BookResponse> searchBooks(String query, String category, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
-		Page<Book> booksPage = bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
-				pageable);
+
+		Page<Book> booksPage = "All".equalsIgnoreCase(category)
+				? bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query, pageable)
+				: bookRepository
+					.findByCategoryIgnoreCaseAndTitleIgnoreCaseContainingOrCategoryIgnoreCaseAndAuthorIgnoreCaseContaining(
+							category, query, category, query, pageable);
 
 		return booksPage.map(BookConverter::convertToDto);
 	}
