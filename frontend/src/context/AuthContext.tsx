@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, PropsWithChildren } from "react"
 import { jwtDecode } from "jwt-decode"
 
-/* ---------- raw token claims coming from the backend ---------- */
-
 interface RawJwtPayload {
     sub: string // email
     roles: string[] // ["ROLE_USER", "ROLE_ADMIN", "ROLE_AUTHOR"]
@@ -12,8 +10,6 @@ interface RawJwtPayload {
     fullName?: string
     exp: number
 }
-
-/* ---------- normalised shape the rest of the app will consume --- */
 
 export type Role = "USER" | "AUTHOR" | "ADMIN"
 

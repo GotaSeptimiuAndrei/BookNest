@@ -1,5 +1,6 @@
 package backend.service;
 
+import backend.exception.DuplicateAccountTypeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,10 +24,13 @@ public class TokenService {
 	private final AuthorService authorService;
 
 	public String generateToken(Authentication authentication) {
-		// TODO: throw exception if a user has the same email for both basic and author
 		Instant now = Instant.now();
 
 		String email = authentication.getName();
+
+		if (userService.findByEmail(email).isPresent() && authorService.findByEmail(email).isPresent()) {
+			throw new DuplicateAccountTypeException(email);
+		}
 
 		List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 

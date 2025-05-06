@@ -1,5 +1,6 @@
 package backend.service;
 
+import backend.exception.DuplicateAccountTypeException;
 import backend.model.Author;
 import backend.model.User;
 import backend.repository.AuthorRepository;
@@ -23,6 +24,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		Optional<User> maybeUser = userRepository.findByEmail(email);
+		Optional<Author> maybeAuthor = authorRepository.findByEmail(email);
+
+		if (maybeUser.isPresent() && maybeAuthor.isPresent()) {
+			throw new DuplicateAccountTypeException(email);
+		}
 
 		if (maybeUser.isPresent()) {
 			User user = maybeUser.get();
@@ -35,7 +41,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 				.build();
 		}
 
-		Optional<Author> maybeAuthor = authorRepository.findByEmail(email);
 		if (maybeAuthor.isPresent()) {
 			Author author = maybeAuthor.get();
 

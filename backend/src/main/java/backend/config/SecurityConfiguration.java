@@ -61,7 +61,7 @@ public class SecurityConfiguration {
 	public JwtAuthenticationConverter jwtAuthenticationConverter() {
 		JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 		grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
-		grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+		grantedAuthoritiesConverter.setAuthorityPrefix("");
 
 		JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
 		authenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
@@ -72,7 +72,7 @@ public class SecurityConfiguration {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
 		configuration.setAllowCredentials(true);
 
@@ -89,7 +89,7 @@ public class SecurityConfiguration {
 				.permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/books/**")
 				.hasRole("ADMIN")
-				.requestMatchers(HttpMethod.PUT, "/api/books/**")
+				.requestMatchers(HttpMethod.PATCH, "/api/books/**")
 				.hasRole("ADMIN")
 				.requestMatchers(HttpMethod.DELETE, "/api/books/**")
 				.hasRole("ADMIN")
