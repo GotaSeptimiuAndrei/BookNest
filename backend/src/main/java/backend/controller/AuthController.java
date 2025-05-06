@@ -1,5 +1,6 @@
 package backend.controller;
 
+import backend.dto.AdminDTO;
 import backend.dto.request.AuthorSignupRequest;
 import backend.dto.request.EmailVerificationRequest;
 import backend.dto.request.LoginRequest;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -69,6 +71,19 @@ public class AuthController {
 			authorService.registerAuthor(authorSignupRequest);
 			log.info("Author '{}' registered successfully", authorSignupRequest.getFullName());
 			return ResponseEntity.status(HttpStatus.CREATED).body("Author registered successfully");
+		}
+		catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+		}
+	}
+
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/create-admin")
+	public ResponseEntity<String> createAdmin(@Valid @RequestBody AdminDTO request) {
+		try {
+			log.info("Creating an admin with email '{}'", request.getEmail());
+			userService.createAdmin(request);
+			return ResponseEntity.status(HttpStatus.CREATED).body("Admin created successfully");
 		}
 		catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

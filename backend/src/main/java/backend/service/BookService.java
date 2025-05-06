@@ -1,8 +1,10 @@
 package backend.service;
 
+import backend.dto.request.BookQuantityUpdateRequest;
 import backend.dto.request.BookRequest;
 import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
+import backend.exception.BookValidationException;
 import backend.model.Book;
 import backend.repository.BookLoanRepository;
 import backend.repository.ReviewRepository;
@@ -67,25 +69,29 @@ public class BookService {
 		return BookConverter.convertToDto(savedBook);
 	}
 
-	public BookResponse updateBook(Long id, BookRequest bookRequest) {
+	public BookResponse updateBookQuantity(Long id, BookQuantityUpdateRequest dto) {
 
-		Book existingBook = bookRepository.findById(id)
+		Book book = bookRepository.findById(id)
 			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
 
-		existingBook.setTitle(bookRequest.getTitle());
-		existingBook.setAuthor(bookRequest.getAuthor());
-		existingBook.setDescription(bookRequest.getDescription());
-		existingBook.setCopies(bookRequest.getCopies());
-		existingBook.setCategory(bookRequest.getCategory());
-		if (bookRequest.getImage() != null) {
-			existingBook.setImage(saveFileToS3Bucket(s3Client, bucketName, bookRequest.getImage()));
-		}
-		else {
-			existingBook.setImage("image.jpg");
+		int delta = dto.getDelta();
+
+		int newCopies = book.getCopies() + delta;
+		int newCopiesAvailable = book.getCopiesAvailable() + delta;
+
+		if (newCopies < 0 || newCopiesAvailable < 0) {
+			throw new BookValidationException("Cannot reduce quantity below zero.");
 		}
 
-		Book updatedBook = bookRepository.save(existingBook);
-		return BookConverter.convertToDto(updatedBook);
+		if (newCopiesAvailable > newCopies) {
+			throw new BookValidationException("Available copies cannot exceed total copies.");
+		}
+
+		book.setCopies(newCopies);
+		book.setCopiesAvailable(newCopiesAvailable);
+
+		Book saved = bookRepository.save(book);
+		return BookConverter.convertToDto(saved);
 	}
 
 	@Transactional

@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom"
 import { useAuth, Role } from "@/context/AuthContext"
+import CircularProgress from "@mui/material/CircularProgress"
 
 interface Props {
     roles?: Role[]
@@ -8,6 +9,12 @@ interface Props {
 export default function RequireAuth({ roles }: Props) {
     const { user } = useAuth()
     const location = useLocation()
+    const tokenInStorage = !!localStorage.getItem("token")
+
+    // 1) while bootstrap is happening, show nothing instead of redirecting
+    if (!user && tokenInStorage) {
+        return <CircularProgress color="secondary" />
+    }
 
     // not logged in → send to login, preserve where they wanted to go
     if (!user) {

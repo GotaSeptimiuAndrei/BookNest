@@ -1,8 +1,10 @@
 package backend.unit.serviceTests;
 
+import backend.dto.request.BookQuantityUpdateRequest;
 import backend.dto.request.BookRequest;
 import backend.dto.response.BookResponse;
 import backend.exception.BookNotFoundException;
+import backend.exception.BookValidationException;
 import backend.model.Book;
 import backend.repository.BookLoanRepository;
 import backend.repository.BookRepository;
@@ -138,43 +140,57 @@ class BookServiceTest {
 	}
 
 	@Test
-	void testUpdateBook_Found() {
-		Book existingBook = new Book();
-		existingBook.setBookId(1L);
-		existingBook.setTitle("Old Title");
-		existingBook.setAuthor("Old Author");
+	void updateBookQuantity_increase_success() {
+		Book book = new Book();
+		book.setBookId(1L);
+		book.setTitle("New Book");
+		book.setAuthor("New Author");
+		book.setCopies(3);
+		book.setCopiesAvailable(3);
 
-		when(bookRepository.findById(1L)).thenReturn(Optional.of(existingBook));
+		when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+		when(bookRepository.save(book)).thenAnswer(inv -> inv.getArgument(0));
 
-		BookRequest updatedDTO = new BookRequest();
-		updatedDTO.setTitle("New Title");
-		updatedDTO.setAuthor("New Author");
+		BookQuantityUpdateRequest dto = new BookQuantityUpdateRequest(1);
 
-		Book updatedBook = new Book();
-		updatedBook.setBookId(1L);
-		updatedBook.setTitle("New Title");
-		updatedBook.setAuthor("New Author");
+		BookResponse resp = bookService.updateBookQuantity(1L, dto);
 
-		when(bookRepository.save(existingBook)).thenReturn(updatedBook);
-
-		BookResponse result = bookService.updateBook(1L, updatedDTO);
-
-		assertThat(result.getBookId()).isEqualTo(1L);
-		assertThat(result.getTitle()).isEqualTo("New Title");
-		assertThat(result.getAuthor()).isEqualTo("New Author");
+		assertThat(resp.getBookId()).isEqualTo(1L);
+		assertThat(resp.getCopies()).isEqualTo(4);
+		assertThat(resp.getCopiesAvailable()).isEqualTo(4);
 
 		verify(bookRepository).findById(1L);
-		verify(bookRepository).save(any(Book.class));
+		verify(bookRepository).save(book);
 	}
 
 	@Test
-	void testUpdateBook_NotFound() {
-		when(bookRepository.findById(999L)).thenReturn(Optional.empty());
-		BookRequest bookRequest = new BookRequest();
-		bookRequest.setTitle("Updated Title");
+	void updateBookQuantity_decrease_belowZero_throws() {
+		Book book = new Book();
+		book.setBookId(1L);
+		book.setTitle("New Book");
+		book.setAuthor("New Author");
+		book.setCopies(0);
+		book.setCopiesAvailable(0);
 
-		assertThrows(BookNotFoundException.class, () -> bookService.updateBook(999L, bookRequest));
-		verify(bookRepository).findById(999L);
+		when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+
+		BookQuantityUpdateRequest dto = new BookQuantityUpdateRequest(-1);
+
+		assertThrows(BookValidationException.class, () -> bookService.updateBookQuantity(1L, dto));
+
+		verify(bookRepository).findById(1L);
+		verify(bookRepository, never()).save(any());
+	}
+
+	@Test
+	void updateBookQuantity_notFound_throws() {
+		when(bookRepository.findById(99L)).thenReturn(Optional.empty());
+
+		BookQuantityUpdateRequest dto = new BookQuantityUpdateRequest(1);
+
+		assertThrows(BookNotFoundException.class, () -> bookService.updateBookQuantity(99L, dto));
+
+		verify(bookRepository).findById(99L);
 		verify(bookRepository, never()).save(any());
 	}
 

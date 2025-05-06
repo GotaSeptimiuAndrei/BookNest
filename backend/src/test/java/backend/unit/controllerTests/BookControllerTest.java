@@ -126,44 +126,26 @@ class BookControllerTest {
 	}
 
 	@Test
-	void testUpdateBook() throws Exception {
-		MockMultipartFile mockFile = new MockMultipartFile("image", "test-image.jpg", "image/jpeg",
-				"DummyImageContent".getBytes());
+	void patchQuantity_increase_returnsUpdatedDto() throws Exception {
+		BookResponse dto = new BookResponse();
+		dto.setBookId(1L);
+		dto.setTitle("Title");
+		dto.setAuthor("Author");
+		dto.setCopies(4);
+		dto.setCopiesAvailable(4);
 
-		BookResponse updatedDto = new BookResponse();
-		updatedDto.setBookId(1L);
-		updatedDto.setTitle("Updated Title");
-		updatedDto.setAuthor("Jane Doe");
-		updatedDto.setDescription("Updated description");
-		updatedDto.setCopies(5);
-		updatedDto.setCategory("History");
-		updatedDto.setImage("updated-image-url");
+		when(bookService.updateBookQuantity(eq(1L), argThat(req -> req.getDelta() == 1))).thenReturn(dto);
 
-		when(bookService.updateBook(eq(1L), any(BookRequest.class))).thenReturn(updatedDto);
-
-		mockMvc.perform(multipart("/api/books/{id}", 1L).file(mockFile)
-			.param("title", "Updated Title")
-			.param("author", "Jane Doe")
-			.param("description", "Updated description")
-			.param("copies", "5")
-			.param("copiesAvailable", "5")
-			.param("category", "History")
-			.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-			.with(request -> {
-				request.setMethod("PUT");
-				return request;
-			}))
+		mockMvc
+			.perform(patch("/api/books/{id}/quantity", 1L).contentType(MediaType.APPLICATION_JSON)
+				.content("{\"delta\":1}"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.status").value("success"))
 			.andExpect(jsonPath("$.results.bookId").value(1L))
-			.andExpect(jsonPath("$.results.title").value("Updated Title"))
-			.andExpect(jsonPath("$.results.author").value("Jane Doe"))
-			.andExpect(jsonPath("$.results.description").value("Updated description"))
-			.andExpect(jsonPath("$.results.copies").value(5))
-			.andExpect(jsonPath("$.results.category").value("History"))
-			.andExpect(jsonPath("$.results.image").value("updated-image-url"));
+			.andExpect(jsonPath("$.results.copies").value(4))
+			.andExpect(jsonPath("$.results.copiesAvailable").value(4));
 
-		verify(bookService).updateBook(eq(1L), any(BookRequest.class));
+		verify(bookService).updateBookQuantity(eq(1L), argThat(req -> req.getDelta() == 1));
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package backend.controller;
 
+import backend.dto.request.BookQuantityUpdateRequest;
 import backend.dto.request.BookRequest;
 import backend.dto.ErrorDTO;
 import backend.dto.response.APIResponse;
@@ -40,7 +41,7 @@ public class BookController {
 
 	@GetMapping("/paginated")
 	public ResponseEntity<APIResponse<Page<BookResponse>>> getAllBooksPaginated(
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 		Page<BookResponse> booksPage = bookService.getAllBooksPaginated(page, size);
 
 		return ResponseEntity.ok(APIResponse.<Page<BookResponse>>builder().status(SUCCESS).results(booksPage).build());
@@ -54,7 +55,7 @@ public class BookController {
 
 	@GetMapping("/search")
 	public ResponseEntity<APIResponse<Page<BookResponse>>> searchBooksPaginated(@RequestParam String query,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 		Page<BookResponse> booksPage = bookService.searchBooksByTitleOrAuthor(query, page, size);
 		return ResponseEntity.ok(APIResponse.<Page<BookResponse>>builder().status(SUCCESS).results(booksPage).build());
 	}
@@ -68,10 +69,12 @@ public class BookController {
 	}
 
 	@SecurityRequirement(name = "bearerAuth")
-	@PutMapping("/{id}")
-	public ResponseEntity<APIResponse<BookResponse>> updateBook(@PathVariable Long id,
-			@Valid @ModelAttribute BookRequest bookRequest) {
-		BookResponse updated = bookService.updateBook(id, bookRequest);
+	@PatchMapping("/{id}/quantity")
+	public ResponseEntity<APIResponse<BookResponse>> updateBookQuantity(@PathVariable Long id,
+			@Valid @RequestBody BookQuantityUpdateRequest dto) {
+
+		BookResponse updated = bookService.updateBookQuantity(id, dto);
+
 		return ResponseEntity.ok(APIResponse.<BookResponse>builder().status(SUCCESS).results(updated).build());
 	}
 

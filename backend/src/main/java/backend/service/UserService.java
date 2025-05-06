@@ -1,5 +1,6 @@
 package backend.service;
 
+import backend.dto.AdminDTO;
 import backend.dto.request.UserSignupRequest;
 import backend.model.EmailVerification;
 import backend.model.RegistrationType;
@@ -49,6 +50,20 @@ public class UserService {
 		emailVerificationRepository.save(v);
 
 		emailService.sendVerificationEmail(dto.getEmail(), code);
+	}
+
+	public User createAdmin(AdminDTO dto) {
+		userRepository.findByEmail(dto.getEmail()).ifPresent(u -> {
+			throw new IllegalArgumentException("Email already exists");
+		});
+
+		User admin = new User();
+		admin.setEmail(dto.getEmail());
+		admin.setPassword(passwordEncoder.encode(dto.getPassword()));
+		admin.setUsername(dto.getUsername());
+		admin.setIsAdmin(true);
+
+		return userRepository.save(admin);
 	}
 
 	public Optional<User> findByEmail(String email) {
