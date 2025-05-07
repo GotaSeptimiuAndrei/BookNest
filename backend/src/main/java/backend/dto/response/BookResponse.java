@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookResponse {
 
+	@NotNull(message = "Id is required.")
 	private Long bookId;
 
 	private String title;
