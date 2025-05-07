@@ -222,52 +222,48 @@ class BookServiceTest {
 	}
 
 	@Test
-	void testSearchBooks_MatchingResults() {
+	void searchBooks_allCategory_matchingResults() {
 		int page = 0, size = 10;
 		String query = "someTitle";
+		String category = "All";
 
-		Book book1 = new Book();
-		book1.setBookId(10L);
-		book1.setTitle("SomeTitle here");
-		book1.setAuthor("An Author");
+		Book b1 = new Book();
+		b1.setTitle("SomeTitle here");
+		Book b2 = new Book();
+		b2.setTitle("Another SomeTitle");
 
-		Book book2 = new Book();
-		book2.setBookId(20L);
-		book2.setTitle("Another Book with SomeTitle inside");
-		book2.setAuthor("Another Author");
-
-		Page<Book> bookPage = new PageImpl<>(List.of(book1, book2), PageRequest.of(page, size), 2);
+		Page<Book> bookPage = new PageImpl<>(List.of(b1, b2), PageRequest.of(page, size), 2);
 
 		when(bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
 				PageRequest.of(page, size)))
 			.thenReturn(bookPage);
 
-		Page<BookResponse> result = bookService.searchBooksByTitleOrAuthor(query, page, size);
+		Page<BookResponse> result = bookService.searchBooks(query, category, page, size);
 
-		assertThat(result.getContent()).hasSize(2);
-		assertThat(result.getContent().get(0).getTitle()).containsIgnoringCase("SomeTitle");
-		assertThat(result.getContent().get(1).getTitle()).containsIgnoringCase("SomeTitle");
-
+		assertThat(result).hasSize(2);
 		verify(bookRepository).findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
 				PageRequest.of(page, size));
 	}
 
 	@Test
-	void testSearchBooks_NoResults() {
-		String query = "no-match";
+	void searchBooks_specificCategory_callsCategoryRepo() {
 		int page = 0, size = 10;
+		String query = "harry";
+		String category = "Science‑Fiction";
 
-		Page<Book> emptyPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+		Page<Book> empty = Page.empty(PageRequest.of(page, size));
 
-		when(bookRepository.findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
-				PageRequest.of(page, size)))
-			.thenReturn(emptyPage);
+		when(bookRepository
+			.findByCategoryIgnoreCaseAndTitleIgnoreCaseContainingOrCategoryIgnoreCaseAndAuthorIgnoreCaseContaining(
+					category, query, category, query, PageRequest.of(page, size)))
+			.thenReturn(empty);
 
-		Page<BookResponse> result = bookService.searchBooksByTitleOrAuthor(query, page, size);
+		Page<BookResponse> result = bookService.searchBooks(query, category, page, size);
 
 		assertThat(result).isEmpty();
-		verify(bookRepository).findByTitleIgnoreCaseContainingOrAuthorIgnoreCaseContaining(query, query,
-				PageRequest.of(page, size));
+		verify(bookRepository)
+			.findByCategoryIgnoreCaseAndTitleIgnoreCaseContainingOrCategoryIgnoreCaseAndAuthorIgnoreCaseContaining(
+					category, query, category, query, PageRequest.of(page, size));
 	}
 
 }

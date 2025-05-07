@@ -9,6 +9,8 @@ const EmailVerificationPage = lazyImport(() => import("@/features/auth/pages/Ema
 const LoginPage = lazyImport(() => import("@/features/auth/pages/LoginPage"))
 const AdminBooksPage = lazyImport(() => import("@/features/admins/pages/AdminBooksPage"))
 const CreateBookPage = lazyImport(() => import("@/features/admins/pages/CreateBookPage"))
+const SearchBooksPage = lazyImport(() => import("@/features/books/pages/SearchBooksPage"))
+const SearchAuthorsPage = lazyImport(() => import("@/features/authors/pages/SearchAuthorsPage"))
 
 //const BooksPage = lazyImport(() => import("@/features/books/pages/BooksPage"))
 //const AdminDashboard = lazyImport(() => import("@/features/admin/pages/Dashboard"))
@@ -19,6 +21,8 @@ export default function AppRoutes() {
         { path: "/register", element: <RegisterPage /> },
         { path: "/verify-email", element: <EmailVerificationPage /> },
         { path: "/login", element: <LoginPage /> },
+        { path: "/books", element: <SearchBooksPage /> },
+        { path: "/authors", element: <SearchAuthorsPage /> },
 
         {
             element: <RequireAuth roles={["ADMIN"]} />,

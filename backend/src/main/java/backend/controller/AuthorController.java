@@ -39,7 +39,7 @@ public class AuthorController {
 
 	@GetMapping("/search")
 	public ResponseEntity<APIResponse<Page<AuthorResponse>>> searchAuthors(@RequestParam String query,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
 		Page<AuthorResponse> authorsPage = authorService.searchAuthorsByName(query, page, size);
 		return ResponseEntity
