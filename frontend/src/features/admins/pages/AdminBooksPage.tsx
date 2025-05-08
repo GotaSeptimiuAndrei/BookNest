@@ -37,7 +37,7 @@ export default function AdminBooksPage() {
     return (
         <Container sx={{ py: 4 }}>
             <Typography variant="h4" mb={3}>
-                Manage Books
+                Manage Library
             </Typography>
 
             {isLoading && <CircularProgress />}

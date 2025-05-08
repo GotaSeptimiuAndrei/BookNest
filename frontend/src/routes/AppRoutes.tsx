@@ -11,9 +11,8 @@ const AdminBooksPage = lazyImport(() => import("@/features/admins/pages/AdminBoo
 const CreateBookPage = lazyImport(() => import("@/features/admins/pages/CreateBookPage"))
 const SearchBooksPage = lazyImport(() => import("@/features/books/pages/SearchBooksPage"))
 const SearchAuthorsPage = lazyImport(() => import("@/features/authors/pages/SearchAuthorsPage"))
-
-//const BooksPage = lazyImport(() => import("@/features/books/pages/BooksPage"))
-//const AdminDashboard = lazyImport(() => import("@/features/admin/pages/Dashboard"))
+const BookDetailPage = lazyImport(() => import("@/features/books/pages/BookDetailPage"))
+const ShelfPage = lazyImport(() => import("@/features/loans/pages/ShelfPage"))
 
 export default function AppRoutes() {
     const element = useRoutes([
@@ -23,6 +22,7 @@ export default function AppRoutes() {
         { path: "/login", element: <LoginPage /> },
         { path: "/books", element: <SearchBooksPage /> },
         { path: "/authors", element: <SearchAuthorsPage /> },
+        { path: "/books/:id", element: <BookDetailPage /> },
 
         {
             element: <RequireAuth roles={["ADMIN"]} />,
@@ -30,6 +30,11 @@ export default function AppRoutes() {
                 { path: "/admin/books", element: <AdminBooksPage /> },
                 { path: "/admin/books/new", element: <CreateBookPage /> },
             ],
+        },
+
+        {
+            element: <RequireAuth roles={["USER"]} />,
+            children: [{ path: "/shelf", element: <ShelfPage /> }],
         },
 
         /* fallback */

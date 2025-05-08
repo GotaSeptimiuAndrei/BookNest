@@ -2,6 +2,7 @@ import RemoveIcon from "@mui/icons-material/Remove"
 import AddIcon from "@mui/icons-material/Add"
 import { Card, CardContent, CardMedia, Typography, Stack, IconButton, Button, Box } from "@mui/material"
 import type { BookResponse } from "@/api/generated"
+import { Link as RouterLink } from "react-router-dom"
 
 interface Props {
     book: BookResponse
@@ -42,7 +43,7 @@ export default function BookCard({ book, editable, onDelete, onIncrease, onDecre
                     {book.description}
                 </Typography>
 
-                {editable && (
+                {editable ? (
                     <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
                         <IconButton size="small" onClick={onIncrease}>
                             <AddIcon fontSize="inherit" />
@@ -54,6 +55,12 @@ export default function BookCard({ book, editable, onDelete, onIncrease, onDecre
 
                         <Button size="small" color="error" variant="contained" onClick={onDelete}>
                             Delete
+                        </Button>
+                    </Stack>
+                ) : (
+                    <Stack direction="row" sx={{ mt: 2 }}>
+                        <Button size="small" variant="outlined" component={RouterLink} to={`/books/${book.bookId}`}>
+                            View Details
                         </Button>
                     </Stack>
                 )}

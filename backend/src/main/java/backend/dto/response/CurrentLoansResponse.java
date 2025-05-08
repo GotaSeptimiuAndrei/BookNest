@@ -1,6 +1,7 @@
 package backend.dto.response;
 
 import backend.model.Book;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,8 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CurrentLoansResponse {
 
-	private Book book;
+	@NotNull
+	private BookResponse book;
 
+	@NotNull
 	private int daysLeft;
 
 }
