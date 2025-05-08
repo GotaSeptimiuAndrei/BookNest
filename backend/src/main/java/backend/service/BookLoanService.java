@@ -6,6 +6,7 @@ import backend.model.Book;
 import backend.model.BookLoan;
 import backend.repository.BookLoanRepository;
 import backend.repository.BookRepository;
+import backend.utils.converter.BookConverter;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -75,7 +76,7 @@ public class BookLoanService {
 				LocalDate returnDate = LocalDate.parse(bookLoan.get().getReturnDate().toString());
 				if (returnDate.isAfter(today)) {
 					int daysLeft = (int) ChronoUnit.DAYS.between(today, returnDate);
-					currentLoans.add(new CurrentLoansResponse(book, daysLeft));
+					currentLoans.add(new CurrentLoansResponse(BookConverter.convertToDto(book), daysLeft));
 				}
 			}
 		}

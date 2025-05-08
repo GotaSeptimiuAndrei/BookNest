@@ -1,5 +1,6 @@
 package backend.dto.request;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -35,5 +36,10 @@ public class BookRequest {
 
 	@NotNull(message = "Image is required.")
 	private MultipartFile image;
+
+	@AssertTrue(message = "Available copies cannot exceed total number of copies.")
+	private boolean isCopiesAvailableValid() {
+		return copiesAvailable <= copies;
+	}
 
 }

@@ -24,7 +24,7 @@ export default function LoginPage() {
         <Grid container sx={{ height: "100vh" }}>
             <Grid item xs={12} md={6} p={4}>
                 <Typography variant="h4" fontWeight={700} textAlign="center" mb={3}>
-                    Sign in
+                    Log in
                 </Typography>
 
                 <LoginForm onSubmit={handleSubmit} loading={login.isPending} />
