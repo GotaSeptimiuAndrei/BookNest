@@ -4,6 +4,16 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { BookResponse } from "@/api/generated"
 
+const bookCategories = [
+    "Self-Help",
+    "Science-Fiction",
+    "Psychology",
+    "Poetry",
+    "Literary Fiction",
+    "History",
+    "Thriller",
+]
+
 const schema = z.object({
     title: z.string().min(2),
     author: z.string().min(2),
@@ -92,7 +102,7 @@ export default function BookForm({ initial, onSubmit, loading }: Props) {
                         error={!!errors.category}
                         helperText={errors.category?.message}
                     >
-                        {["Fiction", "Non-fiction", "Science-Fiction", "Psychology"].map((c) => (
+                        {bookCategories.map((c) => (
                             <MenuItem key={c} value={c}>
                                 {c}
                             </MenuItem>

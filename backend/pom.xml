@@ -23,6 +23,8 @@
         <flyway.url>jdbc:mysql://booknest-db.cnsiw6q44cvd.eu-north-1.rds.amazonaws.com:3306/booknest</flyway.url>
         <flyway.user>admin</flyway.user>
         <flyway.password>booknest-db</flyway.password>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
 

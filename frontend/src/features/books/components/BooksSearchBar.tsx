@@ -8,7 +8,16 @@ interface Props {
     onCategory: (c: string) => void
 }
 
-const categories = ["All", "Science-Fiction", "Non-Fiction", "Psychology"]
+const categories = [
+    "All",
+    "Self-Help",
+    "Science-Fiction",
+    "Psychology",
+    "Poetry",
+    "Literary Fiction",
+    "History",
+    "Thriller",
+]
 
 export default function BooksSearchBar({ query, onQuery, category, onCategory }: Props) {
     return (
