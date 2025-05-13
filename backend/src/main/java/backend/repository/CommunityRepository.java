@@ -9,4 +9,6 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
 
 	Optional<Community> findByAuthorAuthorId(Long authorId);
 
+	boolean existsByAuthorAuthorId(Long authorId);
+
 }

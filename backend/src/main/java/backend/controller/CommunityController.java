@@ -1,6 +1,6 @@
 package backend.controller;
 
-import backend.dto.CommunityDTO;
+import backend.dto.request.CommunityRequest;
 import backend.dto.ErrorDTO;
 import backend.dto.response.APIResponse;
 import backend.exception.CommunityException;
@@ -51,10 +51,17 @@ public class CommunityController {
 		return ResponseEntity.ok(APIResponse.<List<Community>>builder().status(SUCCESS).results(communities).build());
 	}
 
+	@GetMapping("/author/{authorId}/exists")
+	public ResponseEntity<APIResponse<Boolean>> authorHasCommunity(@PathVariable Long authorId) {
+		boolean exists = communityService.authorHasCommunity(authorId);
+		return ResponseEntity.ok(APIResponse.<Boolean>builder().status(SUCCESS).results(exists).build());
+	}
+
 	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping
-	public ResponseEntity<APIResponse<Community>> createCommunity(@Valid @ModelAttribute CommunityDTO communityDTO) {
-		Community createdCommunity = communityService.createCommunity(communityDTO);
+	public ResponseEntity<APIResponse<Community>> createCommunity(
+			@Valid @ModelAttribute CommunityRequest communityRequest) {
+		Community createdCommunity = communityService.createCommunity(communityRequest);
 
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(APIResponse.<Community>builder().status(SUCCESS).results(createdCommunity).build());
@@ -62,8 +69,9 @@ public class CommunityController {
 
 	@SecurityRequirement(name = "bearerAuth")
 	@PutMapping
-	public ResponseEntity<APIResponse<Community>> updateCommunity(@Valid @ModelAttribute CommunityDTO communityDTO) {
-		Community updatedCommunity = communityService.updateCommunity(communityDTO);
+	public ResponseEntity<APIResponse<Community>> updateCommunity(
+			@Valid @ModelAttribute CommunityRequest communityRequest) {
+		Community updatedCommunity = communityService.updateCommunity(communityRequest);
 
 		return ResponseEntity.ok(APIResponse.<Community>builder().status(SUCCESS).results(updatedCommunity).build());
 	}

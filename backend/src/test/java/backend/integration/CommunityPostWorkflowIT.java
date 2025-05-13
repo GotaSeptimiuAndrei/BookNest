@@ -1,6 +1,6 @@
 package backend.integration;
 
-import backend.dto.CommunityDTO;
+import backend.dto.request.CommunityRequest;
 import backend.dto.request.PostRequest;
 import backend.model.Author;
 import backend.model.User;
@@ -92,10 +92,10 @@ class CommunityPostWorkflowIT {
 	void full_community_post_flow() {
 		MockMultipartFile banner = new MockMultipartFile("photo", "banner.png", "image/png", new byte[] { 1 });
 
-		CommunityDTO communityDTO = new CommunityDTO(author.getAuthorId(), "Sci‑Fi Fans", "Discuss my coming books",
-				banner);
+		CommunityRequest communityRequest = new CommunityRequest(author.getAuthorId(), "Sci‑Fi Fans",
+				"Discuss my coming books", banner);
 
-		var community = communityService.createCommunity(communityDTO);
+		var community = communityService.createCommunity(communityRequest);
 
 		membershipService.joinCommunity(community.getCommunityId(), andrei.getUserId());
 		assertThat(membershipService.getMembersOfCommunity(community.getCommunityId())).extracting(User::getUserId)

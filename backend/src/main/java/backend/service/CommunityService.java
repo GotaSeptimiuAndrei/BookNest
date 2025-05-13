@@ -1,6 +1,6 @@
 package backend.service;
 
-import backend.dto.CommunityDTO;
+import backend.dto.request.CommunityRequest;
 import backend.exception.CommunityException;
 import backend.model.Community;
 import backend.repository.AuthorRepository;
@@ -29,34 +29,34 @@ public class CommunityService {
 		return communityRepository.findAll();
 	}
 
-	public Community createCommunity(CommunityDTO communityDTO) {
-		var author = authorRepository.findById(communityDTO.getAuthorId())
-			.orElseThrow(() -> new CommunityException("Author not found with ID: " + communityDTO.getAuthorId()));
+	public Community createCommunity(CommunityRequest communityRequest) {
+		var author = authorRepository.findById(communityRequest.getAuthorId())
+			.orElseThrow(() -> new CommunityException("Author not found with ID: " + communityRequest.getAuthorId()));
 
-		communityRepository.findByAuthorAuthorId(communityDTO.getAuthorId()).ifPresent(existingCommunity -> {
+		communityRepository.findByAuthorAuthorId(communityRequest.getAuthorId()).ifPresent(existingCommunity -> {
 			throw new CommunityException("This author already has a community");
 		});
 
-		String photoUrl = saveFileToS3Bucket(s3Client, bucketName, communityDTO.getPhoto());
+		String photoUrl = saveFileToS3Bucket(s3Client, bucketName, communityRequest.getPhoto());
 
 		Community newCommunity = new Community();
 		newCommunity.setAuthor(author);
-		newCommunity.setName(communityDTO.getName());
-		newCommunity.setDescription(communityDTO.getDescription());
+		newCommunity.setName(communityRequest.getName());
+		newCommunity.setDescription(communityRequest.getDescription());
 		newCommunity.setPhoto(photoUrl);
 
 		return communityRepository.save(newCommunity);
 	}
 
-	public Community updateCommunity(CommunityDTO communityDTO) {
-		Community existingCommunity = communityRepository.findByAuthorAuthorId(communityDTO.getAuthorId())
+	public Community updateCommunity(CommunityRequest communityRequest) {
+		Community existingCommunity = communityRepository.findByAuthorAuthorId(communityRequest.getAuthorId())
 			.orElseThrow(() -> new CommunityException(
-					"No existing community found for author with ID: " + communityDTO.getAuthorId()));
+					"No existing community found for author with ID: " + communityRequest.getAuthorId()));
 
-		String photoUrl = saveFileToS3Bucket(s3Client, bucketName, communityDTO.getPhoto());
+		String photoUrl = saveFileToS3Bucket(s3Client, bucketName, communityRequest.getPhoto());
 
-		existingCommunity.setName(communityDTO.getName());
-		existingCommunity.setDescription(communityDTO.getDescription());
+		existingCommunity.setName(communityRequest.getName());
+		existingCommunity.setDescription(communityRequest.getDescription());
 		existingCommunity.setPhoto(photoUrl);
 
 		return communityRepository.save(existingCommunity);
@@ -70,6 +70,10 @@ public class CommunityService {
 	public Community getCommunityById(Long communityId) {
 		return communityRepository.findById(communityId)
 			.orElseThrow(() -> new CommunityException("No community found with ID: " + communityId));
+	}
+
+	public boolean authorHasCommunity(Long authorId) {
+		return communityRepository.existsByAuthorAuthorId(authorId);
 	}
 
 }
