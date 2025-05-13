@@ -3,6 +3,7 @@ import { Navigate, useRoutes } from "react-router-dom"
 import { lazyImport } from "./lazy"
 import { CircularProgress } from "@mui/material"
 import RequireAuth from "./RequireAuth"
+import RequireCommunityAccess from "./RequireCommunityAccess"
 
 const RegisterPage = lazyImport(() => import("@/features/auth/pages/RegisterPage"))
 const EmailVerificationPage = lazyImport(() => import("@/features/auth/pages/EmailVerificationPage"))
@@ -27,7 +28,6 @@ export default function AppRoutes() {
         { path: "/authors", element: <SearchAuthorsPage /> },
         { path: "/books/:id", element: <BookDetailPage /> },
         { path: "/authors/:fullName", element: <AuthorProfilePage /> },
-        { path: "/communities/:id", element: <CommunityPage /> },
 
         {
             element: <RequireAuth roles={["ADMIN"]} />,
@@ -45,6 +45,16 @@ export default function AppRoutes() {
         {
             element: <RequireAuth roles={["USER"]} />,
             children: [{ path: "/shelf", element: <ShelfPage /> }],
+        },
+
+        {
+            element: <RequireAuth />,
+            children: [
+                {
+                    element: <RequireCommunityAccess />,
+                    children: [{ path: "/communities/:id", element: <CommunityPage /> }],
+                },
+            ],
         },
 
         /* fallback */
