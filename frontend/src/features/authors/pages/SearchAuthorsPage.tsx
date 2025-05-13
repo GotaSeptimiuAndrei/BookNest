@@ -30,7 +30,7 @@ export default function SearchAuthorsPage() {
 
             {isLoading && <CircularProgress />}
 
-            {data?.content?.map((a: AuthorResponse) => <AuthorCard key={a.authorId} {...a} />)}
+            {data?.content?.map((a: AuthorResponse) => <AuthorCard key={a.fullName} {...a} />)}
 
             <Paginator page={page} totalPages={data?.totalPages ?? 0} onChange={setPage} />
         </Container>

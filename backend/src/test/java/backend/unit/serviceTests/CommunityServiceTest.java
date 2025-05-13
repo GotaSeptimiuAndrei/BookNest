@@ -1,6 +1,6 @@
 package backend.unit.serviceTests;
 
-import backend.dto.CommunityDTO;
+import backend.dto.request.CommunityRequest;
 import backend.exception.CommunityException;
 import backend.model.Author;
 import backend.model.Community;
@@ -69,7 +69,7 @@ class CommunityServiceTest {
 
 		MockMultipartFile photoFile = new MockMultipartFile("photo", "test-photo.jpg", "image/jpeg",
 				"DummyPhotoContent".getBytes());
-		CommunityDTO dto = new CommunityDTO();
+		CommunityRequest dto = new CommunityRequest();
 		dto.setAuthorId(author.getAuthorId());
 		dto.setName("My Community");
 		dto.setDescription("A nice place for discussion");
@@ -111,7 +111,7 @@ class CommunityServiceTest {
 		existingCommunity.setName("Old Community");
 
 		// DTO
-		CommunityDTO dto = new CommunityDTO();
+		CommunityRequest dto = new CommunityRequest();
 		dto.setAuthorId(author.getAuthorId());
 		dto.setName("New Community");
 
@@ -127,7 +127,7 @@ class CommunityServiceTest {
 
 	@Test
 	void testCreateCommunity_AuthorNotFound() {
-		CommunityDTO dto = new CommunityDTO();
+		CommunityRequest dto = new CommunityRequest();
 		dto.setAuthorId(999L);
 		dto.setName("DoesNotMatter");
 
@@ -150,7 +150,7 @@ class CommunityServiceTest {
 		existingCommunity.setAuthor(author);
 		existingCommunity.setName("Old Name");
 
-		CommunityDTO dto = new CommunityDTO();
+		CommunityRequest dto = new CommunityRequest();
 		dto.setAuthorId(author.getAuthorId());
 		dto.setName("Updated Name");
 		dto.setDescription("Updated Description");
@@ -182,7 +182,7 @@ class CommunityServiceTest {
 
 	@Test
 	void testUpdateCommunity_NoExistingCommunity() {
-		CommunityDTO dto = new CommunityDTO();
+		CommunityRequest dto = new CommunityRequest();
 		dto.setAuthorId(999L);
 		dto.setName("New Name");
 

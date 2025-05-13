@@ -1,8 +1,12 @@
-import { AppBar, Box, Button, IconButton, Stack, Toolbar, Typography } from "@mui/material"
+// src/components/Navbar.tsx
+import { AppBar, Box, Button, CircularProgress, IconButton, Stack, Toolbar, Typography } from "@mui/material"
 import { Link as RouterLink, useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
+import { useAuthorCommunity } from "@/features/authors/hooks/useAuthorCommunity"
+import { ReactNode } from "react"
+import { useAuthorHasCommunity } from "@/features/authors/hooks/useAuthorHasCommunity"
 
-const NavButton = ({ to, children }: { to: string; children: string }) => (
+const NavButton = ({ to, children }: { to: string; children: ReactNode }) => (
     <Button component={RouterLink} to={to}>
         {children}
     </Button>
@@ -11,6 +15,10 @@ const NavButton = ({ to, children }: { to: string; children: string }) => (
 export default function Navbar() {
     const { user, logout } = useAuth()
     const navigate = useNavigate()
+
+    const { data: hasCommunity, isLoading: checkingHasCommunity } = useAuthorHasCommunity(user?.id)
+
+    const { data: community, isLoading: loadingCommunity } = useAuthorCommunity(user?.id, Boolean(hasCommunity))
 
     const RightSide = () =>
         user ? (
@@ -68,7 +76,18 @@ export default function Navbar() {
 
             {user?.roles.includes("ADMIN") && <NavButton to="/admin/books">Manage Library</NavButton>}
 
-            {user?.roles.includes("AUTHOR") && <NavButton to="/author/community">Create Community</NavButton>}
+            {user?.roles.includes("AUTHOR") &&
+                (checkingHasCommunity ? (
+                    <CircularProgress />
+                ) : hasCommunity ? (
+                    loadingCommunity ? (
+                        <CircularProgress />
+                    ) : (
+                        <NavButton to={`/communities/${community!.communityId}`}>{community!.name}</NavButton>
+                    )
+                ) : (
+                    <NavButton to="/author/community/create">Create Community</NavButton>
+                ))}
         </Stack>
     )
 

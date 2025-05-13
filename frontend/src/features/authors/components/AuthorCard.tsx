@@ -1,4 +1,5 @@
-import { Avatar, Card, CardContent, Stack, Typography } from "@mui/material"
+import { Avatar, Button, Card, CardContent, Stack, Typography } from "@mui/material"
+import { Link as RouterLink } from "react-router-dom"
 import type { AuthorResponse } from "@/api/generated"
 
 export default function AuthorCard({ fullName, bio, photo }: AuthorResponse) {
@@ -10,9 +11,20 @@ export default function AuthorCard({ fullName, bio, photo }: AuthorResponse) {
 
             <CardContent sx={{ flex: 1 }}>
                 <Typography variant="h6">{fullName}</Typography>
+
                 <Typography variant="body2" sx={{ mt: 1 }}>
                     {bio}
                 </Typography>
+
+                <Button
+                    size="small"
+                    variant="outlined"
+                    component={RouterLink}
+                    to={`/authors/${fullName}`}
+                    sx={{ mt: 1 }}
+                >
+                    View Profile
+                </Button>
             </CardContent>
         </Card>
     )

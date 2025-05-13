@@ -1,7 +1,7 @@
 package backend.unit.controllerTests;
 
 import backend.controller.CommunityController;
-import backend.dto.CommunityDTO;
+import backend.dto.request.CommunityRequest;
 import backend.service.CommunityService;
 import backend.model.Community;
 import backend.exception.CommunityException;
@@ -118,7 +118,7 @@ class CommunityControllerTest {
 
 	@Test
 	void testCreateCommunity_Success() throws Exception {
-		CommunityDTO dto = new CommunityDTO();
+		CommunityRequest dto = new CommunityRequest();
 		dto.setAuthorId(10L);
 		dto.setName("New Community");
 		dto.setDescription("A description");
@@ -128,7 +128,7 @@ class CommunityControllerTest {
 		createdCommunity.setName("New Community");
 		createdCommunity.setDescription("A description");
 
-		when(communityService.createCommunity(any(CommunityDTO.class))).thenReturn(createdCommunity);
+		when(communityService.createCommunity(any(CommunityRequest.class))).thenReturn(createdCommunity);
 
 		mockMvc
 			.perform(post("/api/communities").contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -156,7 +156,7 @@ class CommunityControllerTest {
 
 	@Test
 	void testUpdateCommunity_Success() throws Exception {
-		CommunityDTO dto = new CommunityDTO();
+		CommunityRequest dto = new CommunityRequest();
 		dto.setAuthorId(10L);
 		dto.setName("Updated Community");
 		dto.setDescription("Updated Description");
@@ -166,7 +166,7 @@ class CommunityControllerTest {
 		updatedCommunity.setName("Updated Community");
 		updatedCommunity.setDescription("Updated Description");
 
-		when(communityService.updateCommunity(any(CommunityDTO.class))).thenReturn(updatedCommunity);
+		when(communityService.updateCommunity(any(CommunityRequest.class))).thenReturn(updatedCommunity);
 
 		mockMvc
 			.perform(put("/api/communities").contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -181,7 +181,7 @@ class CommunityControllerTest {
 
 	@Test
 	void testUpdateCommunity_NotFound() throws Exception {
-		when(communityService.updateCommunity(any(CommunityDTO.class)))
+		when(communityService.updateCommunity(any(CommunityRequest.class)))
 			.thenThrow(new CommunityException("No existing community found for author with ID: 999"));
 
 		mockMvc
