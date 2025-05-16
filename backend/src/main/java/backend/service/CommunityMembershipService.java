@@ -60,4 +60,8 @@ public class CommunityMembershipService {
 		return memberships.stream().map(CommunityMembership::getUser).toList();
 	}
 
+	public int getNrOfMembersOfCommunity(Long communityId) {
+		return communityMembershipRepository.findByCommunityCommunityId(communityId).size();
+	}
+
 }

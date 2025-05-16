@@ -117,12 +117,7 @@ class CommunityControllerTest {
 	}
 
 	private static MockMultipartFile dummyImage() {
-		return new MockMultipartFile(
-				"photo",
-				"cover.jpg",
-				"image/jpeg",
-				new byte[] {1, 2, 3, 4}
-		);
+		return new MockMultipartFile("photo", "cover.jpg", "image/jpeg", new byte[] { 1, 2, 3, 4 });
 	}
 
 	@Test
@@ -141,25 +136,23 @@ class CommunityControllerTest {
 
 		MockMultipartFile image = dummyImage();
 
-		mockMvc.perform(multipart("/api/communities")
-						.file(image)
-						.param("authorId", "10")
-						.param("name", "New Community")
-						.param("description", "A description"))
-				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.status").value("success"))
-				.andExpect(jsonPath("$.results.communityId").value(3L))
-				.andExpect(jsonPath("$.results.name").value("New Community"));
+		mockMvc
+			.perform(multipart("/api/communities").file(image)
+				.param("authorId", "10")
+				.param("name", "New Community")
+				.param("description", "A description"))
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.results.communityId").value(3L))
+			.andExpect(jsonPath("$.results.name").value("New Community"));
 	}
 
 	@Test
 	void testCreateCommunity_BindException() throws Exception {
-		mockMvc.perform(multipart("/api/communities")
-						.param("authorId", "10")
-						.param("name", "Invalid Community"))
-				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.status").value("error"))
-				.andExpect(jsonPath("$.errors[0].field").value("photo")); // missing photo
+		mockMvc.perform(multipart("/api/communities").param("authorId", "10").param("name", "Invalid Community"))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.status").value("error"))
+			.andExpect(jsonPath("$.errors[0].field").value("photo")); // missing photo
 
 		verify(communityService, never()).createCommunity(any());
 	}
@@ -180,16 +173,18 @@ class CommunityControllerTest {
 
 		MockMultipartFile image = dummyImage();
 
-		mockMvc.perform(multipart("/api/communities")
-						.file(image)
-						.param("authorId", "10")
-						.param("name", "Updated Community")
-						.param("description", "Updated Description")
-						.with(request -> { request.setMethod("PUT"); return request; }))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.status").value("success"))
-				.andExpect(jsonPath("$.results.communityId").value(1L))
-				.andExpect(jsonPath("$.results.name").value("Updated Community"));
+		mockMvc.perform(multipart("/api/communities").file(image)
+			.param("authorId", "10")
+			.param("name", "Updated Community")
+			.param("description", "Updated Description")
+			.with(request -> {
+				request.setMethod("PUT");
+				return request;
+			}))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value("success"))
+			.andExpect(jsonPath("$.results.communityId").value(1L))
+			.andExpect(jsonPath("$.results.name").value("Updated Community"));
 	}
 
 	@Test
@@ -199,17 +194,19 @@ class CommunityControllerTest {
 
 		MockMultipartFile image = dummyImage();
 
-		mockMvc.perform(multipart("/api/communities")
-						.file(image)
-						.param("authorId", "999")
-						.param("name", "No Existing Community")
-						.param("description", "Desc")
-						.with(request -> { request.setMethod("PUT"); return request; }))
-				.andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.status").value("error"))
-				.andExpect(jsonPath("$.errors[0].field").value("community"))
-				.andExpect(jsonPath("$.errors[0].errorMessage")
-						.value("No existing community found for author with ID: 999"));
+		mockMvc.perform(multipart("/api/communities").file(image)
+			.param("authorId", "999")
+			.param("name", "No Existing Community")
+			.param("description", "Desc")
+			.with(request -> {
+				request.setMethod("PUT");
+				return request;
+			}))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.status").value("error"))
+			.andExpect(jsonPath("$.errors[0].field").value("community"))
+			.andExpect(
+					jsonPath("$.errors[0].errorMessage").value("No existing community found for author with ID: 999"));
 	}
 
 }
