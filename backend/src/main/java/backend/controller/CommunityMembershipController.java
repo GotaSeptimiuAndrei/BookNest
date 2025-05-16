@@ -69,6 +69,12 @@ public class CommunityMembershipController {
 		return ResponseEntity.ok(APIResponse.<List<User>>builder().status(SUCCESS).results(members).build());
 	}
 
+	@GetMapping("/community-members-count/{communityId}")
+	public ResponseEntity<APIResponse<Integer>> getNrOfMembersOfCommunity(@PathVariable Long communityId) {
+		Integer nrMembers = communityMembershipService.getNrOfMembersOfCommunity(communityId);
+		return ResponseEntity.ok(APIResponse.<Integer>builder().status(SUCCESS).results(nrMembers).build());
+	}
+
 	@ExceptionHandler(CommunityMembershipException.class)
 	public ResponseEntity<APIResponse<Void>> handleMembershipException(CommunityMembershipException ex) {
 		log.error("Membership exception: {}", ex.getMessage());

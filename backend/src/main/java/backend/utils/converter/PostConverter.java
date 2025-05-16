@@ -5,8 +5,11 @@ import backend.dto.response.PostResponse;
 import backend.model.Author;
 import backend.model.Community;
 import backend.model.Post;
+import backend.model.PostLikesId;
+import backend.repository.PostLikesRepository;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class PostConverter {
 
@@ -18,9 +21,7 @@ public class PostConverter {
 		post.setLikeCount(0);
 		post.setCommentCount(0);
 		post.setDatePosted(LocalDateTime.now());
-		if (imageUrl != null) {
-			post.setImage(imageUrl);
-		}
+		post.setImage(Objects.requireNonNullElse(imageUrl, ""));
 		return post;
 	}
 
@@ -29,7 +30,7 @@ public class PostConverter {
 
 		Author author = post.getAuthor();
 		Community community = post.getCommunity();
-
+		postResponse.setPostId(post.getPostId());
 		postResponse.setAuthorFullName(author.getFullName());
 		postResponse.setCommunityName(community.getName());
 		postResponse.setText(post.getText());
