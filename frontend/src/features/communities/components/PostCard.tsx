@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext"
 import { useToggleLikePost } from "../hooks/useToggleLikePost"
 import { useDeletePost } from "../hooks/useDeletePost"
 import type { PostResponse } from "@/api/generated"
+import CommentsSection from "./CommentsSection"
 
 interface Props {
     post: PostResponse
@@ -17,9 +18,7 @@ export default function PostCard({ post, communityId, authorId }: Props) {
     const toggleLike = useToggleLikePost()
     const deletePost = useDeletePost(communityId)
 
-    const isPostAuthor = user?.displayName === post.authorFullName
-    const isCommunityAuthor = user?.id === authorId
-    const canDelete = isPostAuthor || isCommunityAuthor
+    const canDelete = user?.id === authorId
 
     const likedByMe = false // TODO: backend flag later
 
@@ -82,6 +81,7 @@ export default function PostCard({ post, communityId, authorId }: Props) {
                     </Tooltip>
                 )}
             </CardActions>
+            <CommentsSection postId={post.postId!} />
         </Card>
     )
 }

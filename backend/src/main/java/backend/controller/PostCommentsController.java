@@ -6,6 +6,7 @@ import backend.dto.response.APIResponse;
 import backend.dto.response.PostCommentResponse;
 import backend.exception.PostCommentsException;
 import backend.service.PostCommentsService;
+import backend.utils.JwtUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -64,8 +65,14 @@ public class PostCommentsController {
 
 	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping("/{commentId}")
-	public ResponseEntity<APIResponse<Void>> deleteComment(@PathVariable Long commentId) {
-		postCommentsService.deleteComment(commentId);
+	public ResponseEntity<APIResponse<Void>> deleteComment(@RequestHeader("Authorization") String token,
+			@PathVariable Long commentId) {
+
+		Long principalId = JwtUtils.extractPrincipalId(token);
+		List<String> roles = JwtUtils.extractRoles(token);
+
+		postCommentsService.deleteComment(principalId, roles, commentId);
+
 		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
 	}
 

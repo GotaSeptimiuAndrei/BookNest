@@ -5,8 +5,10 @@ import backend.dto.request.PostCommentRequest;
 import backend.dto.response.PostCommentResponse;
 import backend.exception.PostCommentsException;
 import backend.service.PostCommentsService;
+import backend.utils.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,6 +34,8 @@ class PostCommentsControllerTest {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	private static final String TOKEN = "Bearer faketoken";
 
 	@Test
 	void getCommentsForPost_Success() throws Exception {
@@ -119,24 +123,34 @@ class PostCommentsControllerTest {
 	}
 
 	@Test
-	void deleteComment_Success() throws Exception {
-		mockMvc.perform(delete("/api/comments/{commentId}", 5L))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"));
+	void deleteComment_success() throws Exception {
+		try (MockedStatic<JwtUtils> jwt = mockStatic(JwtUtils.class)) {
+			jwt.when(() -> JwtUtils.extractPrincipalId(TOKEN)).thenReturn(2L);
+			jwt.when(() -> JwtUtils.extractRoles(TOKEN)).thenReturn(List.of("ROLE_ADMIN"));
 
-		verify(postCommentsService).deleteComment(5L);
+			mockMvc.perform(delete("/api/comments/{id}", 5L).header("Authorization", TOKEN))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.status").value("success"));
+
+			verify(postCommentsService).deleteComment(2L, List.of("ROLE_ADMIN"), 5L);
+		}
 	}
 
 	@Test
-	void deleteComment_NotFound() throws Exception {
+	void deleteComment_notFound() throws Exception {
 		doThrow(new PostCommentsException("Comment not found with ID: 999")).when(postCommentsService)
-			.deleteComment(999L);
+			.deleteComment(anyLong(), anyList(), eq(999L));
 
-		mockMvc.perform(delete("/api/comments/{commentId}", 999L))
-			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("$.status").value("error"))
-			.andExpect(jsonPath("$.errors[0].field").value("comment"))
-			.andExpect(jsonPath("$.errors[0].errorMessage").value("Comment not found with ID: 999"));
+		try (MockedStatic<JwtUtils> jwt = mockStatic(JwtUtils.class)) {
+			jwt.when(() -> JwtUtils.extractPrincipalId(TOKEN)).thenReturn(2L);
+			jwt.when(() -> JwtUtils.extractRoles(TOKEN)).thenReturn(List.of("ROLE_USER"));
+
+			mockMvc.perform(delete("/api/comments/{id}", 999L).header("Authorization", TOKEN))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value("error"))
+				.andExpect(jsonPath("$.errors[0].field").value("comment"))
+				.andExpect(jsonPath("$.errors[0].errorMessage").value("Comment not found with ID: 999"));
+		}
 	}
 
 }

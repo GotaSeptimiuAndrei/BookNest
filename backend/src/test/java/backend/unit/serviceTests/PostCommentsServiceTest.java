@@ -79,20 +79,46 @@ class PostCommentsServiceTest {
 	}
 
 	@Test
-	void deleteComment_Success() {
+	void deleteComment_adminOrAuthor_success() {
 		PostComments comment = new PostComments();
 		comment.setCommentId(100L);
+
+		User owner = new User();
+		owner.setUserId(42L);
+		comment.setUser(owner);
+
 		when(postCommentsRepository.findById(100L)).thenReturn(Optional.of(comment));
 
-		postCommentsService.deleteComment(100L);
+		Long principalId = 1L;
+		List<String> roles = List.of("ROLE_ADMIN");
+
+		postCommentsService.deleteComment(principalId, roles, 100L);
 
 		verify(postCommentsRepository).delete(comment);
 	}
 
 	@Test
-	void deleteComment_NotFound() {
+	void deleteComment_owner_success() {
+		PostComments comment = new PostComments();
+		comment.setCommentId(101L);
+
+		User me = new User();
+		me.setUserId(2L);
+		comment.setUser(me);
+
+		when(postCommentsRepository.findById(101L)).thenReturn(Optional.of(comment));
+
+		postCommentsService.deleteComment(2L, List.of("ROLE_USER"), 101L);
+
+		verify(postCommentsRepository).delete(comment);
+	}
+
+	@Test
+	void deleteComment_notFound_throws() {
 		when(postCommentsRepository.findById(999L)).thenReturn(Optional.empty());
-		assertThrows(PostCommentsException.class, () -> postCommentsService.deleteComment(999L));
+
+		assertThrows(PostCommentsException.class,
+				() -> postCommentsService.deleteComment(1L, List.of("ROLE_ADMIN"), 999L));
 	}
 
 	@Test

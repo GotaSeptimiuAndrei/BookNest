@@ -9,6 +9,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.List;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -67,6 +68,22 @@ public class JwtUtils {
 
 		Instant expiresAt = decodedJwt.getExpiresAt();
 		return expiresAt != null && Instant.now().isAfter(expiresAt);
+	}
+
+	public static Long extractPrincipalId(String bearerToken) {
+		String token = bearerToken.substring(7);
+		Jwt decoded = jwtDecoder.decode(token);
+
+		Long authorId = decoded.getClaim("authorId");
+		Long userId = decoded.getClaim("userId");
+
+		return authorId != null ? authorId : userId;
+	}
+
+	public static List<String> extractRoles(String bearerToken) {
+		String token = bearerToken.substring(7);
+		Jwt decoded = jwtDecoder.decode(token);
+		return decoded.getClaimAsStringList("roles");
 	}
 
 }

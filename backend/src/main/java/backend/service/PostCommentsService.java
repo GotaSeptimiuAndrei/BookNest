@@ -12,6 +12,7 @@ import backend.repository.UserRepository;
 import backend.utils.converter.PostCommentsConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,10 +55,22 @@ public class PostCommentsService {
 		return PostCommentsConverter.convertToDto(savedComment);
 	}
 
-	public void deleteComment(Long commentId) {
+	@Transactional
+	public void deleteComment(Long principalId, List<String> roles, Long commentId) {
+
 		PostComments comment = postCommentsRepository.findById(commentId)
 			.orElseThrow(() -> new PostCommentsException("Comment not found with ID: " + commentId));
-		postCommentsRepository.delete(comment);
+
+		boolean isAdmin = roles.contains("ROLE_ADMIN");
+		boolean isAuthor = roles.contains("ROLE_AUTHOR");
+		boolean isOwner = comment.getUser().getUserId().equals(principalId);
+
+		if (isAdmin || isAuthor || isOwner) {
+			postCommentsRepository.delete(comment);
+		}
+		else {
+			throw new PostCommentsException("You are not allowed to delete this comment");
+		}
 	}
 
 	public List<PostCommentResponse> getCommentsForPost(Long postId) {
