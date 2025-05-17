@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PostControllerService } from "@/api/generated"
+import type { PostResponse } from "@/api/generated"
 
 interface Params {
     postId: number
@@ -19,6 +20,28 @@ export const useToggleLikePost = () => {
                 await PostControllerService.likePost({ id: postId, userId })
             }
         },
-        onSuccess: (_data, { communityId }) => qc.invalidateQueries({ queryKey: ["community-posts", communityId] }),
+
+        onMutate: ({ postId, communityId, liked }) => {
+            qc.setQueryData(["community-posts", communityId], (old: any) => {
+                if (!old) return old
+                return {
+                    ...old,
+                    pages: old.pages.map((page: any) => ({
+                        ...page,
+                        content: page.content.map((p: PostResponse) =>
+                            p.postId === postId
+                                ? {
+                                      ...p,
+                                      likedByMe: !liked,
+                                      likeCount: (p.likeCount ?? 0) + (liked ? -1 : 1),
+                                  }
+                                : p
+                        ),
+                    })),
+                }
+            })
+        },
+
+        onSuccess: (_d, { communityId }) => qc.invalidateQueries({ queryKey: ["community-posts", communityId] }),
     })
 }

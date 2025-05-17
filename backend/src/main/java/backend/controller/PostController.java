@@ -6,6 +6,7 @@ import backend.dto.response.APIResponse;
 import backend.dto.response.PostResponse;
 import backend.exception.PostException;
 import backend.service.PostService;
+import backend.utils.JwtUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +44,16 @@ public class PostController {
 		return ResponseEntity.ok(APIResponse.<List<PostResponse>>builder().status(SUCCESS).results(posts).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
 	@GetMapping("/community/{communityId}/paginated")
-	public ResponseEntity<APIResponse<Page<PostResponse>>> getPostsByCommunityIdPaginated(
-			@PathVariable Long communityId, @RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "5") int size) {
-		Page<PostResponse> postPage = postService.getPostsByCommunityIdPaginated(communityId, page, size);
+	public ResponseEntity<APIResponse<Page<PostResponse>>> getPostsByCommunityPaginated(
+			@RequestHeader(value = "Authorization", required = false) String token, @PathVariable Long communityId,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+
+		Long viewerId = JwtUtils.extractPrincipalId(token);
+
+		Page<PostResponse> postPage = postService.getPostsByCommunityIdPaginated(communityId, page, size, viewerId);
+
 		return ResponseEntity.ok(APIResponse.<Page<PostResponse>>builder().status(SUCCESS).results(postPage).build());
 	}
 

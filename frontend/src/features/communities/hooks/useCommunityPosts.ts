@@ -12,12 +12,17 @@ export const useCommunityPosts = (communityId: number) =>
     useInfiniteQuery<Page, Error>({
         queryKey: ["community-posts", communityId],
         initialPageParam: 0,
-        queryFn: ({ pageParam }) =>
-            PostControllerService.getPostsByCommunityIdPaginated({
+
+        queryFn: ({ pageParam }) => {
+            const token = localStorage.getItem("token")
+            return PostControllerService.getPostsByCommunityPaginated({
                 communityId,
+                authorization: token ? `Bearer ${token}` : undefined,
                 page: pageParam as number,
                 size: 5,
-            }).then((r) => r.results! as Page),
+            }).then((r) => r.results! as Page)
+        },
+
         getNextPageParam: (last) => (last.last ? undefined : last.number + 1),
         staleTime: 60_000,
     })

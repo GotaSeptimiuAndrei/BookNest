@@ -147,15 +147,16 @@ class CommunityControllerTest {
 			.andExpect(jsonPath("$.results.name").value("New Community"));
 	}
 
-//	@Test
-//	void testCreateCommunity_BindException() throws Exception {
-//		mockMvc.perform(multipart("/api/communities").param("authorId", "10").param("name", "Invalid Community"))
-//			.andExpect(status().isBadRequest())
-//			.andExpect(jsonPath("$.status").value("error"))
-//			.andExpect(jsonPath("$.errors[0].field").value("photo")); // missing photo
-//
-//		verify(communityService, never()).createCommunity(any());
-//	}
+	// @Test
+	// void testCreateCommunity_BindException() throws Exception {
+	// mockMvc.perform(multipart("/api/communities").param("authorId", "10").param("name",
+	// "Invalid Community"))
+	// .andExpect(status().isBadRequest())
+	// .andExpect(jsonPath("$.status").value("error"))
+	// .andExpect(jsonPath("$.errors[0].field").value("photo")); // missing photo
+	//
+	// verify(communityService, never()).createCommunity(any());
+	// }
 
 	@Test
 	void testUpdateCommunity_Success() throws Exception {

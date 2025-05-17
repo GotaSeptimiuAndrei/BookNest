@@ -38,6 +38,25 @@ public class PostConverter {
 		postResponse.setLikeCount(post.getLikeCount());
 		postResponse.setCommentCount(post.getCommentCount());
 		postResponse.setDatePosted(post.getDatePosted());
+		postResponse.setLikedByMe(false);
+
+		return postResponse;
+	}
+
+	public static PostResponse convertToDtoWithBoolean(Post post, boolean likedByMe) {
+		PostResponse postResponse = new PostResponse();
+
+		Author author = post.getAuthor();
+		Community community = post.getCommunity();
+		postResponse.setPostId(post.getPostId());
+		postResponse.setAuthorFullName(author.getFullName());
+		postResponse.setCommunityName(community.getName());
+		postResponse.setText(post.getText());
+		postResponse.setImageUrl(post.getImage());
+		postResponse.setLikeCount(post.getLikeCount());
+		postResponse.setCommentCount(post.getCommentCount());
+		postResponse.setDatePosted(post.getDatePosted());
+		postResponse.setLikedByMe(likedByMe);
 
 		return postResponse;
 	}

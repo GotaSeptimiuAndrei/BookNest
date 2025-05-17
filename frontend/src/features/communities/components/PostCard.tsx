@@ -1,16 +1,17 @@
-import { Card, CardHeader, CardContent, CardActions, IconButton, Typography, Box, Tooltip } from "@mui/material"
+import { Box, Card, CardActions, CardContent, CardHeader, IconButton, Tooltip, Typography } from "@mui/material"
 import FavoriteIcon from "@mui/icons-material/Favorite"
 import DeleteIcon from "@mui/icons-material/Delete"
+import { useState } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useToggleLikePost } from "../hooks/useToggleLikePost"
 import { useDeletePost } from "../hooks/useDeletePost"
-import type { PostResponse } from "@/api/generated"
 import CommentsSection from "./CommentsSection"
+import type { PostResponse } from "@/api/generated"
 
 interface Props {
     post: PostResponse
     communityId: number
-    authorId: number //community author id, used for delete rights
+    authorId: number // community author id (delete rights)
 }
 
 export default function PostCard({ post, communityId, authorId }: Props) {
@@ -18,13 +19,28 @@ export default function PostCard({ post, communityId, authorId }: Props) {
     const toggleLike = useToggleLikePost()
     const deletePost = useDeletePost(communityId)
 
+    const isBasicUser = user?.roles.includes("USER")
     const canDelete = user?.id === authorId
 
-    const likedByMe = false // TODO: backend flag later
+    const [liked, setLiked] = useState(Boolean(post.likedByMe))
+    const [likes, setLikes] = useState(post.likeCount ?? 0)
+
+    const handleLike = () => {
+        if (!user || !isBasicUser) return
+        setLiked((prev) => !prev)
+        setLikes((c) => c + (liked ? -1 : 1))
+        toggleLike.mutate({
+            postId: post.postId!,
+            userId: user.id,
+            liked,
+            communityId,
+        })
+    }
 
     return (
         <Card elevation={2}>
             <CardHeader title={post.authorFullName} subheader={new Date(post.datePosted ?? "").toLocaleString()} />
+
             <CardContent>
                 {post.text && (
                     <Typography
@@ -51,19 +67,11 @@ export default function PostCard({ post, communityId, authorId }: Props) {
                     />
                 )}
             </CardContent>
+
             <CardActions>
-                <IconButton
-                    onClick={() =>
-                        toggleLike.mutate({
-                            postId: post.postId!,
-                            userId: user!.id,
-                            liked: likedByMe,
-                            communityId,
-                        })
-                    }
-                >
-                    <FavoriteIcon color={likedByMe ? "error" : "inherit"} sx={{ mr: 0.5 }} />
-                    <Typography variant="body2">{post.likeCount}</Typography>
+                <IconButton onClick={handleLike} disabled={!isBasicUser}>
+                    <FavoriteIcon color={liked ? "error" : "inherit"} sx={{ mr: 0.5 }} />
+                    <Typography variant="body2">{likes}</Typography>
                 </IconButton>
 
                 {canDelete && (
@@ -81,6 +89,7 @@ export default function PostCard({ post, communityId, authorId }: Props) {
                     </Tooltip>
                 )}
             </CardActions>
+
             <CommentsSection postId={post.postId!} />
         </Card>
     )

@@ -11,11 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static backend.utils.S3Utils.saveFileToS3Bucket;
 
@@ -88,13 +91,22 @@ public class PostService {
 		return posts.stream().map(PostConverter::convertToDto).toList();
 	}
 
-	public Page<PostResponse> getPostsByCommunityIdPaginated(Long communityId, int page, int size) {
+	public Page<PostResponse> getPostsByCommunityIdPaginated(Long communityId, int page, int size,
+			@Nullable Long viewerId) {
+
 		communityRepository.findById(communityId)
 			.orElseThrow(() -> new PostException("Community not found with ID: " + communityId));
 
 		Pageable pageable = PageRequest.of(page, size);
-		Page<Post> postPage = postRepository.findAllByCommunityCommunityId(communityId, pageable);
-		return postPage.map(PostConverter::convertToDto);
+		Page<Post> posts = postRepository.findAllByCommunityCommunityId(communityId, pageable);
+
+		Set<Long> likedIds;
+		if (viewerId != null)
+			likedIds = Set.copyOf(postLikesRepository.findLikedPostIds(viewerId, posts.map(Post::getPostId).toList()));
+		else {
+			likedIds = Collections.emptySet();
+		}
+		return posts.map(p -> PostConverter.convertToDtoWithBoolean(p, likedIds.contains(p.getPostId())));
 	}
 
 	public void likePost(Long postId, Long userId) {
