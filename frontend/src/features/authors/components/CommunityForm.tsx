@@ -1,37 +1,71 @@
-import { Button, Stack, TextField, Typography } from "@mui/material"
 import { z } from "zod"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Button, Stack, TextField, Typography } from "@mui/material"
+import { useEffect } from "react"
+import type { Community } from "@/api/generated"
 
-const schema = z.object({
+const base = {
     authorId: z.number(),
     name: z.string().min(3),
     description: z.string().min(10),
+}
+
+const createSchema = z.object({
+    ...base,
     photo: z.instanceof(File),
 })
 
-export type CommunityFormData = z.infer<typeof schema>
+const editSchema = z.object({
+    ...base,
+    photo: z.instanceof(File).optional(),
+})
+
+export type CommunityFormCreate = z.infer<typeof createSchema>
+export type CommunityFormEdit = z.infer<typeof editSchema>
+export type CommunityFormData = CommunityFormCreate | CommunityFormEdit
 
 interface Props {
     authorId: number
-    onSubmit: (d: CommunityFormData) => Promise<unknown>
     loading: boolean
+    onSubmit: (d: CommunityFormData) => Promise<unknown>
+    initial?: Community
 }
 
-export default function CommunityForm({ authorId, onSubmit, loading }: Props) {
+export default function CommunityForm({ authorId, loading, onSubmit, initial }: Props) {
+    const isEdit = Boolean(initial)
+    const schema = isEdit ? editSchema : createSchema
+
     const {
         control,
         handleSubmit,
         setValue,
+        reset,
         formState: { errors },
     } = useForm<CommunityFormData>({
         resolver: zodResolver(schema),
-        defaultValues: { authorId } as any,
+        defaultValues: isEdit
+            ? {
+                  authorId,
+                  name: initial!.name ?? "",
+                  description: initial!.description ?? "",
+              }
+            : ({ authorId } as any),
     })
+
+    useEffect(() => {
+        if (initial) {
+            reset({
+                authorId,
+                name: initial.name ?? "",
+                description: initial.description ?? "",
+            } as any)
+        }
+    }, [initial, authorId, reset])
 
     return (
         <Stack spacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
-            <Typography variant="h5">Create Community</Typography>
+            <Typography variant="h5">{isEdit ? "Update Community" : "Create Community"}</Typography>
 
             <Controller
                 name="name"
@@ -61,14 +95,14 @@ export default function CommunityForm({ authorId, onSubmit, loading }: Props) {
                 control={control}
                 render={({ field }) => (
                     <Button variant="outlined" component="label">
-                        {field.value ? (field.value as File).name : "Upload photo"}
+                        {(field.value as File | undefined)?.name ?? "Upload photo"}
                         <input
                             type="file"
                             hidden
                             accept="image/*"
                             onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) setValue("photo", file as any)
+                                const f = e.target.files?.[0]
+                                if (f) setValue("photo", f as any)
                             }}
                         />
                     </Button>
@@ -82,7 +116,7 @@ export default function CommunityForm({ authorId, onSubmit, loading }: Props) {
             )}
 
             <Button variant="contained" type="submit" disabled={loading}>
-                Create community
+                {isEdit ? "Save changes" : "Create community"}
             </Button>
         </Stack>
     )

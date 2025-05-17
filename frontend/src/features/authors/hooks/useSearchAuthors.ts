@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { AuthorControllerService } from "@/api"
 import type { APIResponsePageAuthorResponse, PageAuthorResponse } from "@/api/generated"
 
-export const useSearchAuthors = (query: string, page: number, size = 10) =>
+export const useSearchAuthors = (query: string, page: number, size = 5) =>
     useQuery<APIResponsePageAuthorResponse, Error, PageAuthorResponse>({
         queryKey: ["authors", query, page],
         queryFn: () =>

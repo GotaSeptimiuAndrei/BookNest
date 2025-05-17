@@ -70,7 +70,7 @@ export default function Navbar() {
             {user?.roles.includes("USER") && (
                 <>
                     <NavButton to="/shelf">Shelf</NavButton>
-                    <NavButton to="/communities">My Communities</NavButton>
+                    <NavButton to="/user-communities">My Communities</NavButton>
                 </>
             )}
 

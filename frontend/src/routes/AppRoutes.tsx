@@ -17,6 +17,8 @@ const ShelfPage = lazyImport(() => import("@/features/loans/pages/ShelfPage"))
 const AuthorProfilePage = lazyImport(() => import("@/features/authors/pages/AuthorProfilePage"))
 const CreateCommunityPage = lazyImport(() => import("@/features/authors/pages/CreateCommunityPage"))
 const CommunityPage = lazyImport(() => import("@/features/communities/pages/CommunityPage"))
+const EditCommunityPage = lazyImport(() => import("@/features/authors/pages/EditCommunityPage"))
+const MyCommunitiesPage = lazyImport(() => import("@/features/communities/pages/MyCommunitiesPage"))
 
 export default function AppRoutes() {
     const element = useRoutes([
@@ -39,12 +41,18 @@ export default function AppRoutes() {
 
         {
             element: <RequireAuth roles={["AUTHOR"]} />,
-            children: [{ path: "/author/community/create", element: <CreateCommunityPage /> }],
+            children: [
+                { path: "/author/community/create", element: <CreateCommunityPage /> },
+                { path: "/author/community/edit", element: <EditCommunityPage /> },
+            ],
         },
 
         {
             element: <RequireAuth roles={["USER"]} />,
-            children: [{ path: "/shelf", element: <ShelfPage /> }],
+            children: [
+                { path: "/shelf", element: <ShelfPage /> },
+                { path: "/user-communities", element: <MyCommunitiesPage /> },
+            ],
         },
 
         {
