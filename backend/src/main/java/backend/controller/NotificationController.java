@@ -2,8 +2,10 @@ package backend.controller;
 
 import backend.dto.ErrorDTO;
 import backend.dto.response.APIResponse;
+import backend.dto.response.NotificationResponse;
 import backend.model.Notification;
 import backend.service.NotificationService;
+import backend.utils.JwtUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,23 +29,29 @@ public class NotificationController {
 
 	private final NotificationService notificationService;
 
-	@GetMapping("/user/{userId}")
-	public ResponseEntity<APIResponse<List<Notification>>> getNotificationsForUser(@PathVariable Long userId) {
-		List<Notification> notifications = notificationService.getNotificationsForUser(userId);
+	@GetMapping
+	public ResponseEntity<APIResponse<List<NotificationResponse>>> getUnread(
+			@RequestHeader("Authorization") String token) {
+
+		Long userId = JwtUtils.extractPrincipalId(token);
+		List<NotificationResponse> list = notificationService.findUnread(userId);
+
 		return ResponseEntity
-			.ok(APIResponse.<List<Notification>>builder().status(SUCCESS).results(notifications).build());
+			.ok(APIResponse.<List<NotificationResponse>>builder().status(SUCCESS).results(list).build());
 	}
 
-	@PostMapping("/{notificationId}/read")
-	public ResponseEntity<APIResponse<Void>> markNotificationAsRead(@PathVariable Long notificationId) {
-		notificationService.markAsRead(notificationId);
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+	@PutMapping("/{id}/read")
+	public ResponseEntity<Void> markOne(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+
+		notificationService.markOne(JwtUtils.extractPrincipalId(token), id);
+		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/user/{userId}/read-all")
-	public ResponseEntity<APIResponse<Void>> markAllNotificationsAsRead(@PathVariable Long userId) {
-		notificationService.markAllAsRead(userId);
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+	@PutMapping("/read-all")
+	public ResponseEntity<Void> markAll(@RequestHeader("Authorization") String token) {
+
+		notificationService.markAll(JwtUtils.extractPrincipalId(token));
+		return ResponseEntity.ok().build();
 	}
 
 	@ExceptionHandler(RuntimeException.class)

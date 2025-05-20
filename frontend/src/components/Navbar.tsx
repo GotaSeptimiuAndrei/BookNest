@@ -1,10 +1,10 @@
-// src/components/Navbar.tsx
 import { AppBar, Box, Button, CircularProgress, IconButton, Stack, Toolbar, Typography } from "@mui/material"
 import { Link as RouterLink, useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
 import { useAuthorCommunity } from "@/features/authors/hooks/useAuthorCommunity"
 import { ReactNode } from "react"
 import { useAuthorHasCommunity } from "@/features/authors/hooks/useAuthorHasCommunity"
+import NotificationBell from "@/features/notifications/components/NotificationBell"
 
 const NavButton = ({ to, children }: { to: string; children: ReactNode }) => (
     <Button component={RouterLink} to={to}>
@@ -23,11 +23,7 @@ export default function Navbar() {
     const RightSide = () =>
         user ? (
             <Stack direction="row" spacing={2} alignItems="center">
-                {user.roles.includes("USER") && (
-                    <IconButton>
-                        <Box component="img" src="/notification-bell.svg" alt="notifications" sx={{ width: 24 }} />
-                    </IconButton>
-                )}
+                {user.roles.includes("USER") && <NotificationBell />}
 
                 <Typography variant="subtitle1">{user.displayName}</Typography>
 
