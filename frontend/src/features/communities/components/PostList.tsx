@@ -6,10 +6,11 @@ import PostCard from "./PostCard"
 interface Props {
     communityId: number
     authorId: number
+    sort: "newest" | "oldest" | "likes"
 }
 
-export default function PostList({ communityId, authorId }: Props) {
-    const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useCommunityPosts(communityId)
+export default function PostList({ communityId, authorId, sort }: Props) {
+    const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useCommunityPosts(communityId, sort)
 
     const { ref } = useInView({
         threshold: 0,

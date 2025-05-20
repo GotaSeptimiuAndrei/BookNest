@@ -48,11 +48,12 @@ public class PostController {
 	@GetMapping("/community/{communityId}/paginated")
 	public ResponseEntity<APIResponse<Page<PostResponse>>> getPostsByCommunityPaginated(
 			@RequestHeader(value = "Authorization", required = false) String token, @PathVariable Long communityId,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size,
+			@RequestParam(defaultValue = "newest") String sort) {
 
 		Long viewerId = JwtUtils.extractPrincipalId(token);
-
-		Page<PostResponse> postPage = postService.getPostsByCommunityIdPaginated(communityId, page, size, viewerId);
+		Page<PostResponse> postPage = postService.getPostsByCommunityIdPaginated(communityId, page, size, sort,
+				viewerId);
 
 		return ResponseEntity.ok(APIResponse.<Page<PostResponse>>builder().status(SUCCESS).results(postPage).build());
 	}

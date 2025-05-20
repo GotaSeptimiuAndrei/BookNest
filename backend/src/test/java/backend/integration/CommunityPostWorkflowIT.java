@@ -114,8 +114,7 @@ class CommunityPostWorkflowIT {
 		// Capture WebSocket destination
 		ArgumentCaptor<String> dest = ArgumentCaptor.forClass(String.class);
 		verify(wsTemplate).convertAndSend(dest.capture(), Optional.ofNullable(any()));
-		assertThat(dest.getValue())
-			.isEqualTo("/topic/communities/" + community.getCommunityId() + "/user/" + andrei.getUserId());
+		assertThat(dest.getValue()).isEqualTo("/queue/notifications-" + andrei.getUserId());
 	}
 
 }

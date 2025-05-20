@@ -8,9 +8,9 @@ interface Page {
     last: boolean
 }
 
-export const useCommunityPosts = (communityId: number) =>
+export const useCommunityPosts = (communityId: number, sort: "newest" | "oldest" | "likes" = "newest") =>
     useInfiniteQuery<Page, Error>({
-        queryKey: ["community-posts", communityId],
+        queryKey: ["community-posts", communityId, sort],
         initialPageParam: 0,
 
         queryFn: ({ pageParam }) => {
@@ -20,7 +20,8 @@ export const useCommunityPosts = (communityId: number) =>
                 authorization: token ? `Bearer ${token}` : undefined,
                 page: pageParam as number,
                 size: 5,
-            }).then((r) => r.results! as Page)
+                sort,
+            } as any).then((r) => r.results! as Page)
         },
 
         getNextPageParam: (last) => (last.last ? undefined : last.number + 1),

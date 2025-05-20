@@ -6,7 +6,12 @@ import PostComposer from "./PostComposer"
 import PostComposerFAB from "./PostComposerFAB"
 import PostList from "./PostList"
 
-export default function CommunityFeed({ authorId }: { authorId: number }) {
+interface Props {
+    authorId: number
+    sort: "newest" | "oldest" | "likes"
+}
+
+export default function CommunityFeed({ authorId, sort }: Props) {
     const { id } = useParams<{ id: string }>()
     const communityId = Number(id)
     const { user } = useAuth()
@@ -22,7 +27,7 @@ export default function CommunityFeed({ authorId }: { authorId: number }) {
                 </>
             )}
 
-            <PostList communityId={communityId} authorId={authorId} />
+            <PostList communityId={communityId} authorId={authorId} sort={sort} />
         </Stack>
     )
 }
