@@ -15,7 +15,7 @@ export default function AuthorProfileInfo({ author }: { author: AuthorResponse }
                 {author.country && (
                     <>
                         <CountryFlag
-                            countryCode={countryToAlpha2(author.country)}
+                            countryCode={countryToAlpha2(author.country ?? "") ?? "RO"}
                             svg
                             style={{ width: "1.5em", height: "1.5em", marginRight: 4 }}
                         />

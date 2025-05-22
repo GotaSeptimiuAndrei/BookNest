@@ -20,7 +20,7 @@ export default function PostCard({ post, communityId, authorId }: Props) {
     const deletePost = useDeletePost(communityId)
 
     const isBasicUser = user?.roles.includes("USER")
-    const canDelete = user?.id === authorId
+    const canDelete = user?.id === authorId || user?.roles.includes("ADMIN")
 
     const [liked, setLiked] = useState(Boolean(post.likedByMe))
     const [likes, setLikes] = useState(post.likeCount ?? 0)

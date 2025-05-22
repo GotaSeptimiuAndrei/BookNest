@@ -22,7 +22,6 @@ export default function CommentItem({ comment, postId }: Props) {
 
     const canDelete = comment.userId === user?.id || user?.roles.includes("ADMIN") || user?.roles.includes("AUTHOR")
 
-    /* handle reply submit */
     const handleReply = (vals: { text: string }) => {
         replyMut.mutate({
             parentId: comment.commentId!,
@@ -63,14 +62,12 @@ export default function CommentItem({ comment, postId }: Props) {
                     )}
                 </Stack>
 
-                {/* REPLY COMPOSER */}
                 <Collapse in={showReply} unmountOnExit>
                     <Box mt={1}>
                         <CommentComposer onSubmit={handleReply} busy={replyMut.isPending} autoFocus />
                     </Box>
                 </Collapse>
 
-                {/* CHILD COMMENTS (already nested in response) */}
                 {comment.replies?.length && (
                     <Stack mt={1} pl={3} spacing={1}>
                         {comment.replies.map((c) => (

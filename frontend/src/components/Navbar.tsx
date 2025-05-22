@@ -70,8 +70,12 @@ export default function Navbar() {
                 </>
             )}
 
-            {user?.roles.includes("ADMIN") && <NavButton to="/admin/books">Manage Library</NavButton>}
-
+            {user?.roles.includes("ADMIN") && (
+                <>
+                    <NavButton to="/admin/books">Manage Library</NavButton>
+                    <NavButton to="/admin/communities">Communities</NavButton>
+                </>
+            )}
             {user?.roles.includes("AUTHOR") &&
                 (checkingHasCommunity ? (
                     <CircularProgress />

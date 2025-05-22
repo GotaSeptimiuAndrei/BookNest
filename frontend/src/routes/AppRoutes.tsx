@@ -19,6 +19,7 @@ const CreateCommunityPage = lazyImport(() => import("@/features/authors/pages/Cr
 const CommunityPage = lazyImport(() => import("@/features/communities/pages/CommunityPage"))
 const EditCommunityPage = lazyImport(() => import("@/features/authors/pages/EditCommunityPage"))
 const MyCommunitiesPage = lazyImport(() => import("@/features/communities/pages/MyCommunitiesPage"))
+const AdminCommunitiesPage = lazyImport(() => import("@/features/admins/pages/AdminCommunitiesPage"))
 
 export default function AppRoutes() {
     const element = useRoutes([
@@ -36,6 +37,7 @@ export default function AppRoutes() {
             children: [
                 { path: "/admin/books", element: <AdminBooksPage /> },
                 { path: "/admin/books/new", element: <CreateBookPage /> },
+                { path: "/admin/communities", element: <AdminCommunitiesPage /> },
             ],
         },
 

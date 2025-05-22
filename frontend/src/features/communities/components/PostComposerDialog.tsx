@@ -1,4 +1,3 @@
-// features/communities/components/PostComposerDialog.tsx
 import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import PostComposer from "./PostComposer"
