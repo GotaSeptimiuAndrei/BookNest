@@ -111,8 +111,7 @@ class BookLoanControllerTest {
 		Long bookId = 1L;
 
 		mockMvc.perform(delete("/api/loans/return/{bookId}", bookId).header("Authorization", "Bearer fake_jwt_token"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"));
+			.andExpect(status().isNoContent());
 	}
 
 	@Test
@@ -131,8 +130,7 @@ class BookLoanControllerTest {
 		Long bookId = 1L;
 
 		mockMvc.perform(put("/api/loans/renew/{bookId}", bookId).header("Authorization", "Bearer fake_jwt_token"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"));
+			.andExpect(status().isNoContent());
 	}
 
 	@Test

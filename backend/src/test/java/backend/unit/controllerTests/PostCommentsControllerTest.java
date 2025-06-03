@@ -123,8 +123,7 @@ class PostCommentsControllerTest {
 			jwt.when(() -> JwtUtils.extractRoles(TOKEN)).thenReturn(List.of("ROLE_ADMIN"));
 
 			mockMvc.perform(delete("/api/comments/{id}", 5L).header("Authorization", TOKEN))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.status").value("success"));
+				.andExpect(status().isNoContent());
 
 			verify(commentsService).deleteComment(2L, List.of("ROLE_ADMIN"), 5L);
 		}

@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -43,11 +44,17 @@ public class AuthController {
 			log.info("User {} is trying to login", loginRequest.getEmail());
 			Authentication authentication = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
 			log.info("User {} has authorities: {}", authentication.getName(), authentication.getAuthorities());
 			return ResponseEntity.ok(tokenService.generateToken(authentication));
+
 		}
-		catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+		catch (BadCredentialsException ex) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+		}
+		catch (Exception ex) {
+			log.error("Unexpected error during login", ex);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
 		}
 	}
 

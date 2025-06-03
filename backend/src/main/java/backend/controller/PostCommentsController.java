@@ -75,7 +75,7 @@ public class PostCommentsController {
 
 	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping("/{commentId}")
-	public ResponseEntity<APIResponse<Void>> deleteComment(@RequestHeader("Authorization") String token,
+	public ResponseEntity<Void> deleteComment(@RequestHeader("Authorization") String token,
 			@PathVariable Long commentId) {
 
 		Long principalId = JwtUtils.extractPrincipalId(token);
@@ -83,7 +83,7 @@ public class PostCommentsController {
 
 		postCommentsService.deleteComment(principalId, roles, commentId);
 
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+		return ResponseEntity.noContent().build();
 	}
 
 	@ExceptionHandler(PostCommentsException.class)

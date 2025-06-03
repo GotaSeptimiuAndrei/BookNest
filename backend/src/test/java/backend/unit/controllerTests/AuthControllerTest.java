@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -69,13 +70,13 @@ class AuthControllerTest {
 		LoginRequest req = new LoginRequest("test@example.com", "wrong");
 
 		when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-			.thenThrow(new RuntimeException("Invalid login"));
+			.thenThrow(new BadCredentialsException("Invalid email or password"));
 
 		mockMvc
 			.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(req)))
-			.andExpect(status().isConflict())
-			.andExpect(content().string("Invalid login"));
+			.andExpect(status().isUnauthorized())
+			.andExpect(content().string("Invalid email or password"));
 	}
 
 	@Test

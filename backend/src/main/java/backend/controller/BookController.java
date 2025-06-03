@@ -84,9 +84,9 @@ public class BookController {
 
 	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping("/{id}")
-	public ResponseEntity<APIResponse<Void>> deleteBook(@PathVariable Long id) {
+	public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
 		bookService.deleteBook(id);
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+		return ResponseEntity.noContent().build();
 	}
 
 	/**
