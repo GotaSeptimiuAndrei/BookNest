@@ -31,16 +31,7 @@ export default function CommentsSection({ postId, initialOpen }: Props) {
             <Collapse in={open} unmountOnExit>
                 {user && (
                     <Box mt={1}>
-                        <CommentComposer
-                            onSubmit={(d) =>
-                                createMut.mutate({
-                                    postId,
-                                    userId: user.id,
-                                    text: d.text,
-                                })
-                            }
-                            busy={createMut.isPending}
-                        />
+                        <CommentComposer onSubmit={(d) => createMut.mutate(d.text)} busy={createMut.isPending} />
                     </Box>
                 )}
 

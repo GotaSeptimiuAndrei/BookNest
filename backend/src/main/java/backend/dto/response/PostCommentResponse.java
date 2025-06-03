@@ -17,9 +17,11 @@ public class PostCommentResponse {
 
 	private Long postId;
 
-	private Long userId;
+	private Long commenterId; // user_id or author_id
 
-	private String username;
+	private String commenterName; // username or fullName
+
+	private String commenterType; // "USER" | "AUTHOR"
 
 	private String text;
 

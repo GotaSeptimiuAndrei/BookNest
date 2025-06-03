@@ -3,9 +3,11 @@ package backend.service;
 import backend.dto.request.PostCommentRequest;
 import backend.dto.response.PostCommentResponse;
 import backend.exception.PostCommentsException;
+import backend.model.Author;
 import backend.model.Post;
 import backend.model.PostComments;
 import backend.model.User;
+import backend.repository.AuthorRepository;
 import backend.repository.PostCommentsRepository;
 import backend.repository.PostRepository;
 import backend.repository.UserRepository;
@@ -14,10 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,30 +29,43 @@ public class PostCommentsService {
 
 	private final UserRepository userRepository;
 
-	public PostCommentResponse createComment(PostCommentRequest postCommentRequest) {
-		Post post = postRepository.findById(postCommentRequest.getPostId())
-			.orElseThrow(() -> new PostCommentsException("Post not found with ID: " + postCommentRequest.getPostId()));
+	private final AuthorRepository authorRepository;
 
-		User user = userRepository.findById(postCommentRequest.getUserId())
-			.orElseThrow(() -> new PostCommentsException("User not found with ID: " + postCommentRequest.getUserId()));
+	@Transactional
+	public PostCommentResponse createComment(PostCommentRequest req, Long principalId, List<String> roles) {
 
-		PostComments commentEntity = PostCommentsConverter.convertToEntity(postCommentRequest);
-		commentEntity.setPost(post);
-		commentEntity.setUser(user);
+		Post post = postRepository.findById(req.getPostId())
+			.orElseThrow(() -> new PostCommentsException("Post not found with ID: " + req.getPostId()));
 
-		if (postCommentRequest.getParentCommentId() != null) {
-			PostComments parent = postCommentsRepository.findById(postCommentRequest.getParentCommentId())
-				.orElseThrow(() -> new PostCommentsException(
-						"Parent comment not found with ID: " + postCommentRequest.getParentCommentId()));
+		PostComments comment = new PostComments();
+		comment.setPost(post);
+		comment.setText(req.getText());
+		comment.setDatePosted(LocalDateTime.now());
 
-			if (!parent.getPost().getPostId().equals(post.getPostId())) {
-				throw new PostCommentsException("Parent comment does not belong to the same post!");
-			}
-			commentEntity.setParentComment(parent);
+		if (roles.contains("ROLE_AUTHOR")) {
+			Author author = authorRepository.findById(principalId)
+				.orElseThrow(() -> new PostCommentsException("Author not found with ID: " + principalId));
+			comment.setAuthor(author);
+		}
+		else {
+			User user = userRepository.findById(principalId)
+				.orElseThrow(() -> new PostCommentsException("User not found with ID: " + principalId));
+			comment.setUser(user);
 		}
 
-		PostComments savedComment = postCommentsRepository.save(commentEntity);
-		return PostCommentsConverter.convertToDto(savedComment);
+		if (req.getParentCommentId() != null) {
+			PostComments parent = postCommentsRepository.findById(req.getParentCommentId())
+				.orElseThrow(() -> new PostCommentsException(
+						"Parent comment not found with ID: " + req.getParentCommentId()));
+
+			if (!Objects.equals(parent.getPost().getPostId(), post.getPostId())) {
+				throw new PostCommentsException("Parent comment does not belong to the same post");
+			}
+			comment.setParentComment(parent);
+		}
+
+		PostComments saved = postCommentsRepository.save(comment);
+		return PostCommentsConverter.convertToDto(saved);
 	}
 
 	@Transactional
@@ -61,11 +74,12 @@ public class PostCommentsService {
 		PostComments comment = postCommentsRepository.findById(commentId)
 			.orElseThrow(() -> new PostCommentsException("Comment not found with ID: " + commentId));
 
-		boolean isAdmin = roles.contains("ROLE_ADMIN");
-		boolean isAuthor = roles.contains("ROLE_AUTHOR");
-		boolean isOwner = comment.getUser().getUserId().equals(principalId);
+		boolean owner = comment.getUser() != null && comment.getUser().getUserId().equals(principalId)
+				|| comment.getAuthor() != null && comment.getAuthor().getAuthorId().equals(principalId);
 
-		if (isAdmin || isAuthor || isOwner) {
+		boolean isAdmin = roles.contains("ROLE_ADMIN");
+
+		if (isAdmin || owner) {
 			postCommentsRepository.delete(comment);
 		}
 		else {
@@ -110,9 +124,10 @@ public class PostCommentsService {
 		return childComments.stream().map(PostCommentsConverter::convertToDto).toList();
 	}
 
-	public PostCommentResponse replyToComment(Long parentCommentId, PostCommentRequest commentRequest) {
-		commentRequest.setParentCommentId(parentCommentId);
-		return createComment(commentRequest);
+	public PostCommentResponse replyToComment(Long parentId, PostCommentRequest req, Long principalId,
+			List<String> roles) {
+		req.setParentCommentId(parentId);
+		return createComment(req, principalId, roles);
 	}
 
 }

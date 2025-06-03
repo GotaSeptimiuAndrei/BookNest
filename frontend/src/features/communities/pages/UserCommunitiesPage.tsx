@@ -19,7 +19,7 @@ import { useLeaveCommunity } from "../hooks/useLeaveCommunity"
 import MembershipRow from "../components/MembershipRow"
 import type { CommunityMembership } from "@/api/generated"
 
-export default function MyCommunitiesPage() {
+export default function UserCommunitiesPage() {
     const { user } = useAuth()
 
     const { data: memberships, isLoading, error } = useUserMemberships(user?.id)

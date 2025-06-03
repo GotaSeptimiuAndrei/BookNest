@@ -20,15 +20,20 @@ public class PostCommentsConverter {
 		PostCommentResponse response = new PostCommentResponse();
 		response.setCommentId(entity.getCommentId());
 		response.setPostId(entity.getPost().getPostId());
-		response.setUserId(entity.getUser().getUserId());
-		response.setUsername(entity.getUser().getUsername());
+		if (entity.getUser() != null) {
+			response.setCommenterId(entity.getUser().getUserId());
+			response.setCommenterName(entity.getUser().getUsername());
+			response.setCommenterType("USER");
+		}
+		else {
+			response.setCommenterId(entity.getAuthor().getAuthorId());
+			response.setCommenterName(entity.getAuthor().getFullName());
+			response.setCommenterType("AUTHOR");
+		}
 		response.setText(entity.getText());
 		response.setDatePosted(entity.getDatePosted());
-
-		// parent
-		if (entity.getParentComment() != null) {
+		if (entity.getParentComment() != null)
 			response.setParentCommentId(entity.getParentComment().getCommentId());
-		}
 		return response;
 	}
 

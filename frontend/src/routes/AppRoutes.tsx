@@ -16,9 +16,9 @@ const BookDetailPage = lazyImport(() => import("@/features/books/pages/BookDetai
 const ShelfPage = lazyImport(() => import("@/features/loans/pages/ShelfPage"))
 const AuthorProfilePage = lazyImport(() => import("@/features/authors/pages/AuthorProfilePage"))
 const CreateCommunityPage = lazyImport(() => import("@/features/authors/pages/CreateCommunityPage"))
-const CommunityPage = lazyImport(() => import("@/features/communities/pages/CommunityPage"))
+const CommunityPage = lazyImport(() => import("@/features/communities/pages/AuthorCommunityPage"))
 const EditCommunityPage = lazyImport(() => import("@/features/authors/pages/EditCommunityPage"))
-const MyCommunitiesPage = lazyImport(() => import("@/features/communities/pages/MyCommunitiesPage"))
+const MyCommunitiesPage = lazyImport(() => import("@/features/communities/pages/UserCommunitiesPage"))
 const AdminCommunitiesPage = lazyImport(() => import("@/features/admins/pages/AdminCommunitiesPage"))
 
 export default function AppRoutes() {

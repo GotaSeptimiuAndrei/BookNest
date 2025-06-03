@@ -47,18 +47,28 @@ public class PostCommentsController {
 
 	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping
-	public ResponseEntity<APIResponse<PostCommentResponse>> createComment(
+	public ResponseEntity<APIResponse<PostCommentResponse>> createComment(@RequestHeader("Authorization") String token,
 			@Valid @RequestBody PostCommentRequest request) {
-		PostCommentResponse createdComment = postCommentsService.createComment(request);
+
+		Long principalId = JwtUtils.extractPrincipalId(token);
+		List<String> roles = JwtUtils.extractRoles(token);
+
+		PostCommentResponse created = postCommentsService.createComment(request, principalId, roles);
+
 		return ResponseEntity.status(HttpStatus.CREATED)
-			.body(APIResponse.<PostCommentResponse>builder().status(SUCCESS).results(createdComment).build());
+			.body(APIResponse.<PostCommentResponse>builder().status(SUCCESS).results(created).build());
 	}
 
 	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/{parentId}/reply")
-	public ResponseEntity<APIResponse<PostCommentResponse>> replyToComment(@PathVariable Long parentId,
-			@Valid @RequestBody PostCommentRequest request) {
-		PostCommentResponse reply = postCommentsService.replyToComment(parentId, request);
+	public ResponseEntity<APIResponse<PostCommentResponse>> replyToComment(@RequestHeader("Authorization") String token,
+			@PathVariable Long parentId, @Valid @RequestBody PostCommentRequest request) {
+
+		Long principalId = JwtUtils.extractPrincipalId(token);
+		List<String> roles = JwtUtils.extractRoles(token);
+
+		PostCommentResponse reply = postCommentsService.replyToComment(parentId, request, principalId, roles);
+
 		return ResponseEntity.status(HttpStatus.CREATED)
 			.body(APIResponse.<PostCommentResponse>builder().status(SUCCESS).results(reply).build());
 	}

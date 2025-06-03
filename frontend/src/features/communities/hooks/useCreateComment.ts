@@ -1,12 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { PostCommentsControllerService } from "@/api/generated"
-import type { PostCommentRequest } from "@/api/generated"
 
 export const useCreateComment = (postId: number) => {
     const qc = useQueryClient()
+    const token = localStorage.getItem("token") ?? ""
 
     return useMutation({
-        mutationFn: (body: PostCommentRequest) => PostCommentsControllerService.createComment({ requestBody: body }),
+        mutationFn: (text: string) =>
+            PostCommentsControllerService.createComment({
+                authorization: `Bearer ${token}`,
+                requestBody: { postId, text },
+            }),
         onSuccess: () => qc.invalidateQueries({ queryKey: ["post-comments", postId] }),
     })
 }

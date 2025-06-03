@@ -28,4 +28,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 			""")
 	void markAllRead(@Param("userId") Long userId);
 
+	void deleteAllByReadStatusIsTrue();
+
 }

@@ -14,9 +14,6 @@ public class PostCommentRequest {
 	@NotNull(message = "Post id is required.")
 	private Long postId;
 
-	@NotNull(message = "User id is required.")
-	private Long userId;
-
 	@NotBlank(message = "Text is required.")
 	private String text;
 

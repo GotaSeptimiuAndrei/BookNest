@@ -1,11 +1,16 @@
+import { PostCommentsControllerService } from "@/api/generated/services/PostCommentsControllerService"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import axios from "@/lib/axios"
 
 export const useDeleteComment = (postId: number) => {
     const qc = useQueryClient()
+    const token = localStorage.getItem("token") ?? ""
 
     return useMutation({
-        mutationFn: (commentId: number) => axios.delete(`/api/comments/${commentId}`),
+        mutationFn: (commentId: number) =>
+            PostCommentsControllerService.deleteComment({
+                authorization: `Bearer ${token}`,
+                commentId,
+            }),
         onSuccess: () => qc.invalidateQueries({ queryKey: ["post-comments", postId] }),
     })
 }

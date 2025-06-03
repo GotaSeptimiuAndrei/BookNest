@@ -5,7 +5,7 @@ import { useCommunityById } from "../hooks/useCommunityById"
 import { useParams } from "react-router-dom"
 import { useState } from "react"
 
-export default function CommunityPage() {
+export default function AuthorCommunityPage() {
     const { id } = useParams<{ id: string }>()
     const communityId = Number(id)
     const { data: community } = useCommunityById(communityId)

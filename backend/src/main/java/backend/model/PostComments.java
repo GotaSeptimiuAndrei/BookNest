@@ -24,8 +24,12 @@ public class PostComments {
 	private Post post;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id", nullable = false)
+	@JoinColumn(name = "user_id")
 	private User user;
+
+	@ManyToOne
+	@JoinColumn(name = "author_id")
+	private Author author;
 
 	@ManyToOne
 	@JoinColumn(name = "parent_comment_id")
