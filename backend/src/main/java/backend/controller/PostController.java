@@ -68,23 +68,23 @@ public class PostController {
 
 	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping("/{id}")
-	public ResponseEntity<APIResponse<Void>> deletePost(@PathVariable Long id) {
+	public ResponseEntity<Void> deletePost(@PathVariable Long id) {
 		postService.deletePost(id);
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+		return ResponseEntity.noContent().build();
 	}
 
 	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/{id}/like")
-	public ResponseEntity<APIResponse<Void>> likePost(@PathVariable Long id, @RequestParam Long userId) {
+	public ResponseEntity<Void> likePost(@PathVariable Long id, @RequestParam Long userId) {
 		postService.likePost(id, userId);
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+		return ResponseEntity.noContent().build();
 	}
 
 	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/{id}/unlike")
-	public ResponseEntity<APIResponse<Void>> unlikePost(@PathVariable Long id, @RequestParam Long userId) {
+	public ResponseEntity<Void> unlikePost(@PathVariable Long id, @RequestParam Long userId) {
 		postService.unlikePost(id, userId);
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+		return ResponseEntity.noContent().build();
 	}
 
 	@ExceptionHandler(PostException.class)

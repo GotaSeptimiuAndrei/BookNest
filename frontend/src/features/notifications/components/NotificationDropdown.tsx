@@ -1,5 +1,5 @@
 import { Box, Divider, List, ListItem, ListItemText, Menu, MenuItem, Typography } from "@mui/material"
-import { useMarkAllNotifications, useNotificationListener, useNotifications } from "../hooks/useNotifications"
+import { useMarkAllNotifications, useNotifications } from "../hooks/useNotifications"
 import NotificationItem from "./NotificationItem"
 
 interface Props {
@@ -10,7 +10,6 @@ interface Props {
 
 export default function NotificationDropdown({ anchorEl, open, onClose }: Props) {
     const { data: notifs = [] } = useNotifications()
-    useNotificationListener()
 
     const unread = notifs.length
     const markAll = useMarkAllNotifications()

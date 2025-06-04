@@ -63,23 +63,21 @@ public class BookLoanController {
 	}
 
 	@DeleteMapping("/return/{bookId}")
-	public ResponseEntity<APIResponse<Void>> returnBook(@RequestHeader("Authorization") String token,
-			@PathVariable Long bookId) {
+	public ResponseEntity<Void> returnBook(@RequestHeader("Authorization") String token, @PathVariable Long bookId) {
 
 		String username = JwtUtils.extractUsername(token);
 		bookLoanService.returnBook(username, bookId);
 
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+		return ResponseEntity.noContent().build();
 	}
 
 	@PutMapping("/renew/{bookId}")
-	public ResponseEntity<APIResponse<Void>> renewLoan(@RequestHeader("Authorization") String token,
-			@PathVariable Long bookId) {
+	public ResponseEntity<Void> renewLoan(@RequestHeader("Authorization") String token, @PathVariable Long bookId) {
 
 		String username = JwtUtils.extractUsername(token);
 		bookLoanService.renewLoan(username, bookId);
 
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+		return ResponseEntity.noContent().build();
 	}
 
 	@GetMapping("/is-loaned/{bookId}")

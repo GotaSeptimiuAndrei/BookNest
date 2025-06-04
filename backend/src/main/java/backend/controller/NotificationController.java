@@ -44,14 +44,14 @@ public class NotificationController {
 	public ResponseEntity<Void> markOne(@RequestHeader("Authorization") String token, @PathVariable Long id) {
 
 		notificationService.markOne(JwtUtils.extractPrincipalId(token), id);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.noContent().build();
 	}
 
 	@PutMapping("/read-all")
 	public ResponseEntity<Void> markAll(@RequestHeader("Authorization") String token) {
 
 		notificationService.markAll(JwtUtils.extractPrincipalId(token));
-		return ResponseEntity.ok().build();
+		return ResponseEntity.noContent().build();
 	}
 
 	@ExceptionHandler(RuntimeException.class)

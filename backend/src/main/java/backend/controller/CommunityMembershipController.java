@@ -45,11 +45,11 @@ public class CommunityMembershipController {
 
 	@SecurityRequirement(name = "bearerAuth")
 	@DeleteMapping
-	public ResponseEntity<APIResponse<Void>> leaveCommunity(@Valid @RequestBody CommunityMembershipDTO dto) {
+	public ResponseEntity<Void> leaveCommunity(@Valid @RequestBody CommunityMembershipDTO dto) {
 
 		communityMembershipService.leaveCommunity(dto.getCommunityId(), dto.getUserId());
 
-		return ResponseEntity.ok(APIResponse.<Void>builder().status(SUCCESS).build());
+		return ResponseEntity.noContent().build();
 	}
 
 	@GetMapping("/user/{userId}")

@@ -112,18 +112,14 @@ class PostControllerTest {
 
 	@Test
 	void testDeletePost_Success() throws Exception {
-		mockMvc.perform(delete("/api/posts/{id}", 1L))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"));
+		mockMvc.perform(delete("/api/posts/{id}", 1L)).andExpect(status().isNoContent());
 
 		verify(postService).deletePost(1L);
 	}
 
 	@Test
 	void testLikePost_Success() throws Exception {
-		mockMvc.perform(post("/api/posts/{id}/like", 5L).param("userId", "10"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"));
+		mockMvc.perform(post("/api/posts/{id}/like", 5L).param("userId", "10")).andExpect(status().isNoContent());
 
 		verify(postService).likePost(5L, 10L);
 	}
@@ -143,9 +139,7 @@ class PostControllerTest {
 
 	@Test
 	void testUnlikePost_Success() throws Exception {
-		mockMvc.perform(post("/api/posts/{id}/unlike", 5L).param("userId", "10"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"));
+		mockMvc.perform(post("/api/posts/{id}/unlike", 5L).param("userId", "10")).andExpect(status().isNoContent());
 
 		verify(postService).unlikePost(5L, 10L);
 	}

@@ -1,7 +1,7 @@
 import { Container } from "@mui/material"
 import CommunityHeader from "../components/CommunityHeader"
 import CommunityFeed from "../components/CommunityFeed"
-import { useCommunityById } from "../hooks/useCommunityById"
+import { useCommunityById } from "../hooks/community/useCommunityById"
 import { useParams } from "react-router-dom"
 import { useState } from "react"
 

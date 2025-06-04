@@ -150,9 +150,7 @@ class BookControllerTest {
 
 	@Test
 	void testDeleteBook() throws Exception {
-		mockMvc.perform(delete("/api/books/{id}", 1L))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"));
+		mockMvc.perform(delete("/api/books/{id}", 1L)).andExpect(status().isNoContent());
 
 		verify(bookService).deleteBook(1L);
 	}

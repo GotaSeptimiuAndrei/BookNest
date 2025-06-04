@@ -81,8 +81,7 @@ class CommunityMembershipControllerTest {
 		mockMvc
 			.perform(delete("/api/memberships").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(dto)))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.status").value("success"));
+			.andExpect(status().isNoContent());
 
 		Mockito.verify(communityMembershipService).leaveCommunity(1L, 10L);
 	}

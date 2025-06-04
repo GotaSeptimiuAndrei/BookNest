@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useParams } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
-import { useCommunityById } from "@/features/communities/hooks/useCommunityById"
-import { useUserMemberships } from "@/features/communities/hooks/useUserMemberships"
+import { useCommunityById } from "@/features/communities/hooks/community/useCommunityById"
+import { useUserMemberships } from "@/features/communities/hooks/community/useUserMemberships"
 import { CircularProgress } from "@mui/material"
 
 const RequireCommunityAccess = () => {

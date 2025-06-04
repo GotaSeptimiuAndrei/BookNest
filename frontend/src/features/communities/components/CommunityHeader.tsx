@@ -1,8 +1,8 @@
 // features/communities/components/CommunityHeader.tsx
 import { Box, CircularProgress, FormControlLabel, Radio, RadioGroup, Stack } from "@mui/material"
 import { useParams } from "react-router-dom"
-import { useCommunityById } from "@/features/communities/hooks/useCommunityById"
-import { useCommunityMemberCount } from "@/features/communities/hooks/useCommunityMemberCount"
+import { useCommunityById } from "@/features/communities/hooks/community/useCommunityById"
+import { useCommunityMemberCount } from "@/features/communities/hooks/community/useCommunityMemberCount"
 import { useAuthor } from "@/features/authors/hooks/useAuthor"
 import { useAuth } from "@/context/AuthContext"
 import CoverBanner from "./CoverBanner"

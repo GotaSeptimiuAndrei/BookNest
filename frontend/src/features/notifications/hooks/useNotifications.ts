@@ -4,6 +4,7 @@ import { Client, StompSubscription } from "@stomp/stompjs"
 import { NotificationControllerService, type NotificationResponse } from "@/api"
 import { getSocket } from "../socket"
 import { useAuth } from "@/context/AuthContext"
+import { enqueueSnackbar } from "notistack"
 
 // Helper to build the auth header
 const authHeader = (): string => {
@@ -70,6 +71,7 @@ export const useMarkNotification = () => {
                 prev.filter((n) => n.notificationId !== id)
             )
         },
+        onError: (e: any) => enqueueSnackbar(e?.message ?? "Action failed", { variant: "error" }),
     })
 }
 
@@ -86,5 +88,6 @@ export const useMarkAllNotifications = () => {
         onSuccess: () => {
             qc.setQueryData<NotificationResponse[]>(["notifications", user?.id], [])
         },
+        onError: (e: any) => enqueueSnackbar(e?.message ?? "Action failed", { variant: "error" }),
     })
 }
