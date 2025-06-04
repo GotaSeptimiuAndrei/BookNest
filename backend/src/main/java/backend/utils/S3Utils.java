@@ -33,15 +33,13 @@ public class S3Utils {
 	}
 
 	public static void deleteFileFromS3Bucket(S3Client s3Client, String bucketName, String fileUrl) {
-		if (fileUrl == null || fileUrl.isBlank()) return;
+		if (fileUrl == null || fileUrl.isBlank())
+			return;
 
 		String prefix = "https://" + bucketName + ".s3.amazonaws.com/";
 		String key = fileUrl.startsWith(prefix) ? fileUrl.substring(prefix.length()) : fileUrl;
 
-		DeleteObjectRequest delReq = DeleteObjectRequest.builder()
-				.bucket(bucketName)
-				.key(key)
-				.build();
+		DeleteObjectRequest delReq = DeleteObjectRequest.builder().bucket(bucketName).key(key).build();
 
 		s3Client.deleteObject(delReq);
 	}
