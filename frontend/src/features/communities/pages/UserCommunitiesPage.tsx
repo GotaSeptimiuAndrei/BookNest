@@ -14,8 +14,8 @@ import {
 import { Navigate } from "react-router-dom"
 import { useState } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { useUserMemberships } from "../hooks/useUserMemberships"
-import { useLeaveCommunity } from "../hooks/useLeaveCommunity"
+import { useUserMemberships } from "../hooks/community/useUserMemberships"
+import { useLeaveCommunity } from "../hooks/community/useLeaveCommunity"
 import MembershipRow from "../components/MembershipRow"
 import type { CommunityMembership } from "@/api/generated"
 

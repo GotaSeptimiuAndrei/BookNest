@@ -4,17 +4,19 @@ import { useParams } from "react-router-dom"
 import { useAuthor } from "@/features/authors/hooks/useAuthor"
 import AuthorProfileInfo from "../components/AuthorProfileInfo"
 import { useAuth } from "@/context/AuthContext"
-import { useUserMemberships } from "@/features/communities/hooks/useUserMemberships"
-import { useJoinCommunity } from "@/features/communities/hooks/useJoinCommunity"
+import { useUserMemberships } from "@/features/communities/hooks/community/useUserMemberships"
+import { useJoinCommunity } from "@/features/communities/hooks/community/useJoinCommunity"
 import { useAuthorCommunity } from "../hooks/useAuthorCommunity"
+import { useAuthorHasCommunity } from "../hooks/useAuthorHasCommunity"
 
 export default function AuthorProfilePage() {
     const { fullName } = useParams<{ fullName: string }>()
     const { data: author, isLoading: authorLoading } = useAuthor(fullName)
     const { user } = useAuth()
 
-    console.log(author)
-    const { data: community, isLoading: communityLoading } = useAuthorCommunity(author?.authorId)
+    const { data: hasCommunity } = useAuthorHasCommunity(author?.authorId)
+
+    const { data: community, isLoading: communityLoading } = useAuthorCommunity(author?.authorId, !!hasCommunity)
 
     const { data: memberships = [] } = useUserMemberships(user?.id)
 

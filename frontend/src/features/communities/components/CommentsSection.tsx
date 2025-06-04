@@ -1,8 +1,8 @@
 import { Box, Button, Collapse, Divider, Stack, Typography } from "@mui/material"
 import { useState } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { usePostComments } from "../hooks/usePostComments"
-import { useCreateComment } from "../hooks/useCreateComment"
+import { usePostComments } from "../hooks/comments/usePostComments"
+import { useCreateComment } from "../hooks/comments/useCreateComment"
 import CommentComposer from "./CommentComposer"
 import CommentItem from "./CommentItem"
 

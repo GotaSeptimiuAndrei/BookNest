@@ -11,7 +11,6 @@ export const useLoanInfo = (bookId: number) => {
 
     const qc = useQueryClient()
 
-    /* current count -------------------------------------------------- */
     const { data: count } = useQuery<number>({
         queryKey: ["loans", "count"],
         enabled,
@@ -21,7 +20,6 @@ export const useLoanInfo = (bookId: number) => {
             }).then((r) => r.results ?? 0),
     })
 
-    /* is this book already loaned? ---------------------------------- */
     const { data: isLoaned } = useQuery<boolean>({
         queryKey: ["loans", "status", bookId],
         enabled,
@@ -32,7 +30,6 @@ export const useLoanInfo = (bookId: number) => {
             }).then((r) => r.results ?? false),
     })
 
-    /* small helper for mutations */
     const invalidate = () => {
         qc.invalidateQueries({ queryKey: ["loans"] })
     }
