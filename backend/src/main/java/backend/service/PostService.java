@@ -5,6 +5,7 @@ import backend.dto.response.PostResponse;
 import backend.exception.PostException;
 import backend.model.*;
 import backend.repository.*;
+import backend.utils.S3Utils;
 import backend.utils.converter.PostConverter;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -72,6 +73,8 @@ public class PostService {
 	public void deletePost(Long postId) {
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> new PostException("Post not found with ID: " + postId));
+
+		S3Utils.deleteFileFromS3Bucket(s3Client, bucketName, post.getImage());
 
 		postRepository.delete(post);
 	}

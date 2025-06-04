@@ -8,6 +8,7 @@ import backend.exception.BookValidationException;
 import backend.model.Book;
 import backend.repository.BookLoanRepository;
 import backend.repository.ReviewRepository;
+import backend.utils.S3Utils;
 import backend.utils.converter.BookConverter;
 import backend.repository.BookRepository;
 import jakarta.transaction.Transactional;
@@ -65,6 +66,7 @@ public class BookService {
 		return BookConverter.convertToDto(book);
 	}
 
+	@Transactional
 	public BookResponse saveBook(BookRequest bookRequest) {
 		String imageUrl = saveFileToS3Bucket(s3Client, bucketName, bookRequest.getImage());
 
@@ -73,6 +75,7 @@ public class BookService {
 		return BookConverter.convertToDto(savedBook);
 	}
 
+	@Transactional
 	public BookResponse updateBookQuantity(Long id, BookQuantityUpdateRequest dto) {
 
 		Book book = bookRepository.findById(id)
@@ -102,6 +105,7 @@ public class BookService {
 	public void deleteBook(Long id) {
 		Book book = bookRepository.findById(id)
 			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
+		S3Utils.deleteFileFromS3Bucket(s3Client, bucketName, book.getImage());
 		bookRepository.delete(book);
 		reviewRepository.deleteAllByBookId(id);
 		bookLoanRepository.deleteAllByBookId(id);
