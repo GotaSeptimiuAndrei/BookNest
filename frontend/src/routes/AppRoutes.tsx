@@ -5,6 +5,7 @@ import { CircularProgress } from "@mui/material"
 import RequireAuth from "./RequireAuth"
 import RequireCommunityAccess from "./RequireCommunityAccess"
 
+const LandingPage = lazyImport(() => import("@/LandingPage"))
 const RegisterPage = lazyImport(() => import("@/features/auth/pages/RegisterPage"))
 const EmailVerificationPage = lazyImport(() => import("@/features/auth/pages/EmailVerificationPage"))
 const LoginPage = lazyImport(() => import("@/features/auth/pages/LoginPage"))
@@ -24,6 +25,7 @@ const AdminCommunitiesPage = lazyImport(() => import("@/features/admins/pages/Ad
 export default function AppRoutes() {
     const element = useRoutes([
         /* public */
+        { path: "/", element: <LandingPage /> },
         { path: "/register", element: <RegisterPage /> },
         { path: "/verify-email", element: <EmailVerificationPage /> },
         { path: "/login", element: <LoginPage /> },
