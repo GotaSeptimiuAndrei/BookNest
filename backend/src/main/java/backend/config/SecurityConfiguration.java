@@ -85,7 +85,9 @@ public class SecurityConfiguration {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http.cors(c -> c.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, "/api/books/**")
+			.authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health")
+				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/books/**")
 				.permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/books/**")
 				.hasRole("ADMIN")

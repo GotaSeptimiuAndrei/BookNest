@@ -5,7 +5,7 @@ interface Props {
     authorAvatarUrl?: string
 }
 
-const COVER_H = 160
+const COVER_H = 250
 
 export default function CoverBanner({ coverUrl, authorAvatarUrl }: Props) {
     return (

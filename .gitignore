@@ -1,1 +1,5 @@
 node_modules/
+exec-trust.json
+policy-github.json
+taskdef.json
+trust-github.json

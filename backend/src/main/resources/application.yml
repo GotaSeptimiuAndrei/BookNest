@@ -2,6 +2,10 @@ spring:
   application:
     name: backend
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+
   datasource:
     url: jdbc:mysql://booknest-db.cnsiw6q44cvd.eu-north-1.rds.amazonaws.com:3306/booknest
     username: admin
@@ -33,5 +37,15 @@ aws:
     accessKey: AKIARFRKVXID7ZUVVF7Z
     secretKey: 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
     region: eu-north-1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
 
 

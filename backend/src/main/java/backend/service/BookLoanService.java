@@ -74,10 +74,8 @@ public class BookLoanService {
 
 			if (bookLoan.isPresent()) {
 				LocalDate returnDate = LocalDate.parse(bookLoan.get().getReturnDate().toString());
-				if (returnDate.isAfter(today)) {
-					int daysLeft = (int) ChronoUnit.DAYS.between(today, returnDate);
-					currentLoans.add(new CurrentLoansResponse(BookConverter.convertToDto(book), daysLeft));
-				}
+				int daysLeft = (int) ChronoUnit.DAYS.between(today, returnDate);
+				currentLoans.add(new CurrentLoansResponse(BookConverter.convertToDto(book), daysLeft));
 			}
 		}
 
