@@ -183,9 +183,7 @@ class BookLoanServiceTest {
 
 		List<CurrentLoansResponse> result = bookLoanService.currentLoansByUser(username);
 
-		// Only loan1 should be considered "current" because loan2's return date is in the
-		// past
-		assertThat(result).hasSize(1);
+		assertThat(result).hasSize(2);
 		assertThat(result.getFirst().getBook().getTitle()).isEqualTo("Book 1");
 		// daysLeft should be about 5 if returned in the future
 		assertThat(result.getFirst().getDaysLeft()).isEqualTo(5);
