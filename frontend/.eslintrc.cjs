@@ -11,7 +11,7 @@ module.exports = {
         "plugin:react-hooks/recommended", // React hooks linting rules
         "prettier", // Disables ESLint rules that conflict with Prettier
     ],
-    ignorePatterns: ["dist", ".eslintrc.cjs", "vite.config.ts", "commitlint.config.cjs", "src/api/generated/**"], // Don't lint build output or node_modules
+    ignorePatterns: ["dist", ".eslintrc.cjs", "vite.config.ts", "commitlint.config.cjs", "src/api/generated/**", "cypress/**", "cypress.config.cjs"], // Don't lint build output or node_modules
     parser: "@typescript-eslint/parser", // Specifies the ESLint parser for TypeScript
     parserOptions: {
         ecmaFeatures: {
