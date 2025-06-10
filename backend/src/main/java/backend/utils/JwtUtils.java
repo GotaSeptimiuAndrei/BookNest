@@ -62,14 +62,6 @@ public class JwtUtils {
 		return decodedJwt.getClaimAsString("username");
 	}
 
-	public static boolean isTokenExpired(String bearerToken) {
-		String token = bearerToken.substring(7);
-		Jwt decodedJwt = jwtDecoder.decode(token);
-
-		Instant expiresAt = decodedJwt.getExpiresAt();
-		return expiresAt != null && Instant.now().isAfter(expiresAt);
-	}
-
 	public static Long extractPrincipalId(String bearerToken) {
 		String token = bearerToken.substring(7);
 		Jwt decoded = jwtDecoder.decode(token);

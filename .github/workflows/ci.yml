@@ -1,11 +1,11 @@
 name: CI - Booknest
-'on':
+
+on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -28,37 +28,25 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Build & test
-        working-directory: ./backend
+      - name: Build & verify (unit + IT)
         run: |
-          chmod +x mvnw
-          ./mvnw verify
-      - uses: actions/upload-artifact@v4
-        with:
-          name: backend-build
-          path: ./backend/target
+          chmod +x ./backend/mvnw
+          ./backend/mvnw -f backend verify
       - name: Export OpenAPI spec
-        working-directory: ./backend
-        run: >
+        run: |
+          cd backend
           ./mvnw -q spring-boot:run &
-
-          SERVER_PID=$!
-
-          until curl -s http://localhost:8080/v3/api-docs -o openapi.json; do
-          sleep 2; done
-
-          kill $SERVER_PID
-
-          mv openapi.json $GITHUB_WORKSPACE
+          PID=$!
+          until curl -s http://localhost:8080/v3/api-docs -o ../openapi.json; do sleep 2; done
+          kill $PID
       - uses: actions/upload-artifact@v4
         with:
           name: openapi-spec
           path: ./openapi.json
+
   frontend:
     runs-on: ubuntu-latest
-    needs:
-      - setup
-      - backend
+    needs: [ setup, backend ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -70,70 +58,65 @@ jobs:
         run: npm ci
       - name: Generate API client
         working-directory: ./frontend
-        run: 'npm run generate:api:local && rm openapi.json'
+        run: npm run generate:api:local && rm openapi.json
       - name: Lint & build
         working-directory: ./frontend
         run: npm run lint && npm run build
+
   check_changes:
     runs-on: ubuntu-latest
-    needs: [backend, frontend]
+    needs: [ backend, frontend ]
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
+      - id: filter
+        uses: dorny/paths-filter@v3
         with:
           filters: |
             backend:
               - 'backend/**'
             frontend:
               - 'frontend/**'
-      - id: set-output
-        run: |
-          if [ "${{ steps.filter.outputs.backend }}" = "true" ]; then
-            echo "backend_deploy=true" >> $GITHUB_OUTPUT
-          else
-            echo "backend_deploy=false" >> $GITHUB_OUTPUT
-          fi
-          if [ "${{ steps.filter.outputs.frontend }}" = "true" ]; then
-            echo "frontend_deploy=true" >> $GITHUB_OUTPUT
-          else
-            echo "frontend_deploy=false" >> $GITHUB_OUTPUT
-          fi
     outputs:
-      backend_deploy: ${{ steps.set-output.outputs.backend_deploy }}
-      frontend_deploy: ${{ steps.set-output.outputs.frontend_deploy }}
+      backend:  ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
 
   deploy-backend:
+    if: needs.check_changes.outputs.backend == 'true' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: check_changes
-    if: >
-      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
-      needs.check_changes.outputs.backend == 'true'
     permissions:
-      id-token: write
+      id-token: write    
       contents: read
     steps:
       - uses: actions/checkout@v4
+
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ secrets.AWS_ROLE_ARN }}'
-          aws-region: '${{ secrets.AWS_REGION }}'
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region:     ${{ secrets.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
-      - name: 'Build, tag & push'
+
+      - name: Build & push (latest + SHA)
         working-directory: ./backend
         env:
-          REGISTRY: >-
-            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION
-            }}.amazonaws.com
-          REPO: '${{ secrets.ECR_REPOSITORY }}'
+          REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          REPO:     ${{ secrets.ECR_REPOSITORY }}
         run: |
-          docker build -t $REPO:build .
-        
-          docker tag $REPO:build $REGISTRY/$REPO:latest
-          docker tag $REPO:build $REGISTRY/$REPO:${GITHUB_SHA}
+          IMAGE_BUILD="$REPO:build"
+          IMAGE_LATEST="$REGISTRY/$REPO:latest"
+          IMAGE_SHA="$REGISTRY/$REPO:${GITHUB_SHA}"
 
-          docker push $REGISTRY/$REPO:latest
-          docker push $REGISTRY/$REPO:${GITHUB_SHA}
+          # 1. Build
+          docker build -t "$IMAGE_BUILD" .
+
+          # 2. Tag
+          docker tag "$IMAGE_BUILD" "$IMAGE_LATEST"
+          docker tag "$IMAGE_BUILD" "$IMAGE_SHA"
+
+          # 3. Push both
+          docker push "$IMAGE_LATEST"
+          docker push "$IMAGE_SHA"
+
       - name: Force new ECS deployment
         run: |
           aws ecs update-service \
