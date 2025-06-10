@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @SecurityRequirement(name = "bearerAuth")
-@CrossOrigin(origins = { "http://localhost:3000" })
+@CrossOrigin(origins = { "http://localhost:3000", "https://booknestlibrary.netlify.app" })
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor

@@ -5,13 +5,14 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
+        "prebuild": "npm run generate:api:local && rm openapi.json",
         "build": "tsc -b && vite build",
         "lint": "eslint src --ext .ts,.tsx,.js,.jsx --report-unused-disable-directives --max-warnings 0",
         "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
         "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,scss,md}'",
         "preview": "vite preview",
         "lint-staged": "lint-staged",
-        "generate:api": "openapi --input http://localhost:8080/v3/api-docs --output src/api/generated --useOptions --client axios",
+        "generate:api": "openapi --input https://api.booksnest.org/v3/api-docs --output src/api/generated --useOptions --client axios",
         "generate:api:local": "openapi --input ./openapi.json --output src/api/generated --useOptions --client axios"
     },
     "dependencies": {

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
 
-@CrossOrigin(origins = { "http://localhost:3000" })
+@CrossOrigin(origins = { "http://localhost:3000", "https://booknestlibrary.netlify.app" })
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor

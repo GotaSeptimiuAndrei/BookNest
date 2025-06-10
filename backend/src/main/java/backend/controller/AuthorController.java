@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-@CrossOrigin(origins = { "http://localhost:3000" })
+@CrossOrigin(origins = { "http://localhost:3000", "https://booknestlibrary.netlify.app" })
 @RestController
 @RequestMapping("/api/authors")
 @RequiredArgsConstructor
