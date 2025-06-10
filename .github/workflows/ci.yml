@@ -1,4 +1,4 @@
-name: CI - Booknest
+name: CI – Booknest
 
 on:
   push:
@@ -6,21 +6,29 @@ on:
   pull_request:
     branches: [ main ]
 
+############################ 1. detect which side changed ############################
 jobs:
-  setup:
+  detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      backend:  ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
         with:
-          node-version: '20'
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+############################ 2. backend tests ########################################
   backend:
+    if: needs.detect-changes.outputs.backend == 'true'
+    needs: detect-changes
     runs-on: ubuntu-latest
-    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -28,7 +36,7 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Build & verify (unit + IT)
+      - name: Build & verify
         run: |
           chmod +x ./backend/mvnw
           ./backend/mvnw -f backend verify
@@ -44,59 +52,50 @@ jobs:
           name: openapi-spec
           path: ./openapi.json
 
+############################ 3. frontend checks ######################################
   frontend:
+    if: needs.detect-changes.outputs.frontend == 'true'
+    needs: [ detect-changes, backend ]   # backend needed only for the OpenAPI artefact
     runs-on: ubuntu-latest
-    needs: [ setup, backend ]
+    defaults: { run: { working-directory: ./frontend } }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: openapi-spec
           path: ./frontend
-      - name: Install deps
-        working-directory: ./frontend
-        run: npm ci
-      - name: Generate API client
-        working-directory: ./frontend
-        run: npm run generate:api:local && rm openapi.json
-      - name: Lint & build
-        working-directory: ./frontend
-        run: npm run lint && npm run build
-
-  check_changes:
-    runs-on: ubuntu-latest
-    needs: [ backend, frontend ]
-    steps:
-      - uses: actions/checkout@v4
-      - id: filter
-        uses: dorny/paths-filter@v3
+      - uses: actions/setup-node@v4
         with:
-          filters: |
-            backend:
-              - 'backend/**'
-            frontend:
-              - 'frontend/**'
-    outputs:
-      backend:  ${{ steps.filter.outputs.backend }}
-      frontend: ${{ steps.filter.outputs.frontend }}
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run generate:api:local && rm openapi.json
+      - run: npm run lint && npm run build
 
+############################ 4. build, tag, push, deploy #############################
   deploy-backend:
-    if: needs.check_changes.outputs.backend == 'true' && github.ref == 'refs/heads/main'
+    if: |
+      needs.detect-changes.outputs.backend == 'true' &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push'
+    needs: [ backend, detect-changes ]
     runs-on: ubuntu-latest
-    needs: check_changes
     permissions:
-      id-token: write    
+      id-token: write
       contents: read
     steps:
       - uses: actions/checkout@v4
 
+      # ─ AWS auth ─
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region:     ${{ secrets.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build & push (latest + SHA)
+      # ─ build once, tag latest + SHA, push both ─
+      - name: Build & push image
         working-directory: ./backend
         env:
           REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
@@ -106,17 +105,13 @@ jobs:
           IMAGE_LATEST="$REGISTRY/$REPO:latest"
           IMAGE_SHA="$REGISTRY/$REPO:${GITHUB_SHA}"
 
-          # 1. Build
           docker build -t "$IMAGE_BUILD" .
+          docker tag   "$IMAGE_BUILD" "$IMAGE_LATEST"
+          docker tag   "$IMAGE_BUILD" "$IMAGE_SHA"
+          docker push  "$IMAGE_LATEST"
+          docker push  "$IMAGE_SHA"
 
-          # 2. Tag
-          docker tag "$IMAGE_BUILD" "$IMAGE_LATEST"
-          docker tag "$IMAGE_BUILD" "$IMAGE_SHA"
-
-          # 3. Push both
-          docker push "$IMAGE_LATEST"
-          docker push "$IMAGE_SHA"
-
+      # ─ kick ECS so tasks pull the new 'latest' digest ─
       - name: Force new ECS deployment
         run: |
           aws ecs update-service \
