@@ -21,7 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = { "http://localhost:3000" , "https://booknestlibrary.netlify.app"})
+@CrossOrigin(origins = { "http://localhost:3000", "https://booknestlibrary.netlify.app" })
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

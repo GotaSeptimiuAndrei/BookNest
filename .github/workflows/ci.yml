@@ -1,11 +1,11 @@
 name: CI - Booknest
-
-on:
+'on':
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
-
+    branches:
+      - main
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -18,30 +18,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-
-  frontend:
-    runs-on: ubuntu-latest
-    needs: [setup, backend]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: openapi-spec
-          path: ./frontend
-
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm ci
-
-      - name: Generate API client
-        working-directory: ./frontend
-        run: npm run generate:api:local && rm openapi.json
-
-      - name: Lint and build
-        working-directory: ./frontend
-        run: npm run lint && npm run build
-
   backend:
     runs-on: ubuntu-latest
     needs: setup
@@ -52,32 +28,52 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Grant execute permission for mvnw
-        run: chmod +x ./backend/mvnw
-      - name: Build and test
+      - name: Build & test
         working-directory: ./backend
-        run: ./mvnw verify
-      - name: Upload Backend Artifact
-        uses: actions/upload-artifact@v4
+        run: |
+          chmod +x mvnw
+          ./mvnw verify
+      - uses: actions/upload-artifact@v4
         with:
           name: backend-build
           path: ./backend/target
-
       - name: Export OpenAPI spec
         working-directory: ./backend
-        run: |
-          ./mvnw -q spring-boot:run &          
-          SERVER_PID=$!
-          until curl -s http://localhost:8080/v3/api-docs -o openapi.json; do sleep 2; done
-          kill $SERVER_PID                    
-          mv openapi.json $GITHUB_WORKSPACE   
+        run: >
+          ./mvnw -q spring-boot:run &
 
-      - name: Upload OpenAPI artifact
-        uses: actions/upload-artifact@v4
+          SERVER_PID=$!
+
+          until curl -s http://localhost:8080/v3/api-docs -o openapi.json; do
+          sleep 2; done
+
+          kill $SERVER_PID
+
+          mv openapi.json $GITHUB_WORKSPACE
+      - uses: actions/upload-artifact@v4
         with:
           name: openapi-spec
           path: ./openapi.json
-
+  frontend:
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+      - backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: openapi-spec
+          path: ./frontend
+      - name: Install deps
+        working-directory: ./frontend
+        run: npm ci
+      - name: Generate API client
+        working-directory: ./frontend
+        run: 'npm run generate:api:local && rm openapi.json'
+      - name: Lint & build
+        working-directory: ./frontend
+        run: npm run lint && npm run build
   check_changes:
     runs-on: ubuntu-latest
     needs: [backend, frontend]
@@ -109,38 +105,38 @@ jobs:
 
   deploy-backend:
     runs-on: ubuntu-latest
-    needs: [check_changes]
-    permissions:
-      id-token: write  
-      contents: read
+    needs: check_changes
     if: >
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/main' &&
-      needs.check_changes.outputs.backend_deploy == 'true'
+      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      needs.check_changes.outputs.backend == 'true'
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
-          name: backend-build
-          path: ./backend/target
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: '${{ secrets.AWS_ROLE_ARN }}'
+          aws-region: '${{ secrets.AWS_REGION }}'
       - uses: aws-actions/amazon-ecr-login@v2
-      - name: Build Docker image
+      - name: 'Build, tag & push'
         working-directory: ./backend
+        env:
+          REGISTRY: >-
+            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION
+            }}.amazonaws.com
+          REPO: '${{ secrets.ECR_REPOSITORY }}'
         run: |
-          docker build -t booknest-backend:${GITHUB_SHA} .
-      - name: Push Docker image to ECR
-        run: |
-          docker tag booknest-backend:${GITHUB_SHA} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${GITHUB_SHA}
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${GITHUB_SHA}
-      - name: Update ECS service
+          docker build -t $REPO:build .
+        
+          docker tag $REPO:build $REGISTRY/$REPO:latest
+          docker tag $REPO:build $REGISTRY/$REPO:${GITHUB_SHA}
+
+          docker push $REGISTRY/$REPO:latest
+          docker push $REGISTRY/$REPO:${GITHUB_SHA}
+      - name: Force new ECS deployment
         run: |
           aws ecs update-service \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --service ${{ secrets.ECS_SERVICE }} \
+            --cluster  ${{ secrets.ECS_CLUSTER }} \
+            --service  ${{ secrets.ECS_SERVICE }} \
             --force-new-deployment
-
