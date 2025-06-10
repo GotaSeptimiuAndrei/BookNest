@@ -21,12 +21,23 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
-    needs: setup
+    needs: [setup, backend]
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: openapi-spec
+          path: ./frontend
+
       - name: Install dependencies
         working-directory: ./frontend
         run: npm ci
+
+      - name: Generate API client
+        working-directory: ./frontend
+        run: npm run generate:api:local && rm openapi.json
+
       - name: Lint and build
         working-directory: ./frontend
         run: npm run lint && npm run build
@@ -51,6 +62,21 @@ jobs:
         with:
           name: backend-build
           path: ./backend/target
+
+      - name: Export OpenAPI spec
+        working-directory: ./backend
+        run: |
+          ./mvnw -q spring-boot:run &          
+          SERVER_PID=$!
+          until curl -s http://localhost:8080/v3/api-docs -o openapi.json; do sleep 2; done
+          kill $SERVER_PID                    
+          mv openapi.json $GITHUB_WORKSPACE   
+
+      - name: Upload OpenAPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: ./openapi.json
 
   check_changes:
     runs-on: ubuntu-latest
