@@ -110,6 +110,9 @@ jobs:
   deploy-backend:
     runs-on: ubuntu-latest
     needs: [check_changes]
+    permissions:
+      id-token: write  
+      contents: read
     if: >
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
