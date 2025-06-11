@@ -39,6 +39,11 @@ public class BookController {
 		return ResponseEntity.ok(APIResponse.<List<BookResponse>>builder().status(SUCCESS).results(books).build());
 	}
 
+	@GetMapping("/test-api")
+	public ResponseEntity<String> testApi() {
+		return ResponseEntity.status(HttpStatus.OK).body("ECS works!!!");
+	}
+
 	@GetMapping("/paginated")
 	public ResponseEntity<APIResponse<Page<BookResponse>>> getAllBooksPaginated(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {

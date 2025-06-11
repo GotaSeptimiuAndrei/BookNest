@@ -70,22 +70,23 @@ public class SecurityConfiguration {
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("*"));
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-		configuration.setAllowCredentials(true);
-
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(List.of("http://localhost:3000", "https://booknestlibrary.netlify.app"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+		config.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
+		source.registerCorsConfiguration("/**", config);
 		return source;
 	}
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		return http.cors(c -> c.configurationSource(corsConfigurationSource()))
+		return http.cors(Customizer.withDefaults())
 			.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health")
+			.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**")
+				.permitAll()
+				.requestMatchers("/actuator/health")
 				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/books/**")
 				.permitAll()
