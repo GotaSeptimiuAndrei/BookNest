@@ -3,7 +3,6 @@ package backend.controller;
 import backend.dto.ErrorDTO;
 import backend.dto.response.APIResponse;
 import backend.dto.response.NotificationResponse;
-import backend.model.Notification;
 import backend.service.NotificationService;
 import backend.utils.JwtUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

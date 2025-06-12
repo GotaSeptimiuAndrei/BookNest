@@ -5,8 +5,6 @@ import backend.dto.response.PostResponse;
 import backend.model.Author;
 import backend.model.Community;
 import backend.model.Post;
-import backend.model.PostLikesId;
-import backend.repository.PostLikesRepository;
 
 import java.time.LocalDateTime;
 import java.util.Objects;

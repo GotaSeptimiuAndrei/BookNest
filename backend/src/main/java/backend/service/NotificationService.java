@@ -1,7 +1,6 @@
 package backend.service;
 
 import backend.dto.response.NotificationResponse;
-import backend.exception.NotificationException;
 import backend.model.Notification;
 import backend.model.Post;
 import backend.model.User;
