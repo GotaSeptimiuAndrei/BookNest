@@ -6,12 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
-############################ 1. detect which side changed ############################
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      backend:  ${{ steps.filter.outputs.backend }}
+      backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +23,6 @@ jobs:
             frontend:
               - 'frontend/**'
 
-############################ 2. backend tests ########################################
   backend:
     if: needs.detect-changes.outputs.backend == 'true'
     needs: detect-changes
@@ -36,12 +34,10 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Build & verify
-        run: |
+      - run: |
           chmod +x ./backend/mvnw
           ./backend/mvnw -f backend verify
-      - name: Export OpenAPI spec
-        run: |
+      - run: |
           cd backend
           ./mvnw -q spring-boot:run &
           PID=$!
@@ -52,12 +48,13 @@ jobs:
           name: openapi-spec
           path: ./openapi.json
 
-############################ 3. frontend checks ######################################
   frontend:
     if: needs.detect-changes.outputs.frontend == 'true'
-    needs: [ detect-changes, backend ]   # backend needed only for the OpenAPI artefact
+    needs: [ detect-changes, backend ]
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: ./frontend } }
+    defaults:
+      run:
+        working-directory: ./frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -73,12 +70,8 @@ jobs:
       - run: npm run generate:api:local && rm openapi.json
       - run: npm run lint && npm run build
 
-############################ 4. build, tag, push, deploy #############################
   deploy-backend:
-    if: |
-      needs.detect-changes.outputs.backend == 'true' &&
-      github.ref == 'refs/heads/main' &&
-      github.event_name == 'push'
+    if: needs.detect-changes.outputs.backend == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [ backend, detect-changes ]
     runs-on: ubuntu-latest
     permissions:
@@ -86,35 +79,30 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-
-      # ─ AWS auth ─
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region:     ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
-
-      # ─ build once, tag latest + SHA, push both ─
-      - name: Build & push image
+      - id: build
         working-directory: ./backend
         env:
           REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          REPO:     ${{ secrets.ECR_REPOSITORY }}
+          REPO: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          IMAGE_BUILD="$REPO:build"
-          IMAGE_LATEST="$REGISTRY/$REPO:latest"
-          IMAGE_SHA="$REGISTRY/$REPO:${GITHUB_SHA}"
-
-          docker build -t "$IMAGE_BUILD" .
-          docker tag   "$IMAGE_BUILD" "$IMAGE_LATEST"
-          docker tag   "$IMAGE_BUILD" "$IMAGE_SHA"
-          docker push  "$IMAGE_LATEST"
-          docker push  "$IMAGE_SHA"
-
-      # ─ kick ECS so tasks pull the new 'latest' digest ─
-      - name: Force new ECS deployment
-        run: |
-          aws ecs update-service \
-            --cluster  ${{ secrets.ECS_CLUSTER }} \
-            --service  ${{ secrets.ECS_SERVICE }} \
-            --force-new-deployment
+          IMAGE="$REGISTRY/$REPO:${GITHUB_SHA}"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+      - id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: infra/ecs/task-definition.json
+          container-name: booknest-backend
+          image: ${{ steps.build.outputs.image }}
+      - uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          cluster: ${{ secrets.ECS_CLUSTER }}
+          service: ${{ secrets.ECS_SERVICE }}
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          wait-for-service-stability: true
