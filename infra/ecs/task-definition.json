@@ -1,28 +1,25 @@
 {
-  "family": "booknest-backend",
-  "networkMode": "awsvpc",
-  "executionRoleArn": "arn:aws:iam::080620141063:role/BooknestTaskExecutionRole",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "512",
-  "memory": "1024",
-  "containerDefinitions": [
-    {
-      "name": "booknest-backend",
-      "image": "REPLACED_BY_PIPELINE",
-      "portMappings": [
-        { "containerPort": 8080, "protocol": "tcp" }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/booknest",
-          "awslogs-region": "eu-central-1",
-          "awslogs-stream-prefix": "ecs"
+    "family": "booknest-backend",
+    "networkMode": "awsvpc",
+    "executionRoleArn": "arn:aws:iam::080620141063:role/BooknestTaskExecutionRole",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "512",
+    "memory": "1024",
+    "containerDefinitions": [
+        {
+            "name": "booknest-backend",
+            "image": "REPLACED_BY_PIPELINE",
+            "essential": true,
+            "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/booknest",
+                    "awslogs-region": "eu-central-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "environment": [{ "name": "SPRING_PROFILES_ACTIVE", "value": "prod" }]
         }
-      },
-      "environment": [
-        { "name": "SPRING_PROFILES_ACTIVE", "value": "prod" }
-      ]
-    }
-  ]
+    ]
 }

@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/test")
 public class TestController {
 
-    @GetMapping
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Hello World");
-    }
+	@GetMapping
+	public ResponseEntity<String> test() {
+		return ResponseEntity.ok("Hello World");
+	}
+
 }
