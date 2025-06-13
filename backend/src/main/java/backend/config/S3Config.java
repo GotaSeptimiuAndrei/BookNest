@@ -14,12 +14,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Profile("!test")
 public class S3Config {
 
-	@Value("${aws.s3.accessKey}")
-	private String accessKey;
-
-	@Value("${aws.s3.secretKey}")
-	private String secretKey;
-
 	@Value("${aws.s3.bucketName}")
 	private String bucketName;
 
@@ -28,17 +22,14 @@ public class S3Config {
 
 	@Bean
 	public S3Client s3Client() {
-		AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
-
 		return S3Client.builder()
-			.region(Region.of(region))
-			.credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-			.build();
+				.region(Region.of(region))
+				.build();      
 	}
 
 	@Bean
 	public String getBucketName() {
 		return bucketName;
 	}
-
 }
+

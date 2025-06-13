@@ -34,8 +34,6 @@ rsa:
 aws:
   s3:
     bucketName: bucket-booknest
-    accessKey: AKIARFRKVXID7ZUVVF7Z
-    secretKey: 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
     region: eu-north-1
 
 management:
