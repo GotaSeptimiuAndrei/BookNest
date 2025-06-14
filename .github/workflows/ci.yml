@@ -50,7 +50,7 @@ jobs:
 
   frontend:
     if: needs.detect-changes.outputs.frontend == 'true'
-    needs: detect-changes 
+    needs: [detect-changes, backend]
     runs-on: ubuntu-latest
     defaults:
       run:
