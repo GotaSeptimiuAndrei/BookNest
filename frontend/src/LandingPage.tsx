@@ -59,7 +59,7 @@ export default function LandingPage() {
                             <Typography variant="h6" fontWeight={600}>
                                 Endless Collection
                             </Typography>
-                            <Typography variant="body2">Explore thousands of books from all genres.</Typography>
+                            <Typography variant="body2">Explore books from all genres.</Typography>
                         </Stack>
                         <Stack spacing={2} sx={{ flex: 1, textAlign: "center" }}>
                             <Box
