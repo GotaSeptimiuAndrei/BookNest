@@ -4,7 +4,7 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 7MB
+      max-file-size: 5MB
 
   datasource:
     url: jdbc:mysql://booknest-db.cnsiw6q44cvd.eu-north-1.rds.amazonaws.com:3306/booknest

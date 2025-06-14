@@ -16,7 +16,7 @@ function App() {
             <CssBaseline />
 
             <QueryClientProvider client={queryClient}>
-                <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+                <SnackbarProvider maxSnack={3} autoHideDuration={2500}>
                     <AuthProvider>
                         <BrowserRouter>
                             <Navbar />
