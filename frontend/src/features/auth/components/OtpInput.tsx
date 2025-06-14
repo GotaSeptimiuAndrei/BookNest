@@ -11,7 +11,7 @@ export default function OtpInput({ value, onChange, disabled }: Props) {
     const inputs = useRef<Array<HTMLInputElement | null>>([])
 
     const handleChange = (i: number, v: string) => {
-        if (!/^[0-9]?$/u.test(v)) return // only digits
+        if (!/^[0-9]?$/u.test(v)) return
         const newVal = value.split("")
         newVal[i] = v
         onChange(newVal.join("").slice(0, 6))

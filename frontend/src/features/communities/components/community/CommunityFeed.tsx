@@ -1,10 +1,9 @@
-// features/communities/components/CommunityFeed.tsx
 import { Stack } from "@mui/material"
 import { useAuth } from "@/context/AuthContext"
 import { useParams } from "react-router-dom"
-import PostComposer from "./PostComposer"
-import PostComposerFAB from "./PostComposerFAB"
-import PostList from "./PostList"
+import PostComposer from "../posts/PostComposer"
+import PostComposerFAB from "../posts/PostComposerFAB"
+import PostList from "../posts/PostList"
 
 interface Props {
     authorId: number

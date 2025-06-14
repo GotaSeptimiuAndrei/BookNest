@@ -11,7 +11,7 @@ export default function RequireAuth({ roles }: Props) {
     const location = useLocation()
     const tokenInStorage = !!localStorage.getItem("token")
 
-    // 1) while bootstrap is happening, show nothing instead of redirecting
+    // while bootstrap is happening, show nothing instead of redirecting
     if (!user && tokenInStorage) {
         return <CircularProgress color="secondary" />
     }

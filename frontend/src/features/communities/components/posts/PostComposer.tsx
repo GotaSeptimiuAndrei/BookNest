@@ -1,10 +1,9 @@
-// features/communities/components/PostComposer.tsx
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import ReactQuill from "react-quill"
 import { Box, Button, Card, CardContent, Stack, Typography } from "@mui/material"
-import { useCreatePost } from "../hooks/posts/useCreatePost"
+import { useCreatePost } from "../../hooks/posts/useCreatePost"
 
 const schema = z.object({
     text: z.string().min(1, "Write something…"),

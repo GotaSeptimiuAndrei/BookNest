@@ -1,4 +1,3 @@
-// features/admins/hooks/useAllCommunities.ts
 import { useQuery } from "@tanstack/react-query"
 import { CommunityControllerService, type Community } from "@/api/generated"
 

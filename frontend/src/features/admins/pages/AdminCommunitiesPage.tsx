@@ -1,4 +1,3 @@
-// features/admins/pages/AdminCommunitiesPage.tsx
 import { Box, CircularProgress, Container, Grid, Typography } from "@mui/material"
 import { useAllCommunities } from "../hooks/useAllCommunities"
 import CommunityCard from "../components/CommunityCard"

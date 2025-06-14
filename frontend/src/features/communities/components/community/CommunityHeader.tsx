@@ -1,4 +1,3 @@
-// features/communities/components/CommunityHeader.tsx
 import { Box, CircularProgress, FormControlLabel, Radio, RadioGroup, Stack } from "@mui/material"
 import { useParams } from "react-router-dom"
 import { useCommunityById } from "@/features/communities/hooks/community/useCommunityById"

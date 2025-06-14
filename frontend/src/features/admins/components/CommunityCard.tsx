@@ -1,4 +1,3 @@
-// features/admins/components/CommunityCard.tsx
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material"
 import { Link as RouterLink } from "react-router-dom"
 import type { Community } from "@/api/generated"

@@ -10,14 +10,13 @@ export default function LoginPage() {
     const { user } = useAuth()
     const navigate = useNavigate()
 
-    /* redirect if already logged in */
     useEffect(() => {
         if (user) navigate("/")
     }, [user, navigate])
 
     const handleSubmit = async (data: LoginFormData) => {
         const token = await login.mutateAsync(data)
-        if (token) navigate("/") // go to homepage
+        if (token) navigate("/")
     }
 
     return (

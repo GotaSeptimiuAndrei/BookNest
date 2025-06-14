@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
 import { useInView } from "react-intersection-observer"
-import { useCommunityPosts } from "../hooks/posts/useCommunityPosts"
+import { useCommunityPosts } from "../../hooks/posts/useCommunityPosts"
 import PostCard from "./PostCard"
 
 interface Props {

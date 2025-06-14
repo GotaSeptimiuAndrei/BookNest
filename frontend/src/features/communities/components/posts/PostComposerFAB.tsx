@@ -1,4 +1,3 @@
-// features/communities/components/PostComposerFAB.tsx
 import AddIcon from "@mui/icons-material/Add"
 import { Box, Fab } from "@mui/material"
 import { useState } from "react"

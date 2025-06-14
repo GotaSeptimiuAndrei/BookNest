@@ -3,15 +3,15 @@ import FavoriteIcon from "@mui/icons-material/Favorite"
 import DeleteIcon from "@mui/icons-material/Delete"
 import { useState } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { useToggleLikePost } from "../hooks/posts/useToggleLikePost"
-import { useDeletePost } from "../hooks/posts/useDeletePost"
-import CommentsSection from "./CommentsSection"
+import { useToggleLikePost } from "../../hooks/posts/useToggleLikePost"
+import { useDeletePost } from "../../hooks/posts/useDeletePost"
+import CommentsSection from "../comments/CommentsSection"
 import type { PostResponse } from "@/api/generated"
 
 interface Props {
     post: PostResponse
     communityId: number
-    authorId: number // community author id (delete rights)
+    authorId: number
 }
 
 export default function PostCard({ post, communityId, authorId }: Props) {

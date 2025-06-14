@@ -1,4 +1,3 @@
-// src/features/authors/pages/AuthorProfilePage.tsx
 import { Box, Button, Container, Typography } from "@mui/material"
 import { useParams } from "react-router-dom"
 import { useAuthor } from "@/features/authors/hooks/useAuthor"

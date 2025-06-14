@@ -1,4 +1,3 @@
-// src/features/authors/hooks/useAuthorCommunity.ts
 import { useQuery } from "@tanstack/react-query"
 import { CommunityControllerService } from "@/api/generated"
 import type { Community } from "@/api/generated"

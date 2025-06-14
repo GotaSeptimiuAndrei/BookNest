@@ -76,14 +76,17 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - name: Start backend
-        working-directory: ./backend
+        working-directory: ./backend      
         run: |
-          ./mvnw -q spring-boot:run &
+          chmod +x ./mvnw                     
+          ./mvnw -q spring-boot:run &         
           echo $! > $GITHUB_WORKSPACE/backend.pid
-          # Wait until actuator or docs endpoint responds
+
           until curl -s http://localhost:8080/actuator/health > /dev/null ; do
+            echo "waiting for backend..."
             sleep 5
           done
+          echo "✅  backend is up"
 
       - name: Run Cypress E2E tests
         working-directory: ./frontend
