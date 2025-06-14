@@ -9,11 +9,11 @@ import {
     Stack,
     Typography,
 } from "@mui/material"
+import { useState } from "react"
 import BookCard from "@/components/BookCard"
 import type { CurrentLoansResponse } from "@/api/generated"
 import { useRenewLoan } from "../hooks/useRenewLoan"
 import { useReturnLoan } from "../hooks/useReturnLoan"
-import { useState } from "react"
 
 interface Props {
     loan: CurrentLoansResponse
@@ -21,6 +21,7 @@ interface Props {
 
 export default function LoanCard({ loan }: Props) {
     const { book, daysLeft = 0 } = loan
+    const bookId = book.bookId!
 
     const renew = useRenewLoan()
     const ret = useReturnLoan()
@@ -29,11 +30,8 @@ export default function LoanCard({ loan }: Props) {
     const [action, setAction] = useState<"renew" | "return" | null>(null)
 
     const handleConfirm = () => {
-        if (!book) return
-
-        if (action === "renew") renew.mutate(book.bookId)
-        if (action === "return") ret.mutate(book.bookId)
-
+        if (action === "renew") renew.mutate(bookId)
+        if (action === "return") ret.mutate(bookId)
         setOpen(false)
     }
 
@@ -42,12 +40,12 @@ export default function LoanCard({ loan }: Props) {
 
     return (
         <Grid container spacing={2} sx={{ mb: 3 }}>
-            {/* Left: book info */}
+            {/* left: book info */}
             <Grid item xs={12} md={9}>
                 {book && <BookCard book={book} />}
             </Grid>
 
-            {/* Right: manage panel */}
+            {/* right: manage panel */}
             <Grid item xs={12} md={3}>
                 <Stack spacing={1}>
                     <Typography variant="subtitle1" fontWeight={600}>
@@ -83,7 +81,7 @@ export default function LoanCard({ loan }: Props) {
                 </Stack>
             </Grid>
 
-            {/*Confirmation Dialog*/}
+            {/* confirm dialog */}
             <Dialog open={open} onClose={() => setOpen(false)}>
                 <DialogTitle>Are you sure?</DialogTitle>
                 <DialogContent>

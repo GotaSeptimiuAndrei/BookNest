@@ -23,27 +23,21 @@ export default function BookDetailPage() {
 
     const isBasicUser = user?.roles.includes("USER") ?? false
 
-    /* average rating */
     const { data: allReviews } = useAllReviewsForAvg(bookId)
     const avg =
         allReviews && allReviews.length ? allReviews.reduce((s, r) => s + (r.rating ?? 0), 0) / allReviews.length : 0
 
-    /* paginated reviews */
     const [revPage, setRevPage] = useState(0)
     const { data: revPageData } = useReviewsPaginated(bookId, revPage)
 
-    /* render guards */
     if (isLoading || !book) return null
 
     const available = (book.copiesAvailable ?? 0) > 0
-
-    /* -------------------------------- render ------------------------------- */
     return (
         <Grid container spacing={4} sx={{ p: 4 }}>
             <Grid item xs={12} md={isBasicUser ? 7 : 12}>
                 <BookInfo book={book} />
 
-                {/* average rating */}
                 <Box sx={{ mt: 3 }}>
                     <Typography variant="h6" mb={0.5}>
                         Average rating
@@ -55,7 +49,6 @@ export default function BookDetailPage() {
                 </Box>
             </Grid>
 
-            {/* RIGHT COLUMN (basic USER only) ––––––––––––––––––––––––––––––– */}
             {isBasicUser && (
                 <RightColumn
                     bookId={bookId}
@@ -65,7 +58,6 @@ export default function BookDetailPage() {
                 />
             )}
 
-            {/* REVIEWS LIST –––––––––––––––––––––––––––––––––––––––––––––––– */}
             <Grid item xs={12}>
                 <Typography variant="h5" mb={2}>
                     Reviews
@@ -79,7 +71,6 @@ export default function BookDetailPage() {
     )
 }
 
-/* -------------- right column (loan + review form) ---------------- */
 interface RightProps {
     bookId: number
     available: boolean
@@ -111,7 +102,6 @@ function RightColumn({ bookId, available, copies, availableCopies }: RightProps)
                 Copies: <strong>{copies}</strong> | Available: <strong>{availableCopies}</strong>
             </Typography>
 
-            {/* Loan button / status */}
             {canLoanMore ? (
                 <Button
                     variant="contained"
@@ -132,7 +122,6 @@ function RightColumn({ bookId, available, copies, availableCopies }: RightProps)
                 </Typography>
             )}
 
-            {/* review section */}
             <Typography variant="h6" mt={4} mb={1}>
                 Leave a review?
             </Typography>

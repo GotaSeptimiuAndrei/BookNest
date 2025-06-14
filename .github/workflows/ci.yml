@@ -1,4 +1,4 @@
-name: CI – Booknest
+name: CI - Booknest
 
 on:
   push:
@@ -55,20 +55,47 @@ jobs:
     defaults:
       run:
         working-directory: ./frontend
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           name: openapi-spec
           path: ./frontend
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+
       - run: npm ci
       - run: npm run generate:api:local && rm openapi.json
-      - run: npm run lint && npm run build
+
+      - run: npm run lint
+      - run: npm run build
+      - name: Start backend
+        working-directory: ./backend
+        run: |
+          ./mvnw -q spring-boot:run &
+          echo $! > $GITHUB_WORKSPACE/backend.pid
+          # Wait until actuator or docs endpoint responds
+          until curl -s http://localhost:8080/actuator/health > /dev/null ; do
+            sleep 5
+          done
+
+      - name: Run Cypress E2E tests
+        working-directory: ./frontend
+        run: npm run cy:run
+        env:
+          CI: true   
+
+      - name: Stop backend
+        if: always()
+        run: |
+          kill $(cat $GITHUB_WORKSPACE/backend.pid) || true
+
 
   deploy-backend:
     if: needs.detect-changes.outputs.backend == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'

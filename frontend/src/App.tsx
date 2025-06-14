@@ -16,11 +16,7 @@ function App() {
             <CssBaseline />
 
             <QueryClientProvider client={queryClient}>
-                <SnackbarProvider
-                    maxSnack={3}
-                    autoHideDuration={4000}
-                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                >
+                <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
                     <AuthProvider>
                         <BrowserRouter>
                             <Navbar />

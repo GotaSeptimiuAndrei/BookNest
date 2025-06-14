@@ -12,10 +12,14 @@ export const useReturnLoan = () => {
                 authorization: `Bearer ${token}`,
                 bookId,
             }),
-        onSuccess: () => {
+
+        onSuccess: (_void, bookId) => {
             enqueueSnackbar("Book returned!", { variant: "success" })
-            qc.invalidateQueries({ queryKey: ["loans", "current"] })
+
+            qc.invalidateQueries({ queryKey: ["loans"] })
+            qc.invalidateQueries({ queryKey: ["book", bookId] })
         },
+
         onError: (e: any) => enqueueSnackbar(e.message ?? "Return failed", { variant: "error" }),
     })
 }

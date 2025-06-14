@@ -11,8 +11,11 @@
         "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,css,scss,md}'",
         "preview": "vite preview",
         "lint-staged": "lint-staged",
-        "generate:api": "openapi --input https://api.booksnest.org/v3/api-docs --output src/api/generated --useOptions --client axios",
-        "generate:api:local": "openapi --input ./openapi.json --output src/api/generated --useOptions --client axios"
+        "generate:api": "openapi --input http://localhost:8080/v3/api-docs --output src/api/generated --useOptions --client axios",
+        "generate:api:local": "openapi --input ./openapi.json --output src/api/generated --useOptions --client axios",
+        "cypress": "cypress open",
+        "cypress:run": "cypress run",
+        "cy:run": "start-server-and-test dev http://localhost:3000 'cypress run'"
     },
     "dependencies": {
         "@emotion/react": "^11.14.0",
@@ -40,12 +43,14 @@
     "devDependencies": {
         "@commitlint/cli": "^18.4.3",
         "@commitlint/config-conventional": "^18.4.3",
+        "@testing-library/cypress": "^10.0.3",
         "@types/react": "^18.3.11",
         "@types/react-dom": "^18.3.1",
         "@types/sockjs-client": "^1.5.4",
         "@typescript-eslint/eslint-plugin": "^8.11.0",
         "@typescript-eslint/parser": "^8.11.0",
         "@vitejs/plugin-react": "^4.3.3",
+        "cypress": "^14.4.1",
         "eslint": "^8.53.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-prettier": "^5.2.1",
@@ -56,6 +61,7 @@
         "lint-staged": "^15.2.0",
         "openapi-typescript-codegen": "^0.29.0",
         "prettier": "^3.3.3",
+        "start-server-and-test": "^2.0.12",
         "typescript": "~5.6.2",
         "vite": "^5.4.9",
         "vite-tsconfig-paths": "^5.1.4"
