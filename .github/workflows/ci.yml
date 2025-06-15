@@ -10,7 +10,7 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{ steps.filter.outputs.backend }}
+      backend:  ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +41,9 @@ jobs:
           cd backend
           ./mvnw -q spring-boot:run &
           PID=$!
-          until curl -s http://localhost:8080/v3/api-docs -o ../openapi.json; do sleep 2; done
+          until curl -s http://localhost:8080/v3/api-docs -o ../openapi.json; do
+            sleep 2
+          done
           kill $PID
       - uses: actions/upload-artifact@v4
         with:
@@ -50,7 +52,7 @@ jobs:
 
   frontend:
     if: needs.detect-changes.outputs.frontend == 'true'
-    needs: [detect-changes, backend]
+    needs: [ detect-changes, backend ]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -75,33 +77,38 @@ jobs:
 
       - run: npm run lint
       - run: npm run build
-      - name: Start backend
-        working-directory: ./backend      
-        run: |
-          chmod +x ./mvnw                     
-          ./mvnw -q spring-boot:run &         
-          echo $! > $GITHUB_WORKSPACE/backend.pid
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Start backend
+        working-directory: ./backend
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -q spring-boot:run &
+          echo $! > $GITHUB_WORKSPACE/backend.pid
           until curl -s http://localhost:8080/actuator/health > /dev/null ; do
             echo "waiting for backend..."
             sleep 5
           done
-          echo "✅  backend is up"
+          echo "✅ backend up on :8080"
 
       - name: Run Cypress E2E tests
         working-directory: ./frontend
         run: npm run cy:run
         env:
-          CI: true   
+          CI: true
 
       - name: Stop backend
         if: always()
-        run: |
-          kill $(cat $GITHUB_WORKSPACE/backend.pid) || true
-
+        run: kill $(cat $GITHUB_WORKSPACE/backend.pid) || true
 
   deploy-backend:
-    if: needs.detect-changes.outputs.backend == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: needs.detect-changes.outputs.backend == 'true' &&
+        github.ref == 'refs/heads/main' &&
+        github.event_name == 'push'
     needs: [ backend, detect-changes ]
     runs-on: ubuntu-latest
     permissions:
@@ -132,7 +139,7 @@ jobs:
           image: ${{ steps.build.outputs.image }}
       - uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
-          cluster: ${{ secrets.ECS_CLUSTER }}
-          service: ${{ secrets.ECS_SERVICE }}
+          cluster:  ${{ secrets.ECS_CLUSTER }}
+          service:  ${{ secrets.ECS_SERVICE }}
           task-definition: ${{ steps.render.outputs.task-definition }}
           wait-for-service-stability: true
