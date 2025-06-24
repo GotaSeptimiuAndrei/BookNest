@@ -3,3 +3,7 @@ exec-trust.json
 policy-github.json
 taskdef.json
 trust-github.json
+trust-policy.json
+task-definition.json
+s3-access-policy.json
+ecs-trust.json
