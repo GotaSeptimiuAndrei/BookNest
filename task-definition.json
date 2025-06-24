@@ -1,0 +1,23 @@
+{
+    "family": "booknest-backend",
+    "cpu": "512",
+    "memory": "1024",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "executionRoleArn": "arn:aws:iam::080620141063:role/BooknestTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::080620141063:role/BooknestTaskRole",
+    "containerDefinitions": [
+        {
+            "name": "booknest-backend",
+            "image": "080620141063.dkr.ecr.eu-north-1.amazonaws.com/booknest-ecr:init",
+            "portMappings": [
+                {
+                    "containerPort": 8080,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [{ "name": "SPRING_PROFILES_ACTIVE", "value": "prod" }]
+        }
+    ]
+}

@@ -134,7 +134,7 @@ jobs:
       - id: render
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: infra/ecs/task-definition.json
+          task-definition: task-definition.json
           container-name: booknest-backend
           image: ${{ steps.build.outputs.image }}
       - uses: aws-actions/amazon-ecs-deploy-task-definition@v2
