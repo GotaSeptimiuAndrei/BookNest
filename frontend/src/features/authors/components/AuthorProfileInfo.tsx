@@ -1,5 +1,5 @@
 import { Avatar, Stack, Typography } from "@mui/material"
-import CountryFlag from "react-country-flag"
+import CountryFlag from "../components/CountryFlag"
 import type { AuthorResponse } from "@/api/generated"
 import { countryToAlpha2 } from "country-to-iso"
 
@@ -15,8 +15,7 @@ export default function AuthorProfileInfo({ author }: { author: AuthorResponse }
                 {author.country && (
                     <>
                         <CountryFlag
-                            countryCode={countryToAlpha2(author.country ?? "") ?? "RO"}
-                            svg
+                            code={countryToAlpha2(author.country) ?? "RO"}
                             style={{ width: "1.5em", height: "1.5em", marginRight: 4 }}
                         />
                         {author.country}
