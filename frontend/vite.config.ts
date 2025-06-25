@@ -10,4 +10,13 @@ export default defineConfig({
     define: {
         global: "window",
     },
+    build: {
+        commonjsOptions: {
+            dynamicRequireTargets: [
+                "node_modules/react-country-flag/dist/react-country-flag.js",
+                "node_modules/country-flag-icons/react/3x2/index.js",
+                "node_modules/i18n-iso-countries/index.js",
+            ],
+        },
+    },
 })
