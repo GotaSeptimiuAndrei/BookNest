@@ -13,6 +13,7 @@ import { useReviewsPaginated } from "@/features/reviews/hooks/useReviewsPaginate
 import Paginator from "@/utils/Paginator"
 import { useLoanInfo } from "@/features/loans/hooks/useLoanInfo"
 import { useLoanBook } from "@/features/loans/hooks/useLoanBook"
+import { useHasReviewed } from "@/features/reviews/hooks/useHasReviewd"
 
 export default function BookDetailPage() {
     const { id } = useParams()
@@ -85,6 +86,7 @@ function RightColumn({ bookId, available, copies, availableCopies }: RightProps)
     const loanMutation = useLoanBook(bookId)
     const hasReachedMax = count >= max
     const canLoanMore = availableCopies > 0 && !isLoaned && !hasReachedMax
+    const { data: alreadyReviewed = false, isLoading: loadingReview } = useHasReviewed(bookId)
 
     return (
         <Grid item xs={12} md={5}>
@@ -126,7 +128,9 @@ function RightColumn({ bookId, available, copies, availableCopies }: RightProps)
                 Leave a review?
             </Typography>
 
-            {submitted ? (
+            {loadingReview ? null : alreadyReviewed ? (
+                <Typography color="text.secondary">You already reviewed this book.</Typography>
+            ) : submitted ? (
                 <Typography color="success.main" fontWeight={600}>
                     Thank you for your review!
                 </Typography>

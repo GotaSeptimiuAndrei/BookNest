@@ -45,6 +45,19 @@ public class ReviewController {
 			.body(APIResponse.<ReviewResponse>builder().status(SUCCESS).results(created).build());
 	}
 
+	@SecurityRequirement(name = "bearerAuth")
+	@GetMapping("/book/{bookId}/user")
+	public ResponseEntity<APIResponse<Boolean>> hasReviewed(
+			@RequestHeader("Authorization") String token,
+			@PathVariable Long bookId) {
+
+		String username = JwtUtils.extractUsername(token);
+		boolean exists  = reviewService.hasUserReviewed(username, bookId);
+
+		return ResponseEntity.ok(
+				APIResponse.<Boolean>builder().status(SUCCESS).results(exists).build());
+	}
+
 	@GetMapping("/book/{bookId}")
 	public ResponseEntity<APIResponse<List<ReviewResponse>>> getReviewsForBook(@PathVariable Long bookId) {
 		List<ReviewResponse> reviews = reviewService.getAllReviewsForBook(bookId);

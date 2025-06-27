@@ -44,4 +44,8 @@ public class ReviewService {
 		return reviewsPage.map(ReviewConverter::convertToDto);
 	}
 
+	public boolean hasUserReviewed(String username, Long bookId) {
+		return reviewRepository.existsByUsernameAndBookId(username, bookId);
+	}
+
 }

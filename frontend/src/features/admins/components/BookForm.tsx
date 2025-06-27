@@ -1,6 +1,6 @@
-import { Button, Stack, TextField, MenuItem } from "@mui/material"
-import { z } from "zod"
+import { Button, MenuItem, Stack, TextField } from "@mui/material"
 import { Controller, useForm } from "react-hook-form"
+import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { BookResponse } from "@/api/generated"
 
@@ -12,27 +12,33 @@ const bookCategories = [
     "Literary Fiction",
     "History",
     "Thriller",
-]
+] as const
 
-const schema = z.object({
+const base = {
     title: z.string().min(2),
     author: z.string().min(2),
     description: z.string().min(10),
     copies: z.coerce.number().min(0),
-    copiesAvailable: z.coerce.number().min(0),
-    category: z.string().min(2),
-    image: z.instanceof(File),
-})
+    category: z.enum(bookCategories),
+}
 
-export type BookFormData = z.infer<typeof schema>
+const createSchema = z.object({ ...base, image: z.instanceof(File) })
+const editSchema = z.object({ ...base, image: z.instanceof(File).optional() })
+
+export type BookFormCreate = z.infer<typeof createSchema>
+export type BookFormEdit = z.infer<typeof editSchema>
+export type BookFormData = BookFormCreate | BookFormEdit
 
 interface Props {
     initial?: BookResponse
-    onSubmit: (d: BookFormData) => Promise<unknown>
     loading: boolean
+    onSubmit: (d: BookFormData & { copiesAvailable: number }) => Promise<unknown>
 }
 
-export default function BookForm({ initial, onSubmit, loading }: Props) {
+export default function BookForm({ initial, loading, onSubmit }: Props) {
+    const isEdit = Boolean(initial)
+    const schema = isEdit ? editSchema : createSchema
+
     const {
         control,
         handleSubmit,
@@ -40,56 +46,53 @@ export default function BookForm({ initial, onSubmit, loading }: Props) {
         formState: { errors },
     } = useForm<BookFormData>({
         resolver: zodResolver(schema),
-        defaultValues: initial
+        defaultValues: isEdit
             ? {
-                  title: initial.title,
-                  author: initial.author,
-                  description: initial.description,
-                  copies: initial.copies ?? 0,
-                  copiesAvailable: initial.copiesAvailable ?? 0,
-                  category: initial.category,
-                  // image field left empty
+                  title: initial!.title,
+                  author: initial!.author,
+                  description: initial!.description,
+                  copies: initial!.copies ?? 0,
+                  category: initial!.category as any,
               }
             : undefined,
     })
 
+    const submitHandler = (data: BookFormData) => onSubmit({ ...data, copiesAvailable: data.copies })
+
     return (
-        <Stack spacing={3} component="form" onSubmit={handleSubmit(onSubmit)}>
-            {(["title", "author", "description"] as const).map((f) => (
+        <Stack spacing={3} component="form" onSubmit={handleSubmit(submitHandler)}>
+            {(["title", "author", "description"] as const).map((field) => (
                 <Controller
-                    key={f}
-                    name={f}
+                    key={field}
+                    name={field}
                     control={control}
-                    render={({ field }) => (
+                    render={({ field: f }) => (
                         <TextField
-                            {...field}
-                            multiline={f === "description"}
-                            rows={f === "description" ? 3 : 1}
-                            label={f.replace(/([A-Z])/g, " $1")}
-                            error={!!errors[f]}
-                            helperText={(errors[f] as any)?.message}
+                            {...f}
+                            label={field.replace(/([A-Z])/g, " $1")}
+                            multiline={field === "description"}
+                            rows={field === "description" ? 3 : 1}
+                            error={!!errors[field]}
+                            helperText={(errors as any)[field]?.message}
                         />
                     )}
                 />
             ))}
 
-            {(["copies", "copiesAvailable"] as const).map((f) => (
-                <Controller
-                    key={f}
-                    name={f}
-                    control={control}
-                    render={({ field }) => (
-                        <TextField
-                            {...field}
-                            type="number"
-                            label={f.replace(/([A-Z])/g, " $1")}
-                            error={!!errors[f]}
-                            helperText={(errors[f] as any)?.message}
-                            InputProps={{ inputProps: { min: 0 } }}
-                        />
-                    )}
-                />
-            ))}
+            <Controller
+                name="copies"
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        {...field}
+                        type="number"
+                        label="Copies"
+                        InputProps={{ inputProps: { min: 0 } }}
+                        error={!!errors.copies}
+                        helperText={errors.copies?.message}
+                    />
+                )}
+            />
 
             <Controller
                 name="category"
@@ -116,22 +119,23 @@ export default function BookForm({ initial, onSubmit, loading }: Props) {
                 control={control}
                 render={({ field }) => (
                     <Button variant="outlined" component="label">
-                        {field.value ? (field.value as File).name : "Upload image"}
+                        {(field.value as File | undefined)?.name ?? "Upload image"}
                         <input
                             type="file"
                             hidden
                             accept="image/*"
                             onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                if (file) setValue("image", file as any)
+                                const f = e.target.files?.[0]
+                                if (f) setValue("image", f as any)
                             }}
                         />
                     </Button>
                 )}
             />
+            {errors.image && <span style={{ color: "#d32f2f", fontSize: 12 }}>{errors.image.message}</span>}
 
             <Button variant="contained" type="submit" disabled={loading}>
-                {initial ? "Update book" : "Create book"}
+                {isEdit ? "Update book" : "Create book"}
             </Button>
         </Stack>
     )

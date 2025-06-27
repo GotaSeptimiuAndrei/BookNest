@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 
@@ -42,7 +43,7 @@ public class BookService {
 	}
 
 	public Page<BookResponse> getAllBooksPaginated(int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "bookId"));
 		Page<Book> booksPage = bookRepository.findAll(pageable);
 
 		return booksPage.map(BookConverter::convertToDto);
@@ -106,9 +107,9 @@ public class BookService {
 		Book book = bookRepository.findById(id)
 			.orElseThrow(() -> new BookNotFoundException("Book not found with id: " + id));
 		S3Utils.deleteFileFromS3Bucket(s3Client, bucketName, book.getImage());
-		bookRepository.delete(book);
 		reviewRepository.deleteAllByBookId(id);
 		bookLoanRepository.deleteAllByBookId(id);
+		bookRepository.delete(book);
 	}
 
 }

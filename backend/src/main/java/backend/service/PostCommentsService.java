@@ -78,8 +78,9 @@ public class PostCommentsService {
 				|| comment.getAuthor() != null && comment.getAuthor().getAuthorId().equals(principalId);
 
 		boolean isAdmin = roles.contains("ROLE_ADMIN");
+		boolean isAuthor = roles.contains("ROLE_AUTHOR");
 
-		if (isAdmin || owner) {
+		if (isAdmin || isAuthor || owner) {
 			postCommentsRepository.delete(comment);
 		}
 		else {

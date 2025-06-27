@@ -204,9 +204,9 @@ class BookServiceTest {
 		bookService.deleteBook(1L);
 
 		verify(bookRepository).findById(1L);
-		verify(bookRepository).delete(existingBook);
 		verify(reviewRepository).deleteAllByBookId(1L);
 		verify(bookLoanRepository).deleteAllByBookId(1L);
+		verify(bookRepository).delete(existingBook);
 	}
 
 	@Test
@@ -216,9 +216,9 @@ class BookServiceTest {
 		assertThrows(BookNotFoundException.class, () -> bookService.deleteBook(999L));
 
 		verify(bookRepository).findById(999L);
-		verify(bookRepository, never()).delete(any());
 		verify(reviewRepository, never()).deleteAllByBookId(anyLong());
 		verify(bookLoanRepository, never()).deleteAllByBookId(anyLong());
+		verify(bookRepository, never()).delete(any());
 	}
 
 	@Test

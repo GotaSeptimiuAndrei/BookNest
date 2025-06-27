@@ -1,7 +1,5 @@
 import { Avatar, Stack, Typography } from "@mui/material"
-import CountryFlag from "../components/CountryFlag"
 import type { AuthorResponse } from "@/api/generated"
-import { countryToAlpha2 } from "country-to-iso"
 
 export default function AuthorProfileInfo({ author }: { author: AuthorResponse }) {
     const dob = new Date(author.dateOfBirth ?? "").toLocaleDateString()
@@ -11,16 +9,7 @@ export default function AuthorProfileInfo({ author }: { author: AuthorResponse }
             <Typography variant="h4">{author.fullName}</Typography>
 
             <Typography variant="body2">
-                {author.city},{" "}
-                {author.country && (
-                    <>
-                        <CountryFlag
-                            code={countryToAlpha2(author.country) ?? "RO"}
-                            style={{ width: "1.5em", height: "1.5em", marginRight: 4 }}
-                        />
-                        {author.country}
-                    </>
-                )}
+                {author.city}, {author.country}
             </Typography>
 
             <Typography variant="body1" sx={{ mt: 2 }}>

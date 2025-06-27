@@ -14,6 +14,7 @@ interface Props {
 export default function CommentsSection({ postId, initialOpen }: Props) {
     const [open, setOpen] = useState(Boolean(initialOpen))
     const { user } = useAuth()
+    const isAdmin = user?.roles.includes("ADMIN")
 
     const { data: comments = [], isLoading } = usePostComments(postId)
     const createMut = useCreateComment(postId)
@@ -29,7 +30,7 @@ export default function CommentsSection({ postId, initialOpen }: Props) {
             </Button>
 
             <Collapse in={open} unmountOnExit>
-                {user && (
+                {user && !isAdmin && (
                     <Box mt={1}>
                         <CommentComposer onSubmit={(d) => createMut.mutate(d.text)} busy={createMut.isPending} />
                     </Box>
