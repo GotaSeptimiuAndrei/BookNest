@@ -2,7 +2,7 @@ import { Button, Rating, Stack, TextField } from "@mui/material"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useCreateReview } from "../hooks/useCreateReview"
+import { useCreateReview } from "@/features/reviews/hooks/useCreateReview"
 
 const schema = z.object({
     bookId: z.number(),
@@ -14,11 +14,11 @@ type Form = z.infer<typeof schema>
 
 interface Props {
     bookId: number
-    onSuccess?: () => void
+    onSuccess: () => void
 }
 
-export default function ReviewForm({ bookId }: Props) {
-    const createReview = useCreateReview()
+export default function ReviewForm({ bookId, onSuccess }: Props) {
+    const createReview = useCreateReview(bookId)
 
     const { control, handleSubmit, watch, reset } = useForm<Form>({
         resolver: zodResolver(schema),
@@ -30,6 +30,7 @@ export default function ReviewForm({ bookId }: Props) {
     const onSubmit = async (data: Form) => {
         await createReview.mutateAsync(data)
         reset({ bookId, rating: 0, reviewDescription: "" })
+        onSuccess()
     }
 
     return (
@@ -41,6 +42,7 @@ export default function ReviewForm({ bookId }: Props) {
                     <Rating {...field} precision={0.5} onChange={(_, v) => field.onChange(v ?? 0)} />
                 )}
             />
+
             {rating > 0 && (
                 <Controller
                     name="reviewDescription"
@@ -48,6 +50,7 @@ export default function ReviewForm({ bookId }: Props) {
                     render={({ field }) => <TextField {...field} label="Description" multiline minRows={3} />}
                 />
             )}
+
             <Button variant="contained" type="submit" disabled={createReview.isPending || rating === 0}>
                 Submit review
             </Button>

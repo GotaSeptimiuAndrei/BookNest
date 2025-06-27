@@ -4,7 +4,7 @@ import "@testing-library/cypress/add-commands"
  * Logs in through the real API and saves the JWT in localStorage.
  */
 Cypress.Commands.add("loginViaApi", (email: string, password: string) => {
-    cy.request("POST", "http://localhost:8080/api/auth/login", {
+    cy.request("POST", "https://api.booksnest.org/api/auth/login", {
         email,
         password,
     }).then(({ body }) => {

@@ -1,6 +1,6 @@
-const EMAIL = "dan@gmail.com"
+const EMAIL = "andrei@gmail.com"
 const PWD = "password"
-const TITLE = "Dune" // book must exist & have stock
+const TITLE = "1984" // book must exist & have stock
 
 describe("Loan & return flow updates Available copies only", () => {
     beforeEach(() => {
