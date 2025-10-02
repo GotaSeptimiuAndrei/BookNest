@@ -54,6 +54,23 @@ Unlike Goodreads or LibraryThing, here authors and readers can interact directly
 ---
 
 ## 📸 Screenshots  
+#### System Workflow
+![System Workflow](screenshots/Local.png)  
+
+#### Book Details Page
+![Book Details Page](screenshots/book-details-page.png)  
+
+#### Search Books Page
+![Search Books](screenshots/search-books.png)  
+
+#### Author Community Page
+![Author Community](screenshots/author-community.png)  
+
+#### Post with Comments
+![Post Example](screenshots/post-example.png)  
+
+#### Notification List
+![Notification List](screenshots/notification-list.png)  
 
 ---
 
